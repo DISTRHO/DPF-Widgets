@@ -19,8 +19,6 @@
 
 #include <vector>
 
-#include "../OpenGL/TextEdit.hpp"
-
 START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -42,9 +40,6 @@ public:
     {
         setSize(1024, 768);
         setTitle("DPF Widgets Demo");
-
-
-        createAndAddWidgetOfType<TextEdit>();
     }
 
 protected:
