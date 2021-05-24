@@ -1,4 +1,5 @@
-# DPF Widgets - Official and Community made reusable GUI widgets for DPF
+# DPF Widgets 
+## Official and Community made reusable GUI widgets for DPF
 
 This is a repository for shared GUI widgets targetting DPF.
 Very much work in progress! Do not use right now unless you plan to contribute some yourself.
@@ -8,7 +9,7 @@ Each folder provides widgets for its dedicated backend type.
 It is not mandatory that a widget is usable for more than 1 backend.
 Generic widgets (those based on DPF core classes like Color, Rectangle, etc) are placed under the "generic" directory.
 
-## Rules and Layout
+### Rules and Layout
 
 Each widget MUST follow these rules:
 
