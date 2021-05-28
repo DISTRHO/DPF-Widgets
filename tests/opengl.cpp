@@ -17,6 +17,8 @@
 #include "Application.hpp"
 #include "StandaloneWindow.hpp"
 
+#include "../generic/ResizeHandle.hpp"
+
 #include <vector>
 
 START_NAMESPACE_DGL
@@ -26,6 +28,7 @@ START_NAMESPACE_DGL
 
 class WidgetsDemoWindow : public StandaloneWindow
 {
+    ResizeHandle resizeHandle;
     std::vector<SubWidget*> widgets;
 
     template <class W>
@@ -36,7 +39,8 @@ class WidgetsDemoWindow : public StandaloneWindow
 
 public:
     WidgetsDemoWindow(Application& app)
-        : StandaloneWindow(app)
+        : StandaloneWindow(app),
+          resizeHandle(this)
     {
         setSize(1024, 768);
         setTitle("DPF Widgets Demo");

@@ -14,14 +14,14 @@ Generic widgets (those based on DPF core classes like Color, Rectangle, etc) are
 Each widget MUST follow these rules:
 
  1. contain exactly 1 header file, with hpp extension
- 2. must subclass SubWidget (for cairo use CairoSubWidget, nanovg should use NanoSubWidget)
+ 2. must subclass SubWidget (for cairo use CairoSubWidget, nanovg should use NanoSubWidget) or TopLevelWidget
  3. widget name must match filename
  4. must have DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ClassName) at the end of its class definition
  5. filenames must avoid generic terms such as widget
  6. contain 0 or 1 implementation files, with cpp extension and same basename as the matching hpp file
  7. optionally contain extra files, directly included from the cpp file
  8. place any extra files under a directory with the same basename as the cpp file, minus the file extension
- 9. be self-contained, not needing externally installed dependencies (besides the locally available extra files defined in point 4)
+ 9. be self-contained, not needing externally installed dependencies (besides the locally available extra files defined in the previous point)
 10. be contained within DGL_NAMESPACE
 11. have clear documentation specifying its use
 12. be cross-platform (win32 and posix)
