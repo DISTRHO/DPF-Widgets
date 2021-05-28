@@ -14,11 +14,11 @@ BUILD_CXX_FLAGS += -I$(DPF_DIR)/dgl
 
 # ---------------------------------------------------------------------------------------------------------------------
 
-all: OpenGL$(APP_EXT)
+all: opengl$(APP_EXT)
 
 clean:
 	rm -f *.d *.o
-	rm -f OpenGL$(APP_EXT)
+	rm -f opengl$(APP_EXT)
 
 # ---------------------------------------------------------------------------------------------------------------------
 
@@ -36,17 +36,17 @@ $(DPF_DIR)/build/libdgl-vulkan.a:
 
 # ---------------------------------------------------------------------------------------------------------------------
 
-OpenGL$(APP_EXT): OpenGL.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
+opengl$(APP_EXT): opengl.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
 	@echo "Linking $<"
 	$(SILENT)$(CXX) $^ $(LINK_FLAGS) $(DGL_SYSTEM_LIBS) $(OPENGL_LIBS) -o $@
 
-OpenGL.cpp.o: OpenGL.cpp
+opengl.cpp.o: opengl.cpp
 	@echo "Compiling $<"
 	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -DDGL_OPENGL -c -o $@
 
 # ---------------------------------------------------------------------------------------------------------------------
 
--include Cairo.cpp.d
--include OpenGL.cpp.d
+-include cairo.cpp.d
+-include opengl.cpp.d
 
 # ---------------------------------------------------------------------------------------------------------------------

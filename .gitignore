@@ -1,4 +1,4 @@
 *.d
 *.exe
 *.o
-/Tests/OpenGL
+/tests/opengl
