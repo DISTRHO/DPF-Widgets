@@ -316,7 +316,7 @@ uint groupBlendishWidgets(const bool horizontal, BlendishIndividualWidgetBase* w
             if (prev != nullptr)
             {
                 prev->setCornerFlags(prev->getCornerFlags() | BlendishIndividualWidgetBase::kCornerRight);
-                widget->setAbsoluteX(pos - numWidgetsSoFar);
+                widget->setAbsoluteX(pos - 2*numWidgetsSoFar);
                 widget->setCornerFlags(BlendishIndividualWidgetBase::kCornerLeft);
             }
 
@@ -336,7 +336,7 @@ uint groupBlendishWidgets(const bool horizontal, BlendishIndividualWidgetBase* w
             if (prev != nullptr)
             {
                 prev->setCornerFlags(prev->getCornerFlags() | BlendishIndividualWidgetBase::kCornerDown);
-                widget->setAbsoluteY(pos - numWidgetsSoFar);
+                widget->setAbsoluteY(pos - 3*numWidgetsSoFar);
                 widget->setCornerFlags(BlendishIndividualWidgetBase::kCornerTop);
             }
 
