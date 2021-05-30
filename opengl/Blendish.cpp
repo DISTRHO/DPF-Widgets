@@ -25,6 +25,7 @@
 #include "Blendish/blendish.h"
 
 #include <list>
+#include <vector>
 
 START_NAMESPACE_DGL
 
@@ -80,6 +81,10 @@ BlendishIndividualWidgetBase::BlendishIndividualWidgetBase(BlendishSubWidget* co
     : SubWidget(p),
       context(p->pData->nvg.getContext()),
       scaleFactor(p->pData->scaleFactor),
+      button(-1),
+      flags(kCornerNone),
+      state(BND_DEFAULT),
+      label(nullptr),
       parent(p)
 {
     parent->pData->widgets.push_back(this);
@@ -91,32 +96,29 @@ BlendishIndividualWidgetBase::~BlendishIndividualWidgetBase()
     parent->pData->widgets.remove(this);
 }
 
-void BlendishIndividualWidgetBase::onDisplay()
+int BlendishIndividualWidgetBase::getCornerFlags() const noexcept
 {
+    return flags;
 }
 
-// --------------------------------------------------------------------------------------------------------------------
-
-BlendishLabel::BlendishLabel(BlendishSubWidget* const parent)
-    : BlendishIndividualWidgetBase(parent),
-      label(nullptr)
+void BlendishIndividualWidgetBase::setCornerFlags(const int flags2)
 {
-    setSize(1*scaleFactor, BND_WIDGET_HEIGHT*scaleFactor);
+    flags = flags2;
 }
 
-const char* BlendishLabel::getLabel() const
+const char* BlendishIndividualWidgetBase::getLabel() const noexcept
 {
     return label;
 }
 
-void BlendishLabel::setLabel(const char* const label2)
+void BlendishIndividualWidgetBase::setLabel(const char* const label2)
 {
     free(label);
 
     if (label2 != nullptr && label2[0] != '\0')
     {
         label = strdup(label2);
-        setWidth(bndLabelWidth(context, 0, label2)*scaleFactor);
+        setWidth((getMinimumWidth() + bndLabelWidth(context, 0, label2))*scaleFactor);
     }
     else
     {
@@ -125,63 +127,7 @@ void BlendishLabel::setLabel(const char* const label2)
     }
 }
 
-void BlendishLabel::onBlendishDisplay()
-{
-    if (label == nullptr)
-        return;
-
-    bndLabel(context,
-             getAbsoluteX()/scaleFactor,
-             getAbsoluteY()/scaleFactor,
-             getWidth()/scaleFactor,
-             getHeight()/scaleFactor,
-             0, label);
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-
-BlendishToolButton::BlendishToolButton(BlendishSubWidget* const parent)
-    : BlendishIndividualWidgetBase(parent),
-      callback(),
-      button(-1),
-      state(BND_DEFAULT),
-      label(nullptr)
-{
-    setSize(BND_TOOL_WIDTH*scaleFactor, BND_WIDGET_HEIGHT*scaleFactor);
-}
-
-const char* BlendishToolButton::getLabel() const
-{
-    return label;
-}
-
-void BlendishToolButton::setLabel(const char* const label2)
-{
-    free(label);
-
-    if (label2 != nullptr && label2[0] != '\0')
-    {
-        label = strdup(label2);
-        setWidth((BND_TOOL_WIDTH + bndLabelWidth(context, 0, label2))*scaleFactor);
-    }
-    else
-    {
-        label = nullptr;
-        setWidth(BND_TOOL_WIDTH*scaleFactor);
-    }
-}
-
-void BlendishToolButton::onBlendishDisplay()
-{
-    bndToolButton(context,
-                  getAbsoluteX()/scaleFactor,
-                  getAbsoluteY()/scaleFactor,
-                  getWidth()/scaleFactor,
-                  getHeight()/scaleFactor,
-                  BND_CORNER_NONE, static_cast<BNDwidgetState>(state), 0, label);
-}
-
-bool BlendishToolButton::onMouse(const MouseEvent& ev)
+bool BlendishIndividualWidgetBase::onMouse(const MouseEvent& ev)
 {
     // button was released, handle it now
     if (button != -1 && ! ev.press)
@@ -189,7 +135,7 @@ bool BlendishToolButton::onMouse(const MouseEvent& ev)
         DISTRHO_SAFE_ASSERT(state == BND_ACTIVE);
 
         // release button
-        const int button2 = button;
+        // const int button2 = button;
         button = -1;
 
         // cursor was moved outside the button bounds, ignore click
@@ -204,8 +150,7 @@ bool BlendishToolButton::onMouse(const MouseEvent& ev)
         state = BND_HOVER;
         repaint();
 
-        if (callback != nullptr)
-            callback->blendishButtonClicked(this, button2);
+        // TODO callback
 
         return true;
     }
@@ -222,11 +167,16 @@ bool BlendishToolButton::onMouse(const MouseEvent& ev)
     return false;
 }
 
-bool BlendishToolButton::onMotion(const MotionEvent& ev)
+bool BlendishIndividualWidgetBase::onMotion(const MotionEvent& ev)
 {
     // keep pressed
     if (button != -1)
         return true;
+
+    if (state == BND_ACTIVE)
+    {
+        // TODO change value
+    }
 
     if (contains(ev.pos))
     {
@@ -250,6 +200,158 @@ bool BlendishToolButton::onMotion(const MotionEvent& ev)
     }
 
     return false;
+}
+
+void BlendishIndividualWidgetBase::onDisplay()
+{
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+BlendishLabel::BlendishLabel(BlendishSubWidget* const parent)
+    : BlendishIndividualWidgetBase(parent)
+{
+    setSize(1*scaleFactor, BND_WIDGET_HEIGHT*scaleFactor);
+}
+
+uint BlendishLabel::getMinimumWidth() const noexcept
+{
+    return 1;
+}
+
+void BlendishLabel::onBlendishDisplay()
+{
+    if (label == nullptr)
+        return;
+
+    bndLabel(context,
+             getAbsoluteX()/scaleFactor,
+             getAbsoluteY()/scaleFactor,
+             getWidth()/scaleFactor,
+             getHeight()/scaleFactor,
+             0, label);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+BlendishToolButton::BlendishToolButton(BlendishSubWidget* const parent)
+    : BlendishIndividualWidgetBase(parent),
+      callback()
+{
+    setSize(BND_TOOL_WIDTH*scaleFactor, BND_WIDGET_HEIGHT*scaleFactor);
+}
+
+uint BlendishToolButton::getMinimumWidth() const noexcept
+{
+    return BND_TOOL_WIDTH;
+}
+
+void BlendishToolButton::onBlendishDisplay()
+{
+    bndToolButton(context,
+                  getAbsoluteX()/scaleFactor,
+                  getAbsoluteY()/scaleFactor,
+                  getWidth()/scaleFactor,
+                  getHeight()/scaleFactor,
+                  static_cast<BNDcornerFlags>(flags),
+                  static_cast<BNDwidgetState>(state), 0, label);
+}
+
+//         if (callback != nullptr)
+//             callback->blendishButtonClicked(this, button2);
+
+// --------------------------------------------------------------------------------------------------------------------
+
+BlendishNumberField::BlendishNumberField(BlendishSubWidget* const parent)
+    : BlendishIndividualWidgetBase(parent),
+      value(0)
+{
+    setSize(48*scaleFactor, BND_WIDGET_HEIGHT*scaleFactor);
+}
+
+uint BlendishNumberField::getMinimumWidth() const noexcept
+{
+    return 48;
+}
+
+int BlendishNumberField::getValue() const noexcept
+{
+    return value;
+}
+
+void BlendishNumberField::onBlendishDisplay()
+{
+    char valuestr[32];
+    snprintf(valuestr, sizeof(valuestr)-1, "%d", value);
+
+    bndNumberField(context,
+                   getAbsoluteX()/scaleFactor,
+                   getAbsoluteY()/scaleFactor,
+                   getWidth()/scaleFactor,
+                   getHeight()/scaleFactor,
+                   static_cast<BNDcornerFlags>(flags),
+                   static_cast<BNDwidgetState>(state), label, valuestr);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// simple function to group things together, setting corner flags automatically, must be null terminated
+
+uint groupBlendishWidgets(const bool horizontal, BlendishIndividualWidgetBase* widget...)
+{
+    BlendishIndividualWidgetBase* prev = nullptr;
+    uint numWidgetsSoFar = 0;
+    uint pos = horizontal ? widget->getAbsoluteX() : widget->getAbsoluteY();
+
+    // for vertical stacking
+    uint widthSoFar = widget->getWidth();
+    std::vector<BlendishIndividualWidgetBase*> widgets;
+
+    va_list args;
+    va_start(args, widget);
+
+    do
+    {
+        if (horizontal)
+        {
+            if (prev != nullptr)
+            {
+                prev->setCornerFlags(prev->getCornerFlags() | BlendishIndividualWidgetBase::kCornerRight);
+                widget->setAbsoluteX(pos - numWidgetsSoFar);
+                widget->setCornerFlags(BlendishIndividualWidgetBase::kCornerLeft);
+            }
+
+            pos += widget->getWidth();
+        }
+        else
+        {
+            const uint width = widget->getWidth();
+
+            if (width > widthSoFar)
+            {
+                widthSoFar = width;
+                for (BlendishIndividualWidgetBase* w : widgets)
+                    w->setWidth(width);
+            }
+
+            if (prev != nullptr)
+            {
+                prev->setCornerFlags(prev->getCornerFlags() | BlendishIndividualWidgetBase::kCornerDown);
+                widget->setAbsoluteY(pos - numWidgetsSoFar);
+                widget->setCornerFlags(BlendishIndividualWidgetBase::kCornerTop);
+            }
+
+            pos += widget->getHeight();
+            widgets.push_back(widget);
+        }
+
+        prev = widget;
+        ++numWidgetsSoFar;
+    }
+    while ((widget = va_arg(args, BlendishIndividualWidgetBase*)) != nullptr);
+
+    va_end(args);
+
+    return pos;
 }
 
 // --------------------------------------------------------------------------------------------------------------------

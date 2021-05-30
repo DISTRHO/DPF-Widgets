@@ -33,19 +33,33 @@ class BlendishDemo : public BlendishSubWidget
     BlendishToolButton toolButton2;
     BlendishToolButton toolButton3;
 
+    BlendishNumberField numberFieldX;
+    BlendishNumberField numberFieldY;
+    BlendishNumberField numberFieldW;
+    BlendishNumberField numberFieldH;
+
 public:
     BlendishDemo(Widget* const parent)
         : BlendishSubWidget(parent),
           toolButton1(this),
           toolButton2(this),
-          toolButton3(this)
+          toolButton3(this),
+          numberFieldX(this),
+          numberFieldY(this),
+          numberFieldW(this),
+          numberFieldH(this)
     {
         toolButton1.setLabel("A toolbutton");
         toolButton2.setLabel("Another toolbutton");
         toolButton3.setLabel("The final toolbutton");
+        groupBlendishWidgets(true, &toolButton1, &toolButton2, &toolButton3, nullptr);
 
-        toolButton2.setAbsoluteX(toolButton1.getWidth() + 1);
-        toolButton3.setAbsoluteX(toolButton1.getWidth() + toolButton2.getWidth() + 2);
+        numberFieldX.setAbsoluteY(60);
+        numberFieldX.setLabel("X");
+        numberFieldY.setLabel("Y");
+        numberFieldW.setLabel("Width");
+        numberFieldH.setLabel("Height");
+        groupBlendishWidgets(false, &numberFieldX, &numberFieldY, &numberFieldW, &numberFieldH, nullptr);
     }
 };
 
