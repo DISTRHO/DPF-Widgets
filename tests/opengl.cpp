@@ -18,10 +18,36 @@
 #include "StandaloneWindow.hpp"
 
 #include "../generic/ResizeHandle.hpp"
+#include "../opengl/Blendish.cpp"
 
 #include <vector>
 
 START_NAMESPACE_DGL
+
+// --------------------------------------------------------------------------------------------------------------------
+// Blendish demo
+
+class BlendishDemo : public BlendishSubWidget
+{
+    BlendishToolButton toolButton1;
+    BlendishToolButton toolButton2;
+    BlendishToolButton toolButton3;
+
+public:
+    BlendishDemo(Widget* const parent)
+        : BlendishSubWidget(parent),
+          toolButton1(this),
+          toolButton2(this),
+          toolButton3(this)
+    {
+        toolButton1.setLabel("A toolbutton");
+        toolButton2.setLabel("Another toolbutton");
+        toolButton3.setLabel("The final toolbutton");
+
+        toolButton2.setAbsoluteX(toolButton1.getWidth() + 1);
+        toolButton3.setAbsoluteX(toolButton1.getWidth() + toolButton2.getWidth() + 2);
+    }
+};
 
 // --------------------------------------------------------------------------------------------------------------------
 // Main Widgets Demo Window, having a left-side tab-like widget and main area for current widget
@@ -32,9 +58,11 @@ class WidgetsDemoWindow : public StandaloneWindow
     std::vector<SubWidget*> widgets;
 
     template <class W>
-    void createAndAddWidgetOfType()
+    W* createAndAddWidgetOfType()
     {
-        widgets.push_back(new W(this));
+        W* const w = new W((TopLevelWidget*)this);
+        widgets.push_back(w);
+        return w;
     }
 
 public:
@@ -42,8 +70,11 @@ public:
         : StandaloneWindow(app),
           resizeHandle(this)
     {
-        setSize(1024, 768);
+        const double scaleFactor = getScaleFactor();
+        setSize(480 * scaleFactor, 360 * scaleFactor);
         setTitle("DPF Widgets Demo");
+
+        createAndAddWidgetOfType<BlendishDemo>()->setSize(getSize());
     }
 
 protected:
@@ -54,6 +85,9 @@ protected:
     void onReshape(uint width, uint height) override
     {
         StandaloneWindow::onReshape(width, height);
+
+        for (SubWidget* widget : widgets)
+            widget->setSize(width, height);
     }
 };
 
