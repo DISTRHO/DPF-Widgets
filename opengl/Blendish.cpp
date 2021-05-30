@@ -51,7 +51,7 @@ BlendishSubWidget::BlendishSubWidget(Widget* const parent)
       pData(new PrivateData())
 {
     pData->scaleFactor = getWindow().getScaleFactor();
-    setNeedsViewportScaling();
+    setNeedsViewportScaling(true, pData->scaleFactor);
 }
 
 BlendishSubWidget::~BlendishSubWidget()
@@ -116,7 +116,7 @@ void BlendishLabel::setLabel(const char* const label2)
     if (label2 != nullptr && label2[0] != '\0')
     {
         label = strdup(label2);
-        setWidth(bndLabelWidth(context, 0, label2));
+        setWidth(bndLabelWidth(context, 0, label2)*scaleFactor);
     }
     else
     {
@@ -130,7 +130,12 @@ void BlendishLabel::onBlendishDisplay()
     if (label == nullptr)
         return;
 
-    bndLabel(context, getAbsoluteX(), getAbsoluteY(), getWidth(), getHeight(), 0, label);
+    bndLabel(context,
+             getAbsoluteX()/scaleFactor,
+             getAbsoluteY()/scaleFactor,
+             getWidth()/scaleFactor,
+             getHeight()/scaleFactor,
+             0, label);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -157,7 +162,7 @@ void BlendishToolButton::setLabel(const char* const label2)
     if (label2 != nullptr && label2[0] != '\0')
     {
         label = strdup(label2);
-        setWidth(BND_TOOL_WIDTH*scaleFactor + bndLabelWidth(context, 0, label2));
+        setWidth((BND_TOOL_WIDTH + bndLabelWidth(context, 0, label2))*scaleFactor);
     }
     else
     {
@@ -168,7 +173,11 @@ void BlendishToolButton::setLabel(const char* const label2)
 
 void BlendishToolButton::onBlendishDisplay()
 {
-    bndToolButton(context, getAbsoluteX(), getAbsoluteY(), getWidth(), getHeight(),
+    bndToolButton(context,
+                  getAbsoluteX()/scaleFactor,
+                  getAbsoluteY()/scaleFactor,
+                  getWidth()/scaleFactor,
+                  getHeight()/scaleFactor,
                   BND_CORNER_NONE, static_cast<BNDwidgetState>(state), 0, label);
 }
 

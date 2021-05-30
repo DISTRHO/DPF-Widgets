@@ -58,10 +58,14 @@ class WidgetsDemoWindow : public StandaloneWindow
     std::vector<SubWidget*> widgets;
 
     template <class W>
-    W* createAndAddWidgetOfType()
+    W* createAndAddWidgetOfType(const uint margin)
     {
         W* const w = new W((TopLevelWidget*)this);
         widgets.push_back(w);
+
+        w->setAbsolutePos(margin, margin);
+        w->setSize(getWidth()-margin, getHeight()-margin);
+
         return w;
     }
 
@@ -71,15 +75,31 @@ public:
           resizeHandle(this)
     {
         const double scaleFactor = getScaleFactor();
+        const uint margin = (16 + 2) * scaleFactor;
+
         setSize(480 * scaleFactor, 360 * scaleFactor);
         setTitle("DPF Widgets Demo");
 
-        createAndAddWidgetOfType<BlendishDemo>()->setSize(getSize());
+        createAndAddWidgetOfType<BlendishDemo>(margin);
     }
 
 protected:
     void onDisplay() override
     {
+        const GraphicsContext& context(getGraphicsContext());
+        const double scaleFactor = getScaleFactor();
+        const uint margin = 16 * scaleFactor;
+        const uint width  = getWidth();
+        const uint height = getHeight();
+
+        Color::fromHTML("#5680c2").setFor(context);
+        Rectangle<uint>(0, 0, width, margin).draw(context);
+        Rectangle<uint>(0, 0, margin, height).draw(context);
+        Rectangle<uint>(0, height-margin, width, height).draw(context);
+        Rectangle<uint>(width-margin, 0, width, height).draw(context);
+
+        Color::fromHTML("#727272").setFor(context);
+        Rectangle<uint>(margin, margin, width-margin*2, height-margin*2).draw(context);
     }
 
     void onReshape(uint width, uint height) override
