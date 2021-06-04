@@ -17,6 +17,7 @@
 #pragma once
 
 #include "SubWidget.hpp"
+#include "Color.hpp"
 
 struct NVGcontext;
 
@@ -77,11 +78,13 @@ public:
         kCornerALL = kCornerTopLeft | kCornerTopRight | kCornerDownRight | kCornerDownLeft
     };
 
+    struct Callback {
+        virtual ~Callback() {}
+        virtual void blendishButtonClicked(BlendishIndividualWidgetBase* widget, int button) = 0;
+    };
+
     explicit BlendishIndividualWidgetBase(BlendishSubWidget* parent);
     ~BlendishIndividualWidgetBase() override;
-
-    // must be reimplemented
-    virtual uint getMinimumWidth() const noexcept = 0;
 
     int getCornerFlags() const noexcept;
     void setCornerFlags(int flags);
@@ -92,7 +95,12 @@ public:
     // will change width automatically
     void setLabel(const char* label);
 
+    void setCallback(Callback* callback);
+
 protected:
+    // must be reimplemented
+    virtual uint getMinimumWidth() const noexcept = 0;
+
     // new function for subclasses to override
     virtual void onBlendishDisplay() = 0;
 
@@ -109,6 +117,7 @@ protected:
     int flags;
     int state;
     char* label;
+    Callback* callback;
 
 private:
     BlendishSubWidget* const parent;
@@ -127,9 +136,8 @@ class BlendishLabel : public BlendishIndividualWidgetBase
 public:
     explicit BlendishLabel(BlendishSubWidget* parent);
 
-    uint getMinimumWidth() const noexcept override;
-
 protected:
+    uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishLabel)
@@ -137,21 +145,14 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
+// has corners, icon, label
 class BlendishToolButton : public BlendishIndividualWidgetBase
 {
 public:
-    class Callback
-    {
-    public:
-        virtual ~Callback() {}
-        virtual void blendishButtonClicked(BlendishToolButton* blendishButton, int button) = 0;
-    };
-
     explicit BlendishToolButton(BlendishSubWidget* parent);
 
-    uint getMinimumWidth() const noexcept override;
-
 protected:
+    uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
 
 private:
@@ -162,12 +163,68 @@ private:
 
 // --------------------------------------------------------------------------------------------------------------------
 
+// has label
+class BlendishCheckBox : public BlendishIndividualWidgetBase
+{
+public:
+    explicit BlendishCheckBox(BlendishSubWidget* parent);
+
+protected:
+    uint getMinimumWidth() const noexcept override;
+    void onBlendishDisplay() override;
+
+private:
+    Callback* callback;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishCheckBox)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+// has corners, icon, label
+class BlendishComboBox : public BlendishIndividualWidgetBase
+{
+public:
+    explicit BlendishComboBox(BlendishSubWidget* parent);
+
+protected:
+    uint getMinimumWidth() const noexcept override;
+    void onBlendishDisplay() override;
+
+private:
+    Callback* callback;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishComboBox)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+// has corners, color
+class BlendishColorButton : public BlendishIndividualWidgetBase
+{
+public:
+
+    explicit BlendishColorButton(BlendishSubWidget* parent);
+
+    Color getColor() const noexcept;
+    void setColor(Color color);
+
+protected:
+    uint getMinimumWidth() const noexcept override;
+    void onBlendishDisplay() override;
+
+private:
+    Callback* callback;
+    Color color;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishColorButton)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
 /* TODO
  * radio button, as a group?
  * text field
- * option button
- * choice button (checkbox?)
- * color button
  * slider
  * scrollbar
  * menu stuff
@@ -183,12 +240,11 @@ class BlendishNumberField : public BlendishIndividualWidgetBase
 public:
     explicit BlendishNumberField(BlendishSubWidget* parent);
 
-    uint getMinimumWidth() const noexcept override;
-
     int getValue() const noexcept;
     void setValue(int value);
 
 protected:
+    uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
 
 private:

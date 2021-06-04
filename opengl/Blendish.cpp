@@ -85,6 +85,7 @@ BlendishIndividualWidgetBase::BlendishIndividualWidgetBase(BlendishSubWidget* co
       flags(kCornerNone),
       state(BND_DEFAULT),
       label(nullptr),
+      callback(nullptr),
       parent(p)
 {
     parent->pData->widgets.push_back(this);
@@ -127,6 +128,11 @@ void BlendishIndividualWidgetBase::setLabel(const char* const label2)
     }
 }
 
+void BlendishIndividualWidgetBase::setCallback(Callback* const cb)
+{
+    callback = cb;
+}
+
 bool BlendishIndividualWidgetBase::onMouse(const MouseEvent& ev)
 {
     // button was released, handle it now
@@ -135,7 +141,7 @@ bool BlendishIndividualWidgetBase::onMouse(const MouseEvent& ev)
         DISTRHO_SAFE_ASSERT(state == BND_ACTIVE);
 
         // release button
-        // const int button2 = button;
+        const int button2 = button;
         button = -1;
 
         // cursor was moved outside the button bounds, ignore click
@@ -150,7 +156,8 @@ bool BlendishIndividualWidgetBase::onMouse(const MouseEvent& ev)
         state = BND_HOVER;
         repaint();
 
-        // TODO callback
+        if (callback != nullptr)
+            callback->blendishButtonClicked(this, button2);
 
         return true;
     }
@@ -235,8 +242,7 @@ void BlendishLabel::onBlendishDisplay()
 // --------------------------------------------------------------------------------------------------------------------
 
 BlendishToolButton::BlendishToolButton(BlendishSubWidget* const parent)
-    : BlendishIndividualWidgetBase(parent),
-      callback()
+    : BlendishIndividualWidgetBase(parent)
 {
     setSize(BND_TOOL_WIDTH*scaleFactor, BND_WIDGET_HEIGHT*scaleFactor);
 }
@@ -248,17 +254,97 @@ uint BlendishToolButton::getMinimumWidth() const noexcept
 
 void BlendishToolButton::onBlendishDisplay()
 {
-    bndToolButton(context,
-                  getAbsoluteX()/scaleFactor,
-                  getAbsoluteY()/scaleFactor,
-                  getWidth()/scaleFactor,
-                  getHeight()/scaleFactor,
+    const float x = getAbsoluteX() / scaleFactor;
+    const float y = getAbsoluteY() / scaleFactor;
+    const float w = getWidth() / scaleFactor;
+    const float h = getHeight() / scaleFactor;
+
+    bndToolButton(context, x, y, w, h,
                   static_cast<BNDcornerFlags>(flags),
                   static_cast<BNDwidgetState>(state), 0, label);
 }
 
-//         if (callback != nullptr)
-//             callback->blendishButtonClicked(this, button2);
+// --------------------------------------------------------------------------------------------------------------------
+
+BlendishCheckBox::BlendishCheckBox(BlendishSubWidget* const parent)
+    : BlendishIndividualWidgetBase(parent)
+{
+    setSize(BND_TOOL_WIDTH*scaleFactor, BND_WIDGET_HEIGHT*scaleFactor);
+}
+
+uint BlendishCheckBox::getMinimumWidth() const noexcept
+{
+    return BND_TOOL_WIDTH;
+}
+
+void BlendishCheckBox::onBlendishDisplay()
+{
+    const float x = getAbsoluteX() / scaleFactor;
+    const float y = getAbsoluteY() / scaleFactor;
+    const float w = getWidth() / scaleFactor;
+    const float h = getHeight() / scaleFactor;
+
+    bndOptionButton(context, x, y, w, h, static_cast<BNDwidgetState>(state), label);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+BlendishComboBox::BlendishComboBox(BlendishSubWidget* const parent)
+    : BlendishIndividualWidgetBase(parent)
+{
+    setSize(BND_TOOL_WIDTH*scaleFactor, BND_WIDGET_HEIGHT*scaleFactor);
+}
+
+uint BlendishComboBox::getMinimumWidth() const noexcept
+{
+    return BND_TOOL_WIDTH;
+}
+
+void BlendishComboBox::onBlendishDisplay()
+{
+    const float x = getAbsoluteX() / scaleFactor;
+    const float y = getAbsoluteY() / scaleFactor;
+    const float w = getWidth() / scaleFactor;
+    const float h = getHeight() / scaleFactor;
+
+    bndChoiceButton(context, x, y, w, h,
+                    static_cast<BNDcornerFlags>(flags),
+                    static_cast<BNDwidgetState>(state), 0, label);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+BlendishColorButton::BlendishColorButton(BlendishSubWidget* const parent)
+    : BlendishIndividualWidgetBase(parent),
+      color()
+{
+    setSize(BND_TOOL_WIDTH*scaleFactor, BND_WIDGET_HEIGHT*scaleFactor);
+}
+
+uint BlendishColorButton::getMinimumWidth() const noexcept
+{
+    return BND_TOOL_WIDTH;
+}
+
+Color BlendishColorButton::getColor() const noexcept
+{
+    return color;
+}
+
+void BlendishColorButton::setColor(const Color c)
+{
+    color = c;
+}
+
+void BlendishColorButton::onBlendishDisplay()
+{
+    const float x = getAbsoluteX() / scaleFactor;
+    const float y = getAbsoluteY() / scaleFactor;
+    const float w = getWidth() / scaleFactor;
+    const float h = getHeight() / scaleFactor;
+
+    bndColorButton(context, x, y, w, h, static_cast<BNDcornerFlags>(flags), color);
+}
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -269,14 +355,19 @@ BlendishNumberField::BlendishNumberField(BlendishSubWidget* const parent)
     setSize(48*scaleFactor, BND_WIDGET_HEIGHT*scaleFactor);
 }
 
-uint BlendishNumberField::getMinimumWidth() const noexcept
-{
-    return 48;
-}
-
 int BlendishNumberField::getValue() const noexcept
 {
     return value;
+}
+
+void BlendishNumberField::setValue(const int v)
+{
+    value = v;
+}
+
+uint BlendishNumberField::getMinimumWidth() const noexcept
+{
+    return 48;
 }
 
 void BlendishNumberField::onBlendishDisplay()
