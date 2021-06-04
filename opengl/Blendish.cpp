@@ -35,13 +35,11 @@ struct BlendishSubWidgetSharedContext::PrivateData {
     NanoVG nvg;
     double scaleFactor;
     std::list<BlendishSubWidget*> widgets;
-    BlendishSubWidget* hoveredWidget;
 
     PrivateData()
         : nvg(),
           scaleFactor(1.0),
-          widgets(),
-          hoveredWidget(nullptr)
+          widgets()
     {
         nvg.loadSharedResources();
         bndSetFont(0);
@@ -97,6 +95,8 @@ struct BlendishSubWidget::ProtectedData {
     Callback* internalCallback;
     Callback* userCallback;
 
+    Point<double> oldMotionPos;
+
     explicit ProtectedData(BlendishSubWidget* const s, BlendishSubWidgetSharedContext* const p)
         : self(s),
           shared(p),
@@ -108,7 +108,8 @@ struct BlendishSubWidget::ProtectedData {
           state(BND_DEFAULT),
           label(nullptr),
           internalCallback(nullptr),
-          userCallback(nullptr)
+          userCallback(nullptr),
+          oldMotionPos(0, 0)
     {
         shared->pData->widgets.push_back(self);
     }
@@ -124,7 +125,8 @@ struct BlendishSubWidget::ProtectedData {
           state(BND_DEFAULT),
           label(nullptr),
           internalCallback(nullptr),
-          userCallback(nullptr) {}
+          userCallback(nullptr),
+          oldMotionPos(0, 0) {}
 
     ~ProtectedData()
     {
@@ -182,12 +184,17 @@ struct BlendishSubWidget::ProtectedData {
     {
         // keep pressed
         if (button != -1)
+        {
+            oldMotionPos = ev.pos;
             return true;
+        }
 
         if (state == BND_ACTIVE)
         {
             // TODO change value
         }
+
+        bool ret = false;
 
         if (self->contains(ev.pos))
         {
@@ -195,17 +202,20 @@ struct BlendishSubWidget::ProtectedData {
             if (state == BND_DEFAULT)
             {
                 state = BND_HOVER;
-                self->repaint();
 
-                if (shared != nullptr)
+                if (BlendishMenuItem* const item = dynamic_cast<BlendishMenuItem*>(self))
                 {
-                    if (shared->pData->hoveredWidget != nullptr && dynamic_cast<BlendishMenu*>(self) != nullptr)
-                        shared->pData->hoveredWidget->pData->state = BND_DEFAULT;
+                    if (BlendishMenu* const menu = dynamic_cast<BlendishMenu*>(self->getParentWidget()))
+                    {
+                        if (menu->lastHoveredItem != nullptr)
+                            menu->lastHoveredItem->pData->state = BND_DEFAULT;
 
-                    shared->pData->hoveredWidget = self;
+                        menu->lastHoveredItem = item;
+                    }
                 }
 
-                return true;
+                ret = self->contains(oldMotionPos);
+                self->repaint();
             }
         }
         else
@@ -214,16 +224,26 @@ struct BlendishSubWidget::ProtectedData {
             if (state == BND_HOVER)
             {
                 state = BND_DEFAULT;
+
+                if (BlendishMenuItem* const item = dynamic_cast<BlendishMenuItem*>(self))
+                {
+                    if (BlendishMenu* const menu = dynamic_cast<BlendishMenu*>(self->getParentWidget()))
+                    {
+                        if (menu->lastHoveredItem != nullptr)
+                        {
+                            menu->lastHoveredItem->pData->state = BND_DEFAULT;
+                            menu->lastHoveredItem = nullptr;
+                        }
+                    }
+                }
+
+                ret = self->contains(oldMotionPos);
                 self->repaint();
-
-                if (shared != nullptr && shared->pData->hoveredWidget == self)
-                    shared->pData->hoveredWidget = nullptr;
-
-                return true;
             }
         }
 
-        return false;
+        oldMotionPos = ev.pos;
+        return ret;
     }
 };
 
@@ -421,11 +441,11 @@ void BlendishCheckBox::onBlendishDisplay()
 
 // --------------------------------------------------------------------------------------------------------------------
 
-struct BlendishMenu::Callback : BlendishSubWidget::Callback
+struct BlendishMenu::CallbackComboBox : BlendishSubWidget::Callback
 {
     BlendishMenu& menu;
 
-    explicit Callback(BlendishMenu& m)
+    explicit CallbackComboBox(BlendishMenu& m)
         : menu(m) {}
 
     void blendishButtonClicked(BlendishSubWidget* const widget, const int button) override
@@ -449,6 +469,7 @@ struct BlendishMenu::Callback : BlendishSubWidget::Callback
 BlendishMenu::BlendishMenu(BlendishSubWidgetSharedContext* const parent)
     : BlendishSubWidget(parent),
       items(),
+      lastHoveredItem(nullptr),
       biggestItemWidth(0),
       nextY(0)
 {
@@ -458,6 +479,7 @@ BlendishMenu::BlendishMenu(BlendishSubWidgetSharedContext* const parent)
 BlendishMenu::BlendishMenu(SubWidget* const parent)
     : BlendishSubWidget(parent),
       items(),
+      lastHoveredItem(nullptr),
       biggestItemWidth(0),
       nextY(0)
 {
@@ -544,10 +566,14 @@ void BlendishMenu::onBlendishDisplay()
 
 bool BlendishMenu::onMotion(const MotionEvent& ev)
 {
+    const bool containsOldPos = contains(pData->oldMotionPos);
+
     if (BlendishSubWidget::onMotion(ev))
         return true;
-    if (contains(ev.pos))
+
+    if (contains(ev.pos) && containsOldPos)
         return true;
+
     return false;
 }
 
@@ -660,7 +686,7 @@ BlendishComboBox::BlendishComboBox(BlendishSubWidgetSharedContext* const parent)
     setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
 
     menu.hide();
-    pData->internalCallback = new BlendishMenu::Callback(menu);
+    pData->internalCallback = new BlendishMenu::CallbackComboBox(menu);
 }
 
 BlendishComboBox::BlendishComboBox(SubWidget* const parent)
@@ -670,7 +696,7 @@ BlendishComboBox::BlendishComboBox(SubWidget* const parent)
     setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
 
     menu.hide();
-    pData->internalCallback = new BlendishMenu::Callback(menu);
+    pData->internalCallback = new BlendishMenu::CallbackComboBox(menu);
 }
 
 uint BlendishComboBox::getMinimumWidth() const noexcept

@@ -88,6 +88,10 @@ public:
         comboBox.menu.addMenuItem("Third item");
         comboBox.menu.addMenuItem("Fourth item");
 
+        /*
+        menu.setAbsoluteX(numberFieldH.getAbsoluteX());
+        menu.setAbsoluteY(checkBox3.getAbsoluteY() + checkBox3.getHeight() + 5);
+        */
         menu.setAbsoluteX(toolButton2.getAbsoluteX());
         menu.setAbsoluteY(numberFieldW.getAbsoluteY());
         menu.setLabel("This is a menu, and I am a title");

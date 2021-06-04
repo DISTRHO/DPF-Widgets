@@ -236,10 +236,12 @@ protected:
     void onResize(const ResizeEvent& ev) override;
 
 private:
-    struct Callback;
+    struct CallbackComboBox;
     friend class BlendishComboBox;
+    friend class BlendishSubWidget;
 
     std::list<BlendishMenuItem*> items;
+    BlendishMenuItem* lastHoveredItem;
     uint biggestItemWidth;
     int nextY;
 
@@ -271,6 +273,7 @@ protected:
     void onBlendishDisplay() override;
 
     friend class BlendishMenu;
+    friend class BlendishSubWidget;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishMenuItem)
 };
