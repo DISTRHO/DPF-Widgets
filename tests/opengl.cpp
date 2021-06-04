@@ -27,7 +27,7 @@ START_NAMESPACE_DGL
 // --------------------------------------------------------------------------------------------------------------------
 // Blendish demo
 
-class BlendishDemo : public BlendishSubWidget
+class BlendishDemo : public BlendishSubWidgetSharedContext
 {
     BlendishToolButton toolButton1;
     BlendishToolButton toolButton2;
@@ -38,28 +38,64 @@ class BlendishDemo : public BlendishSubWidget
     BlendishNumberField numberFieldW;
     BlendishNumberField numberFieldH;
 
+    BlendishCheckBox checkBox1;
+    BlendishCheckBox checkBox2;
+    BlendishCheckBox checkBox3;
+
+    BlendishComboBox comboBox;
+
+    BlendishMenu menu;
+
 public:
     BlendishDemo(Widget* const parent)
-        : BlendishSubWidget(parent),
+        : BlendishSubWidgetSharedContext(parent),
           toolButton1(this),
           toolButton2(this),
           toolButton3(this),
           numberFieldX(this),
           numberFieldY(this),
           numberFieldW(this),
-          numberFieldH(this)
+          numberFieldH(this),
+          checkBox1(this),
+          checkBox2(this),
+          checkBox3(this),
+          comboBox(this),
+          menu(this)
     {
         toolButton1.setLabel("A toolbutton");
         toolButton2.setLabel("Another toolbutton");
         toolButton3.setLabel("The final toolbutton");
         groupBlendishWidgets(true, &toolButton1, &toolButton2, &toolButton3, nullptr);
 
-        numberFieldX.setAbsoluteY(60);
+        numberFieldX.setAbsoluteY(toolButton1.getAbsoluteY() + toolButton1.getHeight() + 5);
         numberFieldX.setLabel("X");
         numberFieldY.setLabel("Y");
         numberFieldW.setLabel("Width");
         numberFieldH.setLabel("Height");
         groupBlendishWidgets(false, &numberFieldX, &numberFieldY, &numberFieldW, &numberFieldH, nullptr);
+
+        checkBox1.setAbsoluteY(numberFieldH.getAbsoluteY() + numberFieldH.getHeight() + 5);
+        checkBox1.setLabel("A checkbox");
+        checkBox2.setLabel("Another one");
+        checkBox3.setLabel("Another one!");
+        groupBlendishWidgets(false, &checkBox1, &checkBox2, &checkBox3, nullptr);
+
+        comboBox.setAbsoluteX(toolButton2.getAbsoluteX());
+        comboBox.setAbsoluteY(numberFieldX.getAbsoluteY());
+        comboBox.setLabel("This is a combo-box");
+        comboBox.menu.addMenuItem("First item");
+        comboBox.menu.addMenuItem("Second item");
+        comboBox.menu.addMenuItem("Third item");
+        comboBox.menu.addMenuItem("Fourth item");
+
+        menu.setAbsoluteX(toolButton2.getAbsoluteX());
+        menu.setAbsoluteY(numberFieldW.getAbsoluteY());
+        menu.setLabel("This is a menu, and I am a title");
+        menu.addMenuItem("First item of the menu");
+        menu.addMenuItem("Short second");
+        menu.addMenuItem("Thirsty third");
+        menu.addMenuItem("Furious Four");
+        menu.addMenuItem("Fast Five");
     }
 };
 

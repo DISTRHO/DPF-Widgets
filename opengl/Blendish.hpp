@@ -19,7 +19,7 @@
 #include "SubWidget.hpp"
 #include "Color.hpp"
 
-struct NVGcontext;
+#include <list>
 
 START_NAMESPACE_DGL
 
@@ -27,13 +27,13 @@ START_NAMESPACE_DGL
 
 /** Base class for Blendish widget. */
 // TODO allow TopLevelWidget usage, template etc
-class BlendishSubWidget : public SubWidget
+class BlendishSubWidgetSharedContext : public SubWidget
 {
 public:
-    /** Constructor for a BlendishSubWidget */
-    explicit BlendishSubWidget(Widget* parent);
+    /** Constructor for a BlendishSubWidgetSharedContext */
+    explicit BlendishSubWidgetSharedContext(Widget* parent);
 
-    ~BlendishSubWidget() override;
+    ~BlendishSubWidgetSharedContext() override;
 
 protected:
     void onDisplay() override;
@@ -41,16 +41,15 @@ protected:
 private:
     struct PrivateData;
     PrivateData* const pData;
-    friend class BlendishIndividualWidgetBase;
+    friend class BlendishSubWidget;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishSubWidget)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishSubWidgetSharedContext)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
 
 // common blendish widgets code
-// special drawing handling, for reusing nanovg context among all widgets
-class BlendishIndividualWidgetBase : public SubWidget
+class BlendishSubWidget : public SubWidget
 {
 public:
     // flags indicating which corners are sharp (for grouping widgets)
@@ -80,11 +79,16 @@ public:
 
     struct Callback {
         virtual ~Callback() {}
-        virtual void blendishButtonClicked(BlendishIndividualWidgetBase* widget, int button) = 0;
+        virtual void blendishButtonClicked(BlendishSubWidget* widget, int button) = 0;
     };
 
-    explicit BlendishIndividualWidgetBase(BlendishSubWidget* parent);
-    ~BlendishIndividualWidgetBase() override;
+    // special drawing handling, for reusing nanovg context among all widgets
+    explicit BlendishSubWidget(BlendishSubWidgetSharedContext* parent);
+
+    // regular subwidget, creates new nanovg context
+    explicit BlendishSubWidget(SubWidget* parent);
+
+    ~BlendishSubWidget() override;
 
     int getCornerFlags() const noexcept;
     void setCornerFlags(int flags);
@@ -93,7 +97,9 @@ public:
     const char* getLabel() const noexcept;
 
     // will change width automatically
-    void setLabel(const char* label);
+    virtual void setLabel(const char* label);
+
+    void toFront() override;
 
     void setCallback(Callback* callback);
 
@@ -109,32 +115,34 @@ protected:
     bool onMotion(const MotionEvent& ev) override;
 
     // available to subclasses
-    NVGcontext* const context;
-    double scaleFactor;
-
-    // common handling
-    int button;
-    int flags;
-    int state;
-    char* label;
-    Callback* callback;
+    struct ProtectedData;
+    ProtectedData* const pData;
 
 private:
-    BlendishSubWidget* const parent;
-    friend class BlendishSubWidget;
-
     // should not be used
     void onDisplay() override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishIndividualWidgetBase)
+    friend class BlendishSubWidgetSharedContext;
+    friend class BlendishMenuItem;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishSubWidget)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class BlendishLabel : public BlendishIndividualWidgetBase
+/**
+   Blendish Label class.
+
+   This widget is a simple text label running on a Blendish context.
+   It can also have an icon.
+
+   Uses the label methods from BlendishSubWidget to set its contents.
+ */
+class BlendishLabel : public BlendishSubWidget
 {
 public:
-    explicit BlendishLabel(BlendishSubWidget* parent);
+    explicit BlendishLabel(BlendishSubWidgetSharedContext* parent);
+    explicit BlendishLabel(SubWidget* parent);
 
 protected:
     uint getMinimumWidth() const noexcept override;
@@ -145,66 +153,174 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-// has corners, icon, label
-class BlendishToolButton : public BlendishIndividualWidgetBase
+/**
+   Blendish Tool Button class.
+
+   This widget is a simple (tool) button.
+   It can have an icon and label, plus rounded corners when part of a group.
+
+   Uses the label methods from BlendishSubWidget to set its contents.
+   Will trigger Callback::blendishButtonClicked.
+ */
+class BlendishToolButton : public BlendishSubWidget
 {
 public:
-    explicit BlendishToolButton(BlendishSubWidget* parent);
+    explicit BlendishToolButton(BlendishSubWidgetSharedContext* parent);
+    explicit BlendishToolButton(SubWidget* parent);
 
 protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
-
-private:
-    Callback* callback;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishToolButton)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
 
-// has label
-class BlendishCheckBox : public BlendishIndividualWidgetBase
+/**
+   Blendish Check-Box class.
+
+   This widget is a simple checkbox.
+
+   Uses the label methods from BlendishSubWidget to set its contents.
+   Provides its own methods for setting the checked state.
+   Will trigger Callback::blendishButtonClicked.
+ */
+class BlendishCheckBox : public BlendishSubWidget
 {
 public:
-    explicit BlendishCheckBox(BlendishSubWidget* parent);
+    explicit BlendishCheckBox(BlendishSubWidgetSharedContext* parent);
+    explicit BlendishCheckBox(SubWidget* parent);
+
+    bool isChecked() const noexcept;
+    void setChecked(bool checked);
 
 protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
-
-private:
-    Callback* callback;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishCheckBox)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
 
-// has corners, icon, label
-class BlendishComboBox : public BlendishIndividualWidgetBase
+class BlendishMenuItem;
+
+/**
+   Blendish menu container class.
+
+   This widget is a simple menu, which uses menu items as children.
+   It can have an icon and label (which will be used as menu title) plus rounded corners.
+
+   Uses the label methods from BlendishSubWidget to set menu title, can be empty for no title.
+   Will not trigger any callbacks, but the child menu items will.
+
+   @see BlendishMenuItem
+ */
+class BlendishMenu : public BlendishSubWidget
 {
 public:
-    explicit BlendishComboBox(BlendishSubWidget* parent);
+    explicit BlendishMenu(BlendishSubWidgetSharedContext* parent);
+    explicit BlendishMenu(SubWidget* parent);
+
+    BlendishMenuItem* addMenuItem(const char* label);
+
+    void setLabel(const char* label) override;
+
+protected:
+    uint getMinimumWidth() const noexcept override;
+    void onBlendishDisplay() override;
+//     bool onMouse(const MouseEvent& ev) override;
+    bool onMotion(const MotionEvent& ev) override;
+    void onPositionChanged(const PositionChangedEvent& ev) override;
+    void onResize(const ResizeEvent& ev) override;
+
+private:
+    struct Callback;
+    friend class BlendishComboBox;
+
+    std::list<BlendishMenuItem*> items;
+    uint biggestItemWidth;
+    int nextY;
+
+    void recheckSize(uint newItemWidth, uint newItemHeight);
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishMenu)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+/**
+   Blendish menu item class.
+
+   This widget is a menu item, which belongs to a menu.
+   It can have an icon and label.
+
+   Uses the label methods from BlendishSubWidget to set its contents.
+   Will trigger Callback::blendishButtonClicked.
+
+   @see BlendishMenu
+ */
+class BlendishMenuItem : public BlendishSubWidget
+{
+public:
+    explicit BlendishMenuItem(BlendishMenu* parent, const char* label = nullptr);
 
 protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
 
+    friend class BlendishMenu;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishMenuItem)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+/**
+   Blendish Combo-Box class.
+
+   This widget is a simple combobox, which will open a menu when clicked.
+   It can have an icon and label, plus rounded corners when part of a group.
+
+   Uses the label methods from BlendishSubWidget to set its contents.
+   Provides its own methods for adding menu items, and those will trigger Callback::blendishButtonClicked.
+ */
+class BlendishComboBox : public BlendishSubWidget
+{
+public:
+    explicit BlendishComboBox(BlendishSubWidgetSharedContext* parent);
+    explicit BlendishComboBox(SubWidget* parent);
+
+    // direct access
+    BlendishMenu menu;
+
+protected:
+    uint getMinimumWidth() const noexcept override;
+    void onBlendishDisplay() override;
+    bool onMouse(const MouseEvent& ev) override;
+
 private:
-    Callback* callback;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishComboBox)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
 
-// has corners, color
-class BlendishColorButton : public BlendishIndividualWidgetBase
+/**
+   Blendish Color Button class.
+
+   This widget is a color button, which paints itself fully with a given color.
+   It can have rounded corners when part of a group.
+
+   Provides its own methods for setting and getting current color.
+   Will trigger Callback::blendishButtonClicked.
+ */
+class BlendishColorButton : public BlendishSubWidget
 {
 public:
-
-    explicit BlendishColorButton(BlendishSubWidget* parent);
+    explicit BlendishColorButton(BlendishSubWidgetSharedContext* parent);
+    explicit BlendishColorButton(SubWidget* parent);
 
     Color getColor() const noexcept;
     void setColor(Color color);
@@ -214,7 +330,6 @@ protected:
     void onBlendishDisplay() override;
 
 private:
-    Callback* callback;
     Color color;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishColorButton)
@@ -235,10 +350,22 @@ private:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class BlendishNumberField : public BlendishIndividualWidgetBase
+/**
+   Blendish Number Field class.
+
+   This widget is a slider-like value,
+   with centered text and a small button on each side for decreasing and increasing the current value.
+   It can a label, plus rounded corners when part of a group.
+
+   Uses the label methods from BlendishSubWidget to set its contents.
+   Provides its own methods for setting and getting current value.
+   Will trigger ...
+ */
+class BlendishNumberField : public BlendishSubWidget
 {
 public:
-    explicit BlendishNumberField(BlendishSubWidget* parent);
+    explicit BlendishNumberField(BlendishSubWidgetSharedContext* parent);
+    explicit BlendishNumberField(SubWidget* parent);
 
     int getValue() const noexcept;
     void setValue(int value);
@@ -260,7 +387,7 @@ private:
 //  - returns total width, does not modify widgets width or height
 // if vertical:
 //  - returns total height, modifies widgets width to ensure all of the same size, does not widgets height
-uint groupBlendishWidgets(bool horizontal, BlendishIndividualWidgetBase* widget...);
+uint groupBlendishWidgets(bool horizontal, BlendishSubWidget* widget...);
 
 // --------------------------------------------------------------------------------------------------------------------
 
