@@ -899,7 +899,7 @@ BND_EXPORT void bndMenuLabel(NVGcontext *ctx,
 // if label is not NULL, a label will be added to the widget
 // widget looks best when height is BND_WIDGET_HEIGHT
 BND_EXPORT void bndMenuItem(NVGcontext *ctx,
-    float x, float y, float w, float h, BNDwidgetState state,
+    float x, float y, float w, float h, int flags, BNDwidgetState state,
     int iconid, const char *label);
 
 // Draw a tooltip background with its lower left origin at (x,y) and size of (w,h)
@@ -1674,10 +1674,12 @@ void bndMenuLabel(NVGcontext *ctx,
 }
 
 void bndMenuItem(NVGcontext *ctx,
-    float x, float y, float w, float h, BNDwidgetState state,
+    float x, float y, float w, float h, int flags, BNDwidgetState state,
     int iconid, const char *label) {
     if (state != BND_DEFAULT) {
-        bndInnerBox(ctx,x,y,w,h,0,0,0,0,
+        float cr[4];
+        bndSelectCorners(cr, BND_MENU_RADIUS, flags);
+        bndInnerBox(ctx,x,y,w,h,cr[0],cr[1],cr[2],cr[3],
             bndOffsetColor(bnd_theme.menuItemTheme.innerSelectedColor,
                 bnd_theme.menuItemTheme.shadeTop),
             bndOffsetColor(bnd_theme.menuItemTheme.innerSelectedColor,
