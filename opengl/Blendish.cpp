@@ -507,7 +507,7 @@ BlendishMenuItem* BlendishMenu::addMenuItem(const char* const label)
     item->setAbsoluteY(nextY);
     items.push_back(item);
 
-    nextY += item->getHeight();
+    nextY += item->getHeight() - 1 * pData->scaleFactor;
     recheckSize(item->getWidth(), item->getHeight());
 
     return item;
@@ -593,7 +593,7 @@ void BlendishMenu::onPositionChanged(const PositionChangedEvent& ev)
         {
             item->setAbsoluteX(x);
             item->setAbsoluteY(y);
-            y += item->getHeight();
+            y += item->getHeight() - 1 * pData->scaleFactor;
         }
     }
 
@@ -637,12 +637,15 @@ void BlendishMenu::recheckSize(const uint newItemWidth, const uint newItemHeight
             nextHeight += item->getHeight();
         }
 
+        nextHeight -= items.size() * 1 * pData->scaleFactor;
+
         nextY = getAbsoluteY() + nextHeight;
         size.setHeight(nextHeight);
     }
     else
     {
-        size.setHeight((items.size() != 1 || getLabel() != nullptr ? getHeight() : 0) + newItemHeight);
+        size.setHeight((items.size() != 1 || getLabel() != nullptr ? getHeight() : 0)
+                       + newItemHeight - 1 * pData->scaleFactor);
     }
 
     // done
