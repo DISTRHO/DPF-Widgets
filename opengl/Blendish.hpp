@@ -19,7 +19,7 @@
 #include "SubWidget.hpp"
 #include "Color.hpp"
 
-#include <list>
+#include <vector>
 
 START_NAMESPACE_DGL
 
@@ -81,7 +81,7 @@ public:
 
     struct Callback {
         virtual ~Callback() {}
-        virtual void blendishButtonClicked(BlendishSubWidget* widget, int button) = 0;
+        virtual void blendishWidgetClicked(BlendishSubWidget* widget, int button) = 0;
     };
 
     // special drawing handling, for reusing nanovg context among all widgets
@@ -206,7 +206,38 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class BlendishMenuItem;
+class BlendishMenu;
+
+/**
+   Blendish menu item class.
+
+   This widget is a menu item, which belongs to a menu.
+   It can have an icon and label.
+
+   Uses the label methods from BlendishSubWidget to set its contents.
+   Will trigger Callback::blendishButtonClicked.
+
+   @see BlendishMenu
+ */
+class BlendishMenuItem : public BlendishSubWidget
+{
+public:
+    explicit BlendishMenuItem(BlendishMenu* parent, const char* label = nullptr);
+
+protected:
+    uint getMinimumWidth() const noexcept override;
+    void onBlendishDisplay() override;
+
+private:
+    struct CallbackComboBox;
+    friend class BlendishComboBox;
+    friend class BlendishMenu;
+    friend class BlendishSubWidget;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishMenuItem)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
 
 /**
    Blendish menu container class.
@@ -232,7 +263,6 @@ public:
 protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
-//     bool onMouse(const MouseEvent& ev) override;
     bool onMotion(const MotionEvent& ev) override;
     void onPositionChanged(const PositionChangedEvent& ev) override;
     void onResize(const ResizeEvent& ev) override;
@@ -242,7 +272,7 @@ private:
     friend class BlendishComboBox;
     friend class BlendishSubWidget;
 
-    std::list<BlendishMenuItem*> items;
+    std::vector<BlendishMenuItem*> items;
     BlendishMenuItem* lastHoveredItem;
     uint biggestItemWidth;
     int nextY;
@@ -250,34 +280,6 @@ private:
     void recheckSize(uint newItemWidth, uint newItemHeight);
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishMenu)
-};
-
-// --------------------------------------------------------------------------------------------------------------------
-
-/**
-   Blendish menu item class.
-
-   This widget is a menu item, which belongs to a menu.
-   It can have an icon and label.
-
-   Uses the label methods from BlendishSubWidget to set its contents.
-   Will trigger Callback::blendishButtonClicked.
-
-   @see BlendishMenu
- */
-class BlendishMenuItem : public BlendishSubWidget
-{
-public:
-    explicit BlendishMenuItem(BlendishMenu* parent, const char* label = nullptr);
-
-protected:
-    uint getMinimumWidth() const noexcept override;
-    void onBlendishDisplay() override;
-
-    friend class BlendishMenu;
-    friend class BlendishSubWidget;
-
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishMenuItem)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -294,11 +296,29 @@ protected:
 class BlendishComboBox : public BlendishSubWidget
 {
 public:
+    struct Callback {
+        virtual ~Callback() {}
+        virtual void blendishComboBoxIndexChanged(BlendishComboBox* comboBox, int index) = 0;
+    };
+
     explicit BlendishComboBox(BlendishSubWidgetSharedContext* parent);
     explicit BlendishComboBox(SubWidget* parent);
+    ~BlendishComboBox() override;
 
-    // direct access
-    BlendishMenu menu;
+    int getCurrentIndex() const noexcept;
+    const char* getCurrentLabel() const noexcept; // same as getLabel
+    BlendishMenuItem* getCurrentMenuItem() const noexcept;
+
+    void setCurrentIndex(int index, bool triggerCallback);
+    void setCurrentLabel(const char* label);
+    void setCurrentMenuItem(BlendishMenuItem* menuItem, bool triggerCallback);
+
+    const char* getDefaultLabel() const noexcept;
+    void setDefaultLabel(const char* label);
+
+    BlendishMenuItem* addMenuItem(const char* label);
+
+    void setCallback(Callback* callback);
 
 protected:
     uint getMinimumWidth() const noexcept override;
@@ -306,6 +326,13 @@ protected:
     bool onMouse(const MouseEvent& ev) override;
 
 private:
+    BlendishMenu menu;
+    int currentIndex;
+    char* defaultLabel;
+    Callback* callback;
+
+    // should not be used
+    void setLabel(const char* label) override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishComboBox)
 };

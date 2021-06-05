@@ -82,11 +82,11 @@ public:
 
         comboBox.setAbsoluteX(toolButton2.getAbsoluteX());
         comboBox.setAbsoluteY(numberFieldX.getAbsoluteY());
-        comboBox.setLabel("This is a combo-box");
-        comboBox.menu.addMenuItem("First item");
-        comboBox.menu.addMenuItem("Second item");
-        comboBox.menu.addMenuItem("Third item");
-        comboBox.menu.addMenuItem("Fourth item");
+        comboBox.setDefaultLabel("This is a combo-box");
+        comboBox.addMenuItem("First item");
+        comboBox.addMenuItem("Second item");
+        comboBox.addMenuItem("Third item");
+        comboBox.addMenuItem("Fourth item");
 
         /*
         menu.setAbsoluteX(numberFieldH.getAbsoluteX());
