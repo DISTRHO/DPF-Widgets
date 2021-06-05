@@ -63,6 +63,12 @@ BlendishSubWidgetSharedContext::~BlendishSubWidgetSharedContext()
     delete pData;
 }
 
+void BlendishSubWidgetSharedContext::setScaleFactor(const double scaleFactor)
+{
+    pData->scaleFactor = scaleFactor;
+    setNeedsViewportScaling(true, scaleFactor);
+}
+
 void BlendishSubWidgetSharedContext::onDisplay()
 {
     pData->nvg.beginFrame(getWidth(), getHeight(), pData->scaleFactor);
@@ -374,7 +380,7 @@ void BlendishLabel::onBlendishDisplay()
     const float w = getWidth() / scaleFactor;
     const float h = getHeight() / scaleFactor;
 
-    bndLabel(pData->context, x, y, w, h, BND_ICON_NONE, pData->label);
+    bndLabel(pData->context, x, y, w, h, -1, pData->label);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -406,7 +412,7 @@ void BlendishToolButton::onBlendishDisplay()
 
     bndToolButton(pData->context, x, y, w, h,
                   static_cast<BNDcornerFlags>(pData->flags),
-                  static_cast<BNDwidgetState>(pData->state), BND_ICON_NONE, pData->label);
+                  static_cast<BNDwidgetState>(pData->state), -1, pData->label);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -553,7 +559,7 @@ void BlendishMenu::onBlendishDisplay()
     bndMenuBackground(pData->context, x, y, w, h, pData->flags);
 
     if (pData->label != nullptr)
-        bndMenuLabel(pData->context, x, y, w, BND_WIDGET_HEIGHT, BND_ICON_NONE, pData->label);
+        bndMenuLabel(pData->context, x, y, w, BND_WIDGET_HEIGHT, -1, pData->label);
 
     for (std::list<BlendishMenuItem*>::iterator it = items.begin(); it != items.end(); ++it)
     {
@@ -677,7 +683,7 @@ void BlendishMenuItem::onBlendishDisplay()
     const float h = getHeight() / scaleFactor;
 
     bndMenuItem(pData->context, x, y, w, h, pData->flags,
-                static_cast<BNDwidgetState>(pData->state), BND_ICON_NONE, pData->label);
+                static_cast<BNDwidgetState>(pData->state), -1, pData->label);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -717,7 +723,7 @@ void BlendishComboBox::onBlendishDisplay()
 
     bndChoiceButton(pData->context, x, y, w, h,
                     static_cast<BNDcornerFlags>(pData->flags),
-                    static_cast<BNDwidgetState>(pData->state), BND_ICON_NONE, pData->label);
+                    static_cast<BNDwidgetState>(pData->state), -1, pData->label);
 }
 
 bool BlendishComboBox::onMouse(const MouseEvent& ev)

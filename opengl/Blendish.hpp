@@ -35,6 +35,8 @@ public:
 
     ~BlendishSubWidgetSharedContext() override;
 
+    void setScaleFactor(double scaleFactor);
+
 protected:
     void onDisplay() override;
 
