@@ -95,7 +95,9 @@ struct BlendishSubWidget::ProtectedData {
 
     int button;
     int flags;
-    int state;
+    BNDwidgetState state;
+    bool checkable;
+    bool checked;
     bool labelCanChangeWidth;
     char* label;
 
@@ -113,6 +115,8 @@ struct BlendishSubWidget::ProtectedData {
           button(-1),
           flags(kCornerNone),
           state(BND_DEFAULT),
+          checkable(false),
+          checked(false),
           labelCanChangeWidth(true),
           label(nullptr),
           internalCallback(nullptr),
@@ -131,6 +135,8 @@ struct BlendishSubWidget::ProtectedData {
           button(-1),
           flags(kCornerNone),
           state(BND_DEFAULT),
+          checkable(false),
+          checked(false),
           labelCanChangeWidth(true),
           label(nullptr),
           internalCallback(nullptr),
@@ -169,6 +175,9 @@ struct BlendishSubWidget::ProtectedData {
             state = BND_HOVER;
             self->repaint();
 
+            if (checkable)
+                checked = !checked;
+
             if (internalCallback != nullptr)
                 internalCallback->blendishWidgetClicked(self, button2);
             else if (userCallback != nullptr)
@@ -181,7 +190,7 @@ struct BlendishSubWidget::ProtectedData {
         if (ev.press && self->contains(ev.pos))
         {
             button = static_cast<int>(ev.button);
-            state  = BND_ACTIVE;
+            state  = BND_ACTIVE; // TODO pressed but not active state
             self->repaint();
             return true;
         }
@@ -429,13 +438,29 @@ void BlendishToolButton::onBlendishDisplay()
 BlendishCheckBox::BlendishCheckBox(BlendishSubWidgetSharedContext* const parent)
     : BlendishSubWidget(parent)
 {
+    pData->checkable = true;
     setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
 }
 
 BlendishCheckBox::BlendishCheckBox(SubWidget* const parent)
     : BlendishSubWidget(parent)
 {
+    pData->checkable = true;
     setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+}
+
+bool BlendishCheckBox::isChecked() const noexcept
+{
+    return pData->checked;
+}
+
+void BlendishCheckBox::setChecked(const bool checked)
+{
+    if (pData->checked == checked)
+        return;
+
+    pData->checked = checked;
+    repaint();
 }
 
 uint BlendishCheckBox::getMinimumWidth() const noexcept
@@ -451,7 +476,26 @@ void BlendishCheckBox::onBlendishDisplay()
     const float w = getWidth() / scaleFactor;
     const float h = getHeight() / scaleFactor;
 
-    bndOptionButton(pData->context, x, y, w, h, static_cast<BNDwidgetState>(pData->state), pData->label);
+    BNDwidgetState state;
+
+    if (pData->checked)
+    {
+        state = BND_ACTIVE;
+    }
+    else
+    {
+        switch (pData->state)
+        {
+        case BND_HOVER:
+            state = BND_HOVER;
+            break;
+        default:
+            state = BND_DEFAULT;
+            break;
+        }
+    }
+
+    bndOptionButton(pData->context, x, y, w, h, state, pData->label);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
