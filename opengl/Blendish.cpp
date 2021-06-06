@@ -584,7 +584,8 @@ BlendishMenu::BlendishMenu(BlendishSubWidgetSharedContext* const parent)
       items(),
       lastHoveredItem(nullptr),
       biggestItemWidth(0),
-      nextY(0)
+      nextY(0),
+      labelAtBottom(false)
 {
     setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
 }
@@ -594,7 +595,8 @@ BlendishMenu::BlendishMenu(SubWidget* const parent)
       items(),
       lastHoveredItem(nullptr),
       biggestItemWidth(0),
-      nextY(0)
+      nextY(0),
+      labelAtBottom(false)
 {
     setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
 }
@@ -666,7 +668,9 @@ void BlendishMenu::onBlendishDisplay()
     bndMenuBackground(pData->context, x, y, w, h, pData->flags);
 
     if (pData->label != nullptr)
-        bndMenuLabel(pData->context, x, y, w, BND_WIDGET_HEIGHT, -1, pData->label);
+        bndMenuLabel(pData->context,
+                     x, labelAtBottom ? (h - BND_WIDGET_HEIGHT - 2) : y,
+                     w, BND_WIDGET_HEIGHT, -1, pData->label);
 
     for (std::vector<BlendishMenuItem*>::iterator it = items.begin(); it != items.end(); ++it)
     {

@@ -276,6 +276,7 @@ private:
     BlendishMenuItem* lastHoveredItem;
     uint biggestItemWidth;
     int nextY;
+    bool labelAtBottom;
 
     void recheckSize(uint newItemWidth, uint newItemHeight);
 
