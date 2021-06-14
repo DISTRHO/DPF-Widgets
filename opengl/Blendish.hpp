@@ -413,6 +413,38 @@ private:
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishNumberField)
 };
 
+/**
+   Blendish Knob class.
+
+   This widget is a custom dial/knob-like control, following blendish style.
+   It does not follow blendish motto of copying blender 2.6 widget design,
+   instead this is hand-crafted to look similar to other widgets in this collection.
+
+   Uses the label methods from BlendishSubWidget to set its contents.
+   Provides its own methods for setting and getting minimum, maximum, default and current value.
+   Will trigger ...
+ */
+class BlendishKnob : public BlendishSubWidget
+{
+public:
+    explicit BlendishKnob(BlendishSubWidgetSharedContext* parent);
+    explicit BlendishKnob(SubWidget* parent);
+
+    void setup(float min, float max, float def);
+
+    float getCurrentValue() const noexcept;
+    void setCurrentValue(float value);
+
+protected:
+    uint getMinimumWidth() const noexcept override;
+    void onBlendishDisplay() override;
+
+private:
+    float min, max, def, value;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishKnob)
+};
+
 // --------------------------------------------------------------------------------------------------------------------
 
 // simple function to group things together, setting corner flags automatically, must be null terminated

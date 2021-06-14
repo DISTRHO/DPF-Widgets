@@ -945,8 +945,7 @@ void BlendishComboBox::setLabel(const char*)
 // --------------------------------------------------------------------------------------------------------------------
 
 BlendishColorButton::BlendishColorButton(BlendishSubWidgetSharedContext* const parent)
-    : BlendishSubWidget(parent),
-      color()
+    : BlendishSubWidget(parent)
 {
     setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
 }
@@ -993,7 +992,8 @@ BlendishNumberField::BlendishNumberField(BlendishSubWidgetSharedContext* const p
 }
 
 BlendishNumberField::BlendishNumberField(SubWidget* const parent)
-    : BlendishSubWidget(parent)
+    : BlendishSubWidget(parent),
+      value(0)
 {
     setSize(48*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
 }
@@ -1027,6 +1027,105 @@ void BlendishNumberField::onBlendishDisplay()
     bndNumberField(pData->context, x, y, w, h,
                    static_cast<BNDcornerFlags>(pData->flags),
                    static_cast<BNDwidgetState>(pData->state), pData->label, valuestr);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+BlendishKnob::BlendishKnob(BlendishSubWidgetSharedContext* const parent)
+    : BlendishSubWidget(parent),
+      min(0.0f),
+      max(1.0f),
+      def(0.5f),
+      value(def)
+{
+    setSize(64 * pData->scaleFactor, (64 + BND_WIDGET_HEIGHT) * pData->scaleFactor);
+}
+
+BlendishKnob::BlendishKnob(SubWidget* const parent)
+    : BlendishSubWidget(parent),
+      min(0.0f),
+      max(1.0f),
+      def(0.5f),
+      value(def)
+{
+    setSize(64 * pData->scaleFactor, (64 + BND_WIDGET_HEIGHT) * pData->scaleFactor);
+}
+
+void BlendishKnob::setup(const float min2, const float max2, const float def2)
+{
+    min = min2;
+    max = max2;
+    def = def2;
+}
+
+float BlendishKnob::getCurrentValue() const noexcept
+{
+    return value;
+}
+
+void BlendishKnob::setCurrentValue(const float v)
+{
+    value = v;
+}
+
+uint BlendishKnob::getMinimumWidth() const noexcept
+{
+    return 64;
+}
+
+void BlendishKnob::onBlendishDisplay()
+{
+    const double scaleFactor = pData->scaleFactor;
+    const float x = getAbsoluteX() / scaleFactor;
+    const float y = getAbsoluteY() / scaleFactor;
+    const float w = getWidth() / scaleFactor;
+    const float h = getHeight() / scaleFactor;
+
+    const BNDcornerFlags flags = static_cast<BNDcornerFlags>(pData->flags);
+    const BNDwidgetState state = static_cast<BNDwidgetState>(pData->state);
+    auto ctx = pData->context;
+
+    char valuestr[32];
+    snprintf(valuestr, sizeof(valuestr)-1, "%f", value);
+
+//     float cr[4];
+    NVGcolor shade_top, shade_down;
+
+//     bndSelectCorners(cr, BND_NUMBER_RADIUS, flags);
+//     bndBevelInset(ctx,x,y,w,h,cr[2],cr[3]);
+    bndInnerColors(&shade_top, &shade_down, &bnd_theme.numberFieldTheme, state, 0);
+
+    nvgBeginPath(ctx);
+    nvgRect(ctx, x, y, w, h);
+    nvgFillColor(ctx, Color(0.3f, 0.8f, 0.23f));
+    nvgFill(ctx);
+
+    const auto knobSize = std::min(w, h - BND_WIDGET_HEIGHT);
+
+    nvgBeginPath(ctx);
+    nvgCircle(ctx, x + knobSize / 2, y + knobSize / 2, knobSize / 2);
+    nvgStrokeColor(ctx, shade_down);
+    nvgStrokeWidth(ctx, 1.0f);
+    nvgStroke(ctx);
+    nvgFillColor(ctx, state != BND_DEFAULT ? shade_down : shade_top);
+    nvgFill(ctx);
+
+    bndIconLabelValue(ctx, x, y + knobSize, knobSize, BND_WIDGET_HEIGHT, -1,
+        bnd_theme.regularTheme.textColor, BND_CENTER,
+        BND_LABEL_FONT_SIZE, pData->label, NULL);
+
+#if 0
+    bndInnerBox(ctx,x,y,w,h,cr[0],cr[1],cr[2],cr[3], shade_top, shade_down);
+    bndOutlineBox(ctx,x,y,w,h,cr[0],cr[1],cr[2],cr[3],
+        bndTransparent(bnd_theme.numberFieldTheme.outlineColor));
+    bndIconLabelValue(ctx,x,y,w,h,-1,
+        bndTextColor(&bnd_theme.numberFieldTheme, state), BND_CENTER,
+        BND_LABEL_FONT_SIZE, pData->label, valuestr);
+    bndArrow(ctx,x+8,y+10,-BND_NUMBER_ARROW_SIZE,
+        bndTransparent(bnd_theme.numberFieldTheme.itemColor));
+    bndArrow(ctx,x+w-8,y+10,BND_NUMBER_ARROW_SIZE,
+        bndTransparent(bnd_theme.numberFieldTheme.itemColor));
+#endif
 }
 
 // --------------------------------------------------------------------------------------------------------------------
