@@ -16,8 +16,9 @@
 
 #pragma once
 
-#include "SubWidget.hpp"
 #include "Color.hpp"
+#include "EventHandlers.hpp"
+#include "SubWidget.hpp"
 
 #include <vector>
 
@@ -100,6 +101,8 @@ public:
 
     // will change width automatically
     virtual void setLabel(const char* label);
+
+    BlendishSubWidgetSharedContext* getSharedContext();
 
     void toFront() override;
 
@@ -239,6 +242,8 @@ private:
 
 // --------------------------------------------------------------------------------------------------------------------
 
+class BlendishComboBox;
+
 /**
    Blendish menu container class.
 
@@ -254,6 +259,7 @@ class BlendishMenu : public BlendishSubWidget
 {
 public:
     explicit BlendishMenu(BlendishSubWidgetSharedContext* parent);
+    explicit BlendishMenu(BlendishComboBox* parent);
     explicit BlendishMenu(SubWidget* parent);
 
     BlendishMenuItem* addMenuItem(const char* label);
@@ -274,6 +280,7 @@ private:
 
     std::vector<BlendishMenuItem*> items;
     BlendishMenuItem* lastHoveredItem;
+    BlendishComboBox* matchingComboBox;
     uint biggestItemWidth;
     int nextY;
     bool labelAtBottom;
@@ -303,7 +310,6 @@ public:
     };
 
     explicit BlendishComboBox(BlendishSubWidgetSharedContext* parent);
-    explicit BlendishComboBox(SubWidget* parent);
     ~BlendishComboBox() override;
 
     int getCurrentIndex() const noexcept;
