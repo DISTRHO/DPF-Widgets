@@ -31,6 +31,40 @@ START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
 
+static BNDwidgetState getBlendishState(const ButtonEventHandler::State state) noexcept
+{
+    switch (state)
+    {
+    case ButtonEventHandler::kButtonStateDefault:
+        return BND_DEFAULT;
+    case ButtonEventHandler::kButtonStateHover:
+        return BND_HOVER;
+    case ButtonEventHandler::kButtonStateActive:
+    case ButtonEventHandler::kButtonStateActiveHover:
+        return BND_ACTIVE;
+    }
+
+    return BND_DEFAULT;
+}
+
+static BNDwidgetState getBlendishState(const KnobEventHandler::State state) noexcept
+{
+    switch (state)
+    {
+    case KnobEventHandler::kKnobStateDefault:
+        return BND_DEFAULT;
+    case KnobEventHandler::kKnobStateHover:
+        return BND_HOVER;
+    case KnobEventHandler::kKnobStateDragging:
+    case KnobEventHandler::kKnobStateDraggingHover:
+        return BND_ACTIVE;
+    }
+
+    return BND_DEFAULT;
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 struct BlendishSubWidgetSharedContext::PrivateData {
     NanoVG nvg;
     double scaleFactor;
@@ -86,8 +120,7 @@ void BlendishSubWidgetSharedContext::onDisplay()
 
 // --------------------------------------------------------------------------------------------------------------------
 
-struct BlendishSubWidget::ProtectedData : public ButtonEventHandler,
-                                          public ButtonEventHandler::Callback  {
+struct BlendishSubWidget::ProtectedData {
     BlendishSubWidget* const self;
     BlendishSubWidgetSharedContext* const shared;
     NanoVG* const nvg;
@@ -98,91 +131,35 @@ struct BlendishSubWidget::ProtectedData : public ButtonEventHandler,
     bool labelCanChangeWidth;
     char* label;
 
-    BlendishSubWidget::Callback* internalCallback;
-    BlendishSubWidget::Callback* userCallback;
-
-    Point<double> oldMotionPos;
-
     explicit ProtectedData(BlendishSubWidget* const s, BlendishSubWidgetSharedContext* const p)
-        : ButtonEventHandler(s),
-          self(s),
+        : self(s),
           shared(p),
           nvg(nullptr),
           context(p->pData->nvg.getContext()),
           scaleFactor(p->pData->scaleFactor),
           flags(kCornerNone),
           labelCanChangeWidth(true),
-          label(nullptr),
-          internalCallback(nullptr),
-          userCallback(nullptr),
-          oldMotionPos(0, 0)
+          label(nullptr)
     {
-        ButtonEventHandler::setCallback(this);
         shared->pData->widgets.push_back(self);
     }
 
     explicit ProtectedData(BlendishSubWidget* const s, BlendishSubWidget* const parent)
-        : ButtonEventHandler(s),
-          self(s),
-          shared(parent != nullptr ? parent->pData->shared : nullptr),
+        : self(s),
+          shared(parent != nullptr ? parent->bData->shared : nullptr),
           nvg(parent != nullptr ? nullptr : new NanoVG()),
-          context(parent != nullptr ? parent->pData->context : nvg->getContext()),
-          scaleFactor(parent != nullptr ? parent->pData->scaleFactor : s->getWindow().getScaleFactor()),
+          context(parent != nullptr ? parent->bData->context : nvg->getContext()),
+          scaleFactor(parent != nullptr ? parent->bData->scaleFactor : s->getWindow().getScaleFactor()),
           flags(kCornerNone),
           labelCanChangeWidth(true),
-          label(nullptr),
-          internalCallback(nullptr),
-          userCallback(nullptr),
-          oldMotionPos(0, 0)
-    {
-        ButtonEventHandler::setCallback(this);
-    }
+          label(nullptr) {}
 
     ~ProtectedData()
     {
         if (shared != nullptr)
             shared->pData->widgets.remove(self);
 
-        delete internalCallback;
         delete nvg;
-    }
-
-    BNDwidgetState getBlendishState() const noexcept
-    {
-        switch (getState())
-        {
-        case kButtonStateDefault:
-            return BND_DEFAULT;
-        case kButtonStateHover:
-            return BND_HOVER;
-        case kButtonStateActive:
-        case kButtonStateActiveHover:
-            return BND_ACTIVE;
-        }
-
-        return BND_DEFAULT;
-    }
-
-    void buttonClicked(SubWidget* widget, int button) override
-    {
-        BlendishSubWidget* const imageButton = dynamic_cast<BlendishSubWidget*>(widget);
-        DISTRHO_SAFE_ASSERT_RETURN(imageButton != nullptr,);
-
-        if (internalCallback != nullptr)
-            internalCallback->blendishWidgetClicked(self, button);
-        else if (userCallback != nullptr)
-            userCallback->blendishWidgetClicked(self, button);
-    }
-
-    void stateChanged(const State state, const State oldState) override
-    {
-        const bool  isHovering = state    & kButtonStateHover;
-        const bool wasHovering = oldState & kButtonStateHover;
-
-        if (isHovering && ! wasHovering)
-            if (BlendishMenu* const menu = dynamic_cast<BlendishMenu*>(self))
-                if (menu->matchingComboBox != nullptr)
-                    menu->matchingComboBox->pData->clearState();
     }
 };
 
@@ -190,64 +167,64 @@ struct BlendishSubWidget::ProtectedData : public ButtonEventHandler,
 
 BlendishSubWidget::BlendishSubWidget(BlendishSubWidgetSharedContext* const parent)
     : SubWidget(parent),
-      pData(new ProtectedData(this, parent))
+      bData(new ProtectedData(this, parent))
 {
     setSkipDrawing(true);
 }
 
 BlendishSubWidget::BlendishSubWidget(SubWidget* const parent)
     : SubWidget(parent),
-      pData(new ProtectedData(this, dynamic_cast<BlendishSubWidget*>(parent)))
+      bData(new ProtectedData(this, dynamic_cast<BlendishSubWidget*>(parent)))
 {
-    if (pData->shared == nullptr)
-        setNeedsViewportScaling(true, pData->scaleFactor);
+    if (bData->shared == nullptr)
+        setNeedsViewportScaling(true, bData->scaleFactor);
 }
 
 BlendishSubWidget::~BlendishSubWidget()
 {
-    delete pData;
+    delete bData;
 }
 
 int BlendishSubWidget::getCornerFlags() const noexcept
 {
-    return pData->flags;
+    return bData->flags;
 }
 
 void BlendishSubWidget::setCornerFlags(const int flags)
 {
-    pData->flags = flags;
+    bData->flags = flags;
 }
 
 const char* BlendishSubWidget::getLabel() const noexcept
 {
-    return pData->label;
+    return bData->label;
 }
 
 void BlendishSubWidget::setLabel(const char* const label)
 {
-    std::free(pData->label);
+    std::free(bData->label);
 
     if (label != nullptr && label[0] != '\0')
     {
-        pData->label = strdup(label);
+        bData->label = strdup(label);
 
-        if (pData->labelCanChangeWidth)
-            setWidth((getMinimumWidth() + bndLabelWidth(pData->context, 0, label)) * pData->scaleFactor);
+        if (bData->labelCanChangeWidth)
+            setWidth((getMinimumWidth() + bndLabelWidth(bData->context, 0, label)) * bData->scaleFactor);
     }
     else
     {
-        pData->label = nullptr;
+        bData->label = nullptr;
 
-        if (pData->labelCanChangeWidth)
-            setWidth(1*pData->scaleFactor);
+        if (bData->labelCanChangeWidth)
+            setWidth(1*bData->scaleFactor);
     }
 }
 
 void BlendishSubWidget::toFront()
 {
-    if (pData->shared != nullptr)
+    if (bData->shared != nullptr)
     {
-        std::list<BlendishSubWidget*>& widgets(pData->shared->pData->widgets);
+        std::list<BlendishSubWidget*>& widgets(bData->shared->pData->widgets);
 
         widgets.remove(this);
         widgets.push_back(this);
@@ -258,37 +235,14 @@ void BlendishSubWidget::toFront()
 
 BlendishSubWidgetSharedContext* BlendishSubWidget::getSharedContext()
 {
-    return pData->shared;
-}
-
-void BlendishSubWidget::setCallback(Callback* const callback)
-{
-    pData->userCallback = callback;
-}
-
-bool BlendishSubWidget::onMouse(const MouseEvent& ev)
-{
-    if (SubWidget::onMouse(ev))
-        return true;
-    if (pData->mouseEvent(ev))
-        return true;
-    return false;
-}
-
-bool BlendishSubWidget::onMotion(const MotionEvent& ev)
-{
-    if (SubWidget::onMotion(ev))
-        return true;
-    if (pData->motionEvent(ev))
-        return true;
-    return false;
+    return bData->shared;
 }
 
 void BlendishSubWidget::onDisplay()
 {
-    if (NanoVG* const nvg = pData->nvg)
+    if (NanoVG* const nvg = bData->nvg)
     {
-        nvg->beginFrame(getWidth(), getHeight(), pData->scaleFactor);
+        nvg->beginFrame(getWidth(), getHeight(), bData->scaleFactor);
         onBlendishDisplay();
         nvg->endFrame();
     }
@@ -299,13 +253,13 @@ void BlendishSubWidget::onDisplay()
 BlendishLabel::BlendishLabel(BlendishSubWidgetSharedContext* const parent)
     : BlendishSubWidget(parent)
 {
-    setSize(1*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+    setSize(1*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 BlendishLabel::BlendishLabel(SubWidget* const parent)
     : BlendishSubWidget(parent)
 {
-    setSize(1*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+    setSize(1*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 uint BlendishLabel::getMinimumWidth() const noexcept
@@ -315,30 +269,32 @@ uint BlendishLabel::getMinimumWidth() const noexcept
 
 void BlendishLabel::onBlendishDisplay()
 {
-    if (pData->label == nullptr)
+    if (bData->label == nullptr)
         return;
 
-    const double scaleFactor = pData->scaleFactor;
+    const double scaleFactor = bData->scaleFactor;
     const float x = getAbsoluteX() / scaleFactor;
     const float y = getAbsoluteY() / scaleFactor;
     const float w = getWidth() / scaleFactor;
     const float h = getHeight() / scaleFactor;
 
-    bndLabel(pData->context, x, y, w, h, -1, pData->label);
+    bndLabel(bData->context, x, y, w, h, -1, bData->label);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
 
 BlendishToolButton::BlendishToolButton(BlendishSubWidgetSharedContext* const parent)
-    : BlendishSubWidget(parent)
+    : BlendishSubWidget(parent),
+      ButtonEventHandler(this)
 {
-    setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+    setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 BlendishToolButton::BlendishToolButton(SubWidget* const parent)
-    : BlendishSubWidget(parent)
+    : BlendishSubWidget(parent),
+      ButtonEventHandler(this)
 {
-    setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+    setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 uint BlendishToolButton::getMinimumWidth() const noexcept
@@ -348,41 +304,47 @@ uint BlendishToolButton::getMinimumWidth() const noexcept
 
 void BlendishToolButton::onBlendishDisplay()
 {
-    const double scaleFactor = pData->scaleFactor;
+    const double scaleFactor = bData->scaleFactor;
     const float x = getAbsoluteX() / scaleFactor;
     const float y = getAbsoluteY() / scaleFactor;
     const float w = getWidth() / scaleFactor;
     const float h = getHeight() / scaleFactor;
 
-    bndToolButton(pData->context, x, y, w, h,
-                  static_cast<BNDcornerFlags>(pData->flags),
-                  pData->getBlendishState(), -1, pData->label);
+    bndToolButton(bData->context, x, y, w, h,
+                  static_cast<BNDcornerFlags>(bData->flags),
+                  getBlendishState(getState()), -1, bData->label);
+}
+
+bool BlendishToolButton::onMouse(const MouseEvent& ev)
+{
+    if (BlendishSubWidget::onMouse(ev))
+        return true;
+    return mouseEvent(ev);
+}
+
+bool BlendishToolButton::onMotion(const MotionEvent& ev)
+{
+    if (BlendishSubWidget::onMotion(ev))
+        return true;
+    return motionEvent(ev);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
 
 BlendishCheckBox::BlendishCheckBox(BlendishSubWidgetSharedContext* const parent)
-    : BlendishSubWidget(parent)
+    : BlendishSubWidget(parent),
+      ButtonEventHandler(this)
 {
-    pData->setCheckable(true);
-    setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+    ButtonEventHandler::setCheckable(true);
+    setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 BlendishCheckBox::BlendishCheckBox(SubWidget* const parent)
-    : BlendishSubWidget(parent)
+    : BlendishSubWidget(parent),
+      ButtonEventHandler(this)
 {
-    pData->setCheckable(true);
-    setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
-}
-
-bool BlendishCheckBox::isChecked() const noexcept
-{
-    return pData->isChecked();
-}
-
-void BlendishCheckBox::setChecked(const bool checked)
-{
-    pData->setChecked(checked, false);
+    ButtonEventHandler::setCheckable(true);
+    setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 uint BlendishCheckBox::getMinimumWidth() const noexcept
@@ -392,7 +354,7 @@ uint BlendishCheckBox::getMinimumWidth() const noexcept
 
 void BlendishCheckBox::onBlendishDisplay()
 {
-    const double scaleFactor = pData->scaleFactor;
+    const double scaleFactor = bData->scaleFactor;
     const float x = getAbsoluteX() / scaleFactor;
     const float y = getAbsoluteY() / scaleFactor;
     const float w = getWidth() / scaleFactor;
@@ -400,29 +362,33 @@ void BlendishCheckBox::onBlendishDisplay()
 
     BNDwidgetState state;
 
-    if (pData->isChecked())
-    {
+    if (isChecked())
         state = BND_ACTIVE;
-    }
+    else if (getState() & kButtonStateHover)
+        state = BND_HOVER;
     else
-    {
-        switch (pData->getBlendishState())
-        {
-        case BND_HOVER:
-            state = BND_HOVER;
-            break;
-        default:
-            state = BND_DEFAULT;
-            break;
-        }
-    }
+        state = BND_DEFAULT;
 
-    bndOptionButton(pData->context, x, y, w, h, state, pData->label);
+    bndOptionButton(bData->context, x, y, w, h, state, bData->label);
+}
+
+bool BlendishCheckBox::onMouse(const MouseEvent& ev)
+{
+    if (BlendishSubWidget::onMouse(ev))
+        return true;
+    return mouseEvent(ev);
+}
+
+bool BlendishCheckBox::onMotion(const MotionEvent& ev)
+{
+    if (BlendishSubWidget::onMotion(ev))
+        return true;
+    return motionEvent(ev);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
 
-struct BlendishMenuItem::CallbackComboBox : BlendishSubWidget::Callback
+struct BlendishMenuItem::CallbackComboBox : ButtonEventHandler::Callback
 {
     BlendishComboBox* const comboBox;
     BlendishMenu& menu;
@@ -431,26 +397,29 @@ struct BlendishMenuItem::CallbackComboBox : BlendishSubWidget::Callback
         : comboBox(cb),
           menu(m) {}
 
-    void blendishWidgetClicked(BlendishSubWidget* const widget, const int button) override
+    void buttonClicked(SubWidget* const widget, const int button) override
     {
         if (button != 1)
             return;
 
         menu.hide();
-        comboBox->setCurrentMenuItem(dynamic_cast<BlendishMenuItem*>(widget), true);
 
-        if (widget->pData->userCallback != nullptr)
-            widget->pData->userCallback->blendishWidgetClicked(widget, button);
+        BlendishMenuItem* const menuItem = dynamic_cast<BlendishMenuItem*>(widget);
+        DISTRHO_SAFE_ASSERT_RETURN(menuItem != nullptr,);
+
+        comboBox->setCurrentMenuItem(menuItem, true);
+        menuItem->triggerUserCallback(widget, button);
     }
 };
 
 // --------------------------------------------------------------------------------------------------------------------
 
 BlendishMenuItem::BlendishMenuItem(BlendishMenu* const parent, const char* const label)
-    : BlendishSubWidget(parent)
+    : BlendishSubWidget(parent),
+      ButtonEventHandler(this)
 {
-    setMargin(0, static_cast<int>(0.5 * pData->scaleFactor + 0.5));
-    setSize(BND_TOOL_WIDTH * pData->scaleFactor, (BND_WIDGET_HEIGHT - 1) * pData->scaleFactor);
+    setMargin(0, static_cast<int>(0.5 * bData->scaleFactor + 0.5));
+    setSize(BND_TOOL_WIDTH * bData->scaleFactor, (BND_WIDGET_HEIGHT - 1) * bData->scaleFactor);
 
     if (label != nullptr)
         setLabel(label);
@@ -463,26 +432,40 @@ uint BlendishMenuItem::getMinimumWidth() const noexcept
 
 void BlendishMenuItem::onBlendishDisplay()
 {
-    const double scaleFactor = pData->scaleFactor;
+    const double scaleFactor = bData->scaleFactor;
     const float x = getAbsoluteX() / scaleFactor;
     const float y = getAbsoluteY() / scaleFactor;
     const float w = getWidth() / scaleFactor;
     const float h = getHeight() / scaleFactor;
 
-    bndMenuItem(pData->context, x, y, w, h, pData->flags,
-                pData->getBlendishState(), -1, pData->label);
+    bndMenuItem(bData->context, x, y, w, h, bData->flags,
+                getBlendishState(getState()), -1, bData->label);
+}
+
+bool BlendishMenuItem::onMouse(const MouseEvent& ev)
+{
+    if (BlendishSubWidget::onMouse(ev))
+        return true;
+    return mouseEvent(ev);
+}
+
+bool BlendishMenuItem::onMotion(const MotionEvent& ev)
+{
+    if (BlendishSubWidget::onMotion(ev))
+        return true;
+    return motionEvent(ev);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
 
-struct BlendishMenu::CallbackComboBox : BlendishSubWidget::Callback
+struct BlendishMenu::CallbackComboBox : ButtonEventHandler::Callback
 {
     BlendishMenu& menu;
 
     explicit CallbackComboBox(BlendishMenu& m)
         : menu(m) {}
 
-    void blendishWidgetClicked(BlendishSubWidget* const widget, const int button) override
+    void buttonClicked(SubWidget* const widget, const int button) override
     {
         if (button != 1)
             return;
@@ -509,9 +492,10 @@ BlendishMenu::BlendishMenu(BlendishSubWidgetSharedContext* const parent)
       matchingComboBox(nullptr),
       biggestItemWidth(0),
       nextY(0),
-      labelAtBottom(false)
+      labelAtBottom(false),
+      oldMotionPos()
 {
-    setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+    setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 BlendishMenu::BlendishMenu(BlendishComboBox* const parent)
@@ -521,9 +505,10 @@ BlendishMenu::BlendishMenu(BlendishComboBox* const parent)
       matchingComboBox(parent),
       biggestItemWidth(0),
       nextY(0),
-      labelAtBottom(false)
+      labelAtBottom(false),
+      oldMotionPos()
 {
-    setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+    setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 BlendishMenu::BlendishMenu(SubWidget* const parent)
@@ -533,9 +518,10 @@ BlendishMenu::BlendishMenu(SubWidget* const parent)
       matchingComboBox(nullptr),
       biggestItemWidth(0),
       nextY(0),
-      labelAtBottom(false)
+      labelAtBottom(false),
+      oldMotionPos()
 {
-    setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+    setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 BlendishMenuItem* BlendishMenu::addMenuItem(const char* const label)
@@ -596,18 +582,18 @@ uint BlendishMenu::getMinimumWidth() const noexcept
 
 void BlendishMenu::onBlendishDisplay()
 {
-    const double scaleFactor = pData->scaleFactor;
+    const double scaleFactor = bData->scaleFactor;
     const float x = getAbsoluteX() / scaleFactor;
     const float y = getAbsoluteY() / scaleFactor;
     const float w = getWidth() / scaleFactor;
     const float h = getHeight() / scaleFactor;
 
-    bndMenuBackground(pData->context, x, y, w, h, pData->flags);
+    bndMenuBackground(bData->context, x, y, w, h, bData->flags);
 
-    if (pData->label != nullptr)
-        bndMenuLabel(pData->context,
+    if (bData->label != nullptr)
+        bndMenuLabel(bData->context,
                      x, labelAtBottom ? (h - BND_WIDGET_HEIGHT - 2) : y,
-                     w, BND_WIDGET_HEIGHT, -1, pData->label);
+                     w, BND_WIDGET_HEIGHT, -1, bData->label);
 
     for (std::vector<BlendishMenuItem*>::iterator it = items.begin(); it != items.end(); ++it)
     {
@@ -620,13 +606,31 @@ void BlendishMenu::onBlendishDisplay()
 
 bool BlendishMenu::onMotion(const MotionEvent& ev)
 {
-    const bool containsOldPos = contains(pData->oldMotionPos);
+    const bool containsOldPos = contains(oldMotionPos);
+    oldMotionPos = ev.pos;
 
     if (BlendishSubWidget::onMotion(ev))
         return true;
 
-    if (contains(ev.pos) && containsOldPos)
+    if (contains(ev.pos) && ! containsOldPos)
+    {
+        if (matchingComboBox != nullptr)
+            matchingComboBox->clearState();
         return true;
+    }
+
+    /*
+    void stateChanged(const State state, const State oldState) override
+    {
+        const bool  isHovering = state    & kButtonStateHover;
+        const bool wasHovering = oldState & kButtonStateHover;
+
+        if (isHovering && ! wasHovering)
+            if (BlendishMenu* const menu = dynamic_cast<BlendishMenu*>(self))
+                if (menu->matchingComboBox != nullptr)
+                    menu->matchingComboBox->pData->clearState();
+    }
+    */
 
     return false;
 }
@@ -637,9 +641,9 @@ void BlendishMenu::onPositionChanged(const PositionChangedEvent& ev)
     /* */ int y = ev.pos.getY();
 
     if (getLabel() != nullptr)
-        y += BND_WIDGET_HEIGHT * pData->scaleFactor;
+        y += BND_WIDGET_HEIGHT * bData->scaleFactor;
     else
-        y += 1 * pData->scaleFactor;
+        y += 1 * bData->scaleFactor;
 
     for (std::vector<BlendishMenuItem*>::iterator it = items.begin(); it != items.end(); ++it)
     {
@@ -688,7 +692,7 @@ void BlendishMenu::recheckSize(const uint newItemWidth, const uint newItemHeight
         uint nextHeight = 0;
 
         if (getLabel() != nullptr)
-            nextHeight += BND_WIDGET_HEIGHT * pData->scaleFactor;
+            nextHeight += BND_WIDGET_HEIGHT * bData->scaleFactor;
 
         for (std::vector<BlendishMenuItem*>::iterator it = items.begin(); it != items.end(); ++it)
         {
@@ -712,16 +716,18 @@ void BlendishMenu::recheckSize(const uint newItemWidth, const uint newItemHeight
 
 BlendishComboBox::BlendishComboBox(BlendishSubWidgetSharedContext* const parent)
     : BlendishSubWidget(parent),
+      ButtonEventHandler(this),
       menu(this),
       currentIndex(-1),
       defaultLabel(nullptr),
       callback(nullptr)
 {
-    pData->labelCanChangeWidth = false;
-    setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+    bData->labelCanChangeWidth = false;
+    setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 
     menu.hide();
-    pData->internalCallback = new BlendishMenu::CallbackComboBox(menu);
+    internalCallback = new BlendishMenu::CallbackComboBox(menu);
+    setInternalCallback(internalCallback);
 }
 
 BlendishComboBox::~BlendishComboBox()
@@ -806,12 +812,12 @@ void BlendishComboBox::setDefaultLabel(const char* const label)
     {
         defaultLabel = strdup(label);
         setWidth(std::max((double)menu.biggestItemWidth,
-                          bndLabelWidth(pData->context, BND_ICON_NONE, label) * pData->scaleFactor));
+                          bndLabelWidth(bData->context, BND_ICON_NONE, label) * bData->scaleFactor));
     }
     else
     {
         defaultLabel = nullptr;
-        setWidth(std::max(menu.biggestItemWidth, static_cast<uint>(BND_TOOL_WIDTH * pData->scaleFactor + 0.5)));
+        setWidth(std::max(menu.biggestItemWidth, static_cast<uint>(BND_TOOL_WIDTH * bData->scaleFactor + 0.5)));
     }
 
     if (currentIndex == -1)
@@ -821,7 +827,8 @@ void BlendishComboBox::setDefaultLabel(const char* const label)
 BlendishMenuItem* BlendishComboBox::addMenuItem(const char* const label)
 {
      BlendishMenuItem* const item = menu.addMenuItem(label);
-     item->pData->internalCallback = new BlendishMenuItem::CallbackComboBox(this, menu);
+     item->internalCallback = new BlendishMenuItem::CallbackComboBox(this, menu);
+     item->setInternalCallback(item->internalCallback);
      setWidth(std::max(getWidth(), item->getWidth()));
      return item;
 }
@@ -838,44 +845,51 @@ uint BlendishComboBox::getMinimumWidth() const noexcept
 
 void BlendishComboBox::onBlendishDisplay()
 {
-    const double scaleFactor = pData->scaleFactor;
+    const double scaleFactor = bData->scaleFactor;
     const float x = getAbsoluteX() / scaleFactor;
     const float y = getAbsoluteY() / scaleFactor;
     const float w = getWidth() / scaleFactor;
     const float h = getHeight() / scaleFactor;
 
-    bndChoiceButton(pData->context, x, y, w, h,
-                    static_cast<BNDcornerFlags>(pData->flags),
-                    pData->getBlendishState(), -1, pData->label);
+    bndChoiceButton(bData->context, x, y, w, h,
+                    static_cast<BNDcornerFlags>(bData->flags),
+                    getBlendishState(getState()), -1, bData->label);
 }
 
 bool BlendishComboBox::onMouse(const MouseEvent& ev)
 {
-    if (! menu.contains(ev.pos))
+    if (menu.isVisible() && ! menu.contains(ev.pos))
     {
         menu.hide();
         repaint();
     }
 
-    return BlendishSubWidget::onMouse(ev);
+    if (BlendishSubWidget::onMouse(ev))
+        return true;
+    return mouseEvent(ev);
 }
 
-void BlendishComboBox::setLabel(const char*)
+bool BlendishComboBox::onMotion(const MotionEvent& ev)
 {
+    if (BlendishSubWidget::onMotion(ev))
+        return true;
+    return motionEvent(ev);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
 
 BlendishColorButton::BlendishColorButton(BlendishSubWidgetSharedContext* const parent)
-    : BlendishSubWidget(parent)
+    : BlendishSubWidget(parent),
+      ButtonEventHandler(this)
 {
-    setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+    setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 BlendishColorButton::BlendishColorButton(SubWidget* const parent)
-    : BlendishSubWidget(parent)
+    : BlendishSubWidget(parent),
+      ButtonEventHandler(this)
 {
-    setSize(BND_TOOL_WIDTH*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+    setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 uint BlendishColorButton::getMinimumWidth() const noexcept
@@ -895,39 +909,49 @@ void BlendishColorButton::setColor(const Color c)
 
 void BlendishColorButton::onBlendishDisplay()
 {
-    const double scaleFactor = pData->scaleFactor;
+    const double scaleFactor = bData->scaleFactor;
     const float x = getAbsoluteX() / scaleFactor;
     const float y = getAbsoluteY() / scaleFactor;
     const float w = getWidth() / scaleFactor;
     const float h = getHeight() / scaleFactor;
 
-    bndColorButton(pData->context, x, y, w, h, static_cast<BNDcornerFlags>(pData->flags), color);
+    bndColorButton(bData->context, x, y, w, h, static_cast<BNDcornerFlags>(bData->flags), color);
+}
+
+bool BlendishColorButton::onMouse(const MouseEvent& ev)
+{
+    if (BlendishSubWidget::onMouse(ev))
+        return true;
+    return mouseEvent(ev);
+}
+
+bool BlendishColorButton::onMotion(const MotionEvent& ev)
+{
+    if (BlendishSubWidget::onMotion(ev))
+        return true;
+    return motionEvent(ev);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
 
 BlendishNumberField::BlendishNumberField(BlendishSubWidgetSharedContext* const parent)
     : BlendishSubWidget(parent),
-      value(0)
+      KnobEventHandler(this)
 {
-    setSize(48*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
+    setStep(1.0f);
+    setRange(0.0f, 100.0f);
+    setValue(50.0f, false);
+    setSize(48*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 BlendishNumberField::BlendishNumberField(SubWidget* const parent)
     : BlendishSubWidget(parent),
-      value(0)
+      KnobEventHandler(this)
 {
-    setSize(48*pData->scaleFactor, BND_WIDGET_HEIGHT*pData->scaleFactor);
-}
-
-int BlendishNumberField::getValue() const noexcept
-{
-    return value;
-}
-
-void BlendishNumberField::setValue(const int v)
-{
-    value = v;
+    setStep(1.0f);
+    setRange(0.0f, 100.0f);
+    setValue(50.0f, false);
+    setSize(48*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 uint BlendishNumberField::getMinimumWidth() const noexcept
@@ -937,57 +961,55 @@ uint BlendishNumberField::getMinimumWidth() const noexcept
 
 void BlendishNumberField::onBlendishDisplay()
 {
-    const double scaleFactor = pData->scaleFactor;
+    const double scaleFactor = bData->scaleFactor;
     const float x = getAbsoluteX() / scaleFactor;
     const float y = getAbsoluteY() / scaleFactor;
     const float w = getWidth() / scaleFactor;
     const float h = getHeight() / scaleFactor;
 
     char valuestr[32];
-    snprintf(valuestr, sizeof(valuestr)-1, "%d", value);
+    snprintf(valuestr, sizeof(valuestr)-1, "%d", static_cast<int>(getValue()));
 
-    bndNumberField(pData->context, x, y, w, h,
-                   static_cast<BNDcornerFlags>(pData->flags),
-                   pData->getBlendishState(), pData->label, valuestr);
+    bndNumberField(bData->context, x, y, w, h,
+                   static_cast<BNDcornerFlags>(bData->flags),
+                   getBlendishState(getState()), bData->label, valuestr);
+}
+
+bool BlendishNumberField::onMouse(const MouseEvent& ev)
+{
+    if (BlendishSubWidget::onMouse(ev))
+        return true;
+    return mouseEvent(ev);
+}
+
+bool BlendishNumberField::onMotion(const MotionEvent& ev)
+{
+    if (BlendishSubWidget::onMotion(ev))
+        return true;
+    return motionEvent(ev);
+}
+
+bool BlendishNumberField::onScroll(const ScrollEvent& ev)
+{
+    if (BlendishSubWidget::onScroll(ev))
+        return true;
+    return scrollEvent(ev);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
 
 BlendishKnob::BlendishKnob(BlendishSubWidgetSharedContext* const parent)
     : BlendishSubWidget(parent),
-      min(0.0f),
-      max(1.0f),
-      def(0.5f),
-      value(def)
+      KnobEventHandler(this)
 {
-    setSize(64 * pData->scaleFactor, (64 + BND_WIDGET_HEIGHT) * pData->scaleFactor);
+    setSize(64 * bData->scaleFactor, (64 + BND_WIDGET_HEIGHT) * bData->scaleFactor);
 }
 
 BlendishKnob::BlendishKnob(SubWidget* const parent)
     : BlendishSubWidget(parent),
-      min(0.0f),
-      max(1.0f),
-      def(0.5f),
-      value(def)
+      KnobEventHandler(this)
 {
-    setSize(64 * pData->scaleFactor, (64 + BND_WIDGET_HEIGHT) * pData->scaleFactor);
-}
-
-void BlendishKnob::setup(const float min2, const float max2, const float def2)
-{
-    min = min2;
-    max = max2;
-    def = def2;
-}
-
-float BlendishKnob::getCurrentValue() const noexcept
-{
-    return value;
-}
-
-void BlendishKnob::setCurrentValue(const float v)
-{
-    value = v;
+    setSize(64 * bData->scaleFactor, (64 + BND_WIDGET_HEIGHT) * bData->scaleFactor);
 }
 
 uint BlendishKnob::getMinimumWidth() const noexcept
@@ -997,18 +1019,18 @@ uint BlendishKnob::getMinimumWidth() const noexcept
 
 void BlendishKnob::onBlendishDisplay()
 {
-    const double scaleFactor = pData->scaleFactor;
+    const double scaleFactor = bData->scaleFactor;
     const float x = getAbsoluteX() / scaleFactor;
     const float y = getAbsoluteY() / scaleFactor;
     const float w = getWidth() / scaleFactor;
     const float h = getHeight() / scaleFactor;
 
-    const BNDcornerFlags flags = static_cast<BNDcornerFlags>(pData->flags);
-    const BNDwidgetState state = pData->getBlendishState();
-    auto ctx = pData->context;
+    // const BNDcornerFlags flags = static_cast<BNDcornerFlags>(bData->flags);
+    const BNDwidgetState state = BND_DEFAULT; // TODO bData->getBlendishState();
+    auto ctx = bData->context;
 
     char valuestr[32];
-    snprintf(valuestr, sizeof(valuestr)-1, "%f", value);
+    snprintf(valuestr, sizeof(valuestr)-1, "%f", getValue());
 
 //     float cr[4];
     NVGcolor shade_top, shade_down;
@@ -1034,7 +1056,7 @@ void BlendishKnob::onBlendishDisplay()
 
     bndIconLabelValue(ctx, x, y + knobSize, knobSize, BND_WIDGET_HEIGHT, -1,
         bnd_theme.regularTheme.textColor, BND_CENTER,
-        BND_LABEL_FONT_SIZE, pData->label, NULL);
+        BND_LABEL_FONT_SIZE, bData->label, NULL);
 
 #if 0
     bndInnerBox(ctx,x,y,w,h,cr[0],cr[1],cr[2],cr[3], shade_top, shade_down);
@@ -1042,7 +1064,7 @@ void BlendishKnob::onBlendishDisplay()
         bndTransparent(bnd_theme.numberFieldTheme.outlineColor));
     bndIconLabelValue(ctx,x,y,w,h,-1,
         bndTextColor(&bnd_theme.numberFieldTheme, state), BND_CENTER,
-        BND_LABEL_FONT_SIZE, pData->label, valuestr);
+        BND_LABEL_FONT_SIZE, bData->label, valuestr);
     bndArrow(ctx,x+8,y+10,-BND_NUMBER_ARROW_SIZE,
         bndTransparent(bnd_theme.numberFieldTheme.itemColor));
     bndArrow(ctx,x+w-8,y+10,BND_NUMBER_ARROW_SIZE,

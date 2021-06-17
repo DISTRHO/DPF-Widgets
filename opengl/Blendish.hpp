@@ -80,11 +80,6 @@ public:
         kCornerALL = kCornerTopLeft | kCornerTopRight | kCornerDownRight | kCornerDownLeft
     };
 
-    struct Callback {
-        virtual ~Callback() {}
-        virtual void blendishWidgetClicked(BlendishSubWidget* widget, int button) = 0;
-    };
-
     // special drawing handling, for reusing nanovg context among all widgets
     explicit BlendishSubWidget(BlendishSubWidgetSharedContext* parent);
 
@@ -106,8 +101,6 @@ public:
 
     void toFront() override;
 
-    void setCallback(Callback* callback);
-
 protected:
     // must be reimplemented
     virtual uint getMinimumWidth() const noexcept = 0;
@@ -115,20 +108,15 @@ protected:
     // new function for subclasses to override
     virtual void onBlendishDisplay() = 0;
 
-    // common handling
-    bool onMouse(const MouseEvent& ev) override;
-    bool onMotion(const MotionEvent& ev) override;
-
     // available to subclasses
     struct ProtectedData;
-    ProtectedData* const pData;
+    ProtectedData* const bData;
 
 private:
     // should not be used
     void onDisplay() override;
 
     friend class BlendishSubWidgetSharedContext;
-    friend class BlendishMenuItem;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishSubWidget)
 };
@@ -167,15 +155,23 @@ protected:
    Uses the label methods from BlendishSubWidget to set its contents.
    Will trigger Callback::blendishButtonClicked.
  */
-class BlendishToolButton : public BlendishSubWidget
+class BlendishToolButton : public BlendishSubWidget,
+                           public ButtonEventHandler
 {
 public:
+    struct Callback {
+        virtual ~Callback() {}
+        virtual void blendishToolButtonClicked(BlendishToolButton* widget, int button) = 0;
+    };
+
     explicit BlendishToolButton(BlendishSubWidgetSharedContext* parent);
     explicit BlendishToolButton(SubWidget* parent);
 
 protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
+    bool onMouse(const MouseEvent& ev) override;
+    bool onMotion(const MotionEvent& ev) override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishToolButton)
 };
@@ -191,18 +187,22 @@ protected:
    Provides its own methods for setting the checked state.
    Will trigger Callback::blendishButtonClicked.
  */
-class BlendishCheckBox : public BlendishSubWidget
+class BlendishCheckBox : public BlendishSubWidget,
+                         public ButtonEventHandler
 {
 public:
     explicit BlendishCheckBox(BlendishSubWidgetSharedContext* parent);
     explicit BlendishCheckBox(SubWidget* parent);
 
-    bool isChecked() const noexcept;
-    void setChecked(bool checked);
-
 protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
+    bool onMouse(const MouseEvent& ev) override;
+    bool onMotion(const MotionEvent& ev) override;
+
+    // these should not be used
+    bool isCheckable() const noexcept { return true; }
+    void setCheckable(bool) const noexcept {}
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishCheckBox)
 };
@@ -222,7 +222,8 @@ class BlendishMenu;
 
    @see BlendishMenu
  */
-class BlendishMenuItem : public BlendishSubWidget
+class BlendishMenuItem : public BlendishSubWidget,
+                         public ButtonEventHandler
 {
 public:
     explicit BlendishMenuItem(BlendishMenu* parent, const char* label = nullptr);
@@ -230,12 +231,15 @@ public:
 protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
+    bool onMouse(const MouseEvent& ev) override;
+    bool onMotion(const MotionEvent& ev) override;
 
 private:
+    ScopedPointer<ButtonEventHandler::Callback> internalCallback;
+
     struct CallbackComboBox;
     friend class BlendishComboBox;
     friend class BlendishMenu;
-    friend class BlendishSubWidget;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishMenuItem)
 };
@@ -274,18 +278,18 @@ protected:
     void onResize(const ResizeEvent& ev) override;
 
 private:
-    struct CallbackComboBox;
-    friend class BlendishComboBox;
-    friend class BlendishSubWidget;
-
     std::vector<BlendishMenuItem*> items;
     BlendishMenuItem* lastHoveredItem;
     BlendishComboBox* matchingComboBox;
     uint biggestItemWidth;
     int nextY;
     bool labelAtBottom;
+    Point<double> oldMotionPos;
 
     void recheckSize(uint newItemWidth, uint newItemHeight);
+
+    struct CallbackComboBox;
+    friend class BlendishComboBox;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishMenu)
 };
@@ -301,7 +305,8 @@ private:
    Uses the label methods from BlendishSubWidget to set its contents.
    Provides its own methods for adding menu items, and those will trigger Callback::blendishButtonClicked.
  */
-class BlendishComboBox : public BlendishSubWidget
+class BlendishComboBox : public BlendishSubWidget,
+                         public ButtonEventHandler
 {
 public:
     struct Callback {
@@ -331,15 +336,19 @@ protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
     bool onMouse(const MouseEvent& ev) override;
+    bool onMotion(const MotionEvent& ev) override;
 
 private:
     BlendishMenu menu;
     int currentIndex;
     char* defaultLabel;
     Callback* callback;
+    ScopedPointer<ButtonEventHandler::Callback> internalCallback;
 
     // should not be used
-    void setLabel(const char* label) override;
+    void setLabel(const char*) override {}
+
+    friend class BlendishMenu;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishComboBox)
 };
@@ -355,7 +364,8 @@ private:
    Provides its own methods for setting and getting current color.
    Will trigger Callback::blendishButtonClicked.
  */
-class BlendishColorButton : public BlendishSubWidget
+class BlendishColorButton : public BlendishSubWidget,
+                            public ButtonEventHandler
 {
 public:
     explicit BlendishColorButton(BlendishSubWidgetSharedContext* parent);
@@ -367,6 +377,8 @@ public:
 protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
+    bool onMouse(const MouseEvent& ev) override;
+    bool onMotion(const MotionEvent& ev) override;
 
 private:
     Color color;
@@ -381,7 +393,6 @@ private:
  * text field
  * slider
  * scrollbar
- * menu stuff
  * tooltip stuff
  * node stuff
  * splitter / join area
@@ -400,24 +411,25 @@ private:
    Provides its own methods for setting and getting current value.
    Will trigger ...
  */
-class BlendishNumberField : public BlendishSubWidget
+class BlendishNumberField : public BlendishSubWidget,
+                            public KnobEventHandler
 {
 public:
     explicit BlendishNumberField(BlendishSubWidgetSharedContext* parent);
     explicit BlendishNumberField(SubWidget* parent);
 
-    int getValue() const noexcept;
-    void setValue(int value);
-
 protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
+    bool onMouse(const MouseEvent& ev) override;
+    bool onMotion(const MotionEvent& ev) override;
+    bool onScroll(const ScrollEvent& ev) override;
 
 private:
-    int value;
-
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishNumberField)
 };
+
+// --------------------------------------------------------------------------------------------------------------------
 
 /**
    Blendish Knob class.
@@ -430,24 +442,21 @@ private:
    Provides its own methods for setting and getting minimum, maximum, default and current value.
    Will trigger ...
  */
-class BlendishKnob : public BlendishSubWidget
+class BlendishKnob : public BlendishSubWidget,
+                     public KnobEventHandler
 {
 public:
     explicit BlendishKnob(BlendishSubWidgetSharedContext* parent);
     explicit BlendishKnob(SubWidget* parent);
 
-    void setup(float min, float max, float def);
-
-    float getCurrentValue() const noexcept;
-    void setCurrentValue(float value);
-
 protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
+    bool onMouse(const MouseEvent& ev) override;
+    bool onMotion(const MotionEvent& ev) override;
+    bool onScroll(const ScrollEvent& ev) override;
 
 private:
-    float min, max, def, value;
-
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishKnob)
 };
 
