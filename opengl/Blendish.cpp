@@ -321,7 +321,6 @@ struct BlendishSubWidget::ProtectedData {
     double scaleFactor;
 
     int flags;
-    bool labelCanChangeWidth;
     char* label;
 
     explicit ProtectedData(BlendishSubWidget* const s, BlendishSubWidgetSharedContext* const p)
@@ -331,7 +330,6 @@ struct BlendishSubWidget::ProtectedData {
           context(p->pData->nvg.getContext()),
           scaleFactor(p->pData->scaleFactor),
           flags(kCornerNone),
-          labelCanChangeWidth(true),
           label(nullptr)
     {
         shared->pData->widgets.push_back(self);
@@ -344,7 +342,6 @@ struct BlendishSubWidget::ProtectedData {
           context(parent != nullptr ? parent->bData->context : nvg->getContext()),
           scaleFactor(parent != nullptr ? parent->bData->scaleFactor : s->getWindow().getScaleFactor()),
           flags(kCornerNone),
-          labelCanChangeWidth(true),
           label(nullptr) {}
 
     ~ProtectedData()
@@ -393,7 +390,7 @@ const char* BlendishSubWidget::getLabel() const noexcept
     return bData->label;
 }
 
-void BlendishSubWidget::setLabel(const char* const label)
+void BlendishSubWidget::setLabel(const char* const label, const bool adjustWidth)
 {
     std::free(bData->label);
 
@@ -401,14 +398,14 @@ void BlendishSubWidget::setLabel(const char* const label)
     {
         bData->label = strdup(label);
 
-        if (bData->labelCanChangeWidth)
+        if (adjustWidth)
             setWidth((getMinimumWidth() + bndLabelWidth(bData->context, 0, label)) * bData->scaleFactor);
     }
     else
     {
         bData->label = nullptr;
 
-        if (bData->labelCanChangeWidth)
+        if (adjustWidth)
             setWidth(1*bData->scaleFactor);
     }
 }
@@ -663,7 +660,7 @@ BlendishMenuItem::BlendishMenuItem(BlendishMenu* const parent, const char* const
     setSize(BND_TOOL_WIDTH * bData->scaleFactor, (BND_WIDGET_HEIGHT - 1) * bData->scaleFactor);
 
     if (label != nullptr)
-        setLabel(label);
+        setLabel(label, true);
 }
 
 uint BlendishMenuItem::getMinimumWidth() const noexcept
@@ -792,9 +789,9 @@ BlendishMenuItem* BlendishMenu::addMenuItem(const char* const label)
     return item;
 }
 
-void BlendishMenu::setLabel(const char* const label)
+void BlendishMenu::setLabel(const char* const label, bool)
 {
-    BlendishSubWidget::setLabel(label);
+    BlendishSubWidget::setLabel(label, false);
 
     if (getLabel() != nullptr)
     {
@@ -963,7 +960,6 @@ BlendishComboBox::BlendishComboBox(BlendishSubWidgetSharedContext* const parent)
       defaultLabel(nullptr),
       callback(nullptr)
 {
-    bData->labelCanChangeWidth = false;
     setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 
     menu.hide();
@@ -1005,7 +1001,7 @@ void BlendishComboBox::setCurrentIndex(int index, const bool triggerCallback)
         return;
 
     currentIndex = index;
-    BlendishSubWidget::setLabel(index == -1 ? defaultLabel : menu.items[index]->getLabel());
+    BlendishSubWidget::setLabel(index == -1 ? defaultLabel : menu.items[index]->getLabel(), false);
 
     if (triggerCallback && callback != nullptr)
         callback->blendishComboBoxIndexChanged(this, index);
@@ -1016,9 +1012,9 @@ void BlendishComboBox::setCurrentLabel(const char* const label)
     if (currentIndex == -1)
         setDefaultLabel(label);
     else
-        menu.items[currentIndex]->setLabel(label);
+        menu.items[currentIndex]->setLabel(label, false);
 
-    BlendishSubWidget::setLabel(label);
+    BlendishSubWidget::setLabel(label, false);
 }
 
 void BlendishComboBox::setCurrentMenuItem(BlendishMenuItem* const menuItem, const bool triggerCallback)
@@ -1062,7 +1058,7 @@ void BlendishComboBox::setDefaultLabel(const char* const label)
     }
 
     if (currentIndex == -1)
-        BlendishSubWidget::setLabel(label);
+        BlendishSubWidget::setLabel(label, false);
 }
 
 BlendishMenuItem* BlendishComboBox::addMenuItem(const char* const label)

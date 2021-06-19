@@ -166,8 +166,7 @@ public:
     // returns null if label is empty
     const char* getLabel() const noexcept;
 
-    // will change width automatically
-    virtual void setLabel(const char* label);
+    virtual void setLabel(const char* label, bool adjustWidth = true);
 
     BlendishSubWidgetSharedContext* getSharedContext();
 
@@ -359,7 +358,7 @@ public:
 
     BlendishMenuItem* addMenuItem(const char* label);
 
-    void setLabel(const char* label) override;
+    void setLabel(const char* label, bool) override;
 
 protected:
     uint getMinimumWidth() const noexcept override;
@@ -437,7 +436,7 @@ private:
     ScopedPointer<ButtonEventHandler::Callback> internalCallback;
 
     // should not be used
-    void setLabel(const char*) override {}
+    void setLabel(const char*,bool) override {}
 
     friend class BlendishMenu;
 
