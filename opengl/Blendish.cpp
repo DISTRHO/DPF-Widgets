@@ -444,15 +444,61 @@ void BlendishSubWidget::onDisplay()
 // --------------------------------------------------------------------------------------------------------------------
 
 BlendishLabel::BlendishLabel(BlendishSubWidgetSharedContext* const parent)
-    : BlendishSubWidget(parent)
+    : BlendishSubWidget(parent),
+      active(false),
+      alignment(kAlignmentLeft),
+      fontSize(BND_LABEL_FONT_SIZE)
 {
     setSize(1*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 BlendishLabel::BlendishLabel(SubWidget* const parent)
-    : BlendishSubWidget(parent)
+    : BlendishSubWidget(parent),
+      active(false)
 {
     setSize(1*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
+}
+
+bool BlendishLabel::isActive() const noexcept
+{
+    return active;
+}
+
+void BlendishLabel::setActive(const bool active2)
+{
+    if (active == active2)
+        return;
+
+    active = active2;
+    repaint();
+}
+
+BlendishLabel::Alignment BlendishLabel::getAlignment() const noexcept
+{
+    return alignment;
+}
+
+void BlendishLabel::setAlignment(const Alignment alignment2)
+{
+    if (alignment == alignment2)
+        return;
+
+    alignment = alignment2;
+    repaint();
+}
+
+int BlendishLabel::getFontSize() const noexcept
+{
+    return fontSize;
+}
+
+void BlendishLabel::setFontSize(const int fontSize2)
+{
+    if (fontSize == fontSize2)
+        return;
+
+    fontSize = fontSize2;
+    repaint();
 }
 
 uint BlendishLabel::getMinimumWidth() const noexcept
@@ -471,7 +517,9 @@ void BlendishLabel::onBlendishDisplay()
     const float w = getWidth() / scaleFactor;
     const float h = getHeight() / scaleFactor;
 
-    bndLabel(bData->context, x, y, w, h, -1, bData->label);
+    bndIconLabelValue(bData->context, x, y, w, h, -1,
+                      active ? bnd_theme.regularTheme.textSelectedColor : bnd_theme.regularTheme.textColor,
+                      alignment, fontSize, bData->label, nullptr);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -1240,11 +1288,14 @@ void BlendishKnob::onBlendishDisplay()
     const BNDwidgetState state = getBlendishState(getState());
     auto ctx = bData->context;
 
+    /*
     nvgBeginPath(ctx);
     nvgRect(ctx, x, y, w, h);
     nvgClosePath(ctx);
     nvgFillColor(ctx, Color(0.3f, 0.8f, 0.23f, 0.1f));
     nvgFill(ctx);
+    */
+    Color testing(Color::fromHTML("#665d98"));
 
     const int ringSize = 2;
     const int knobSize = std::min(w, h - BND_WIDGET_HEIGHT * 2) - ringSize;
@@ -1265,29 +1316,9 @@ void BlendishKnob::onBlendishDisplay()
         const int knobCenterX = knobStartX + knobSize / 2;
         const int knobCenterY = knobStartY + knobSize / 2;
 
-        // outer ring
-        nvgBeginPath(ctx);
-        nvgArc(ctx, knobCenterX, knobCenterY, knobSize / 2 + ringSize / 2 + 1, 1, 180, NVG_CCW);
-        nvgClosePath(ctx);
-        nvgStrokeWidth(ctx, ringSize);
-        nvgStrokeColor(ctx, Color(0.8f, 0.1f, 0.23f));
-        nvgStroke(ctx);
-
-        // cut outer ring bottom (by drawing over background color)
-        nvgSave(ctx);
-        nvgTranslate(ctx, knobCenterX, knobCenterY);
-        nvgRotate(ctx, nvgDegToRad(45.0f));
-        nvgBeginPath(ctx);
-        nvgRect(ctx, 0, 0, knobSize / 2 + ringSize + 1, knobSize / 2 + ringSize + 1);
-        nvgClosePath(ctx);
-        nvgFillColor(ctx, Color());
-        nvgFill(ctx);
-        nvgRestore(ctx);
-
         // inner fill
         nvgBeginPath(ctx);
         nvgCircle(ctx, knobCenterX, knobCenterY, knobSize / 2);
-        nvgClosePath(ctx);
         nvgFillPaint(ctx, nvgLinearGradient(ctx,
                                             knobStartX,
                                             knobStartY,
@@ -1296,6 +1327,74 @@ void BlendishKnob::onBlendishDisplay()
                                             shade_top,
                                             shade_down));
         nvgFill(ctx);
+
+        // inner fill border (inner)
+        nvgBeginPath(ctx);
+        nvgArc(ctx, knobCenterX, knobCenterY, knobSize / 2 - 1, nvgDegToRad(0.0f), nvgDegToRad(360.0f), NVG_CCW);
+        nvgClosePath(ctx);
+        nvgStrokeWidth(ctx, 1);
+        nvgStrokeColor(ctx, Color(0.5f, 0.5f, 0.5f, 0.4f));
+        nvgStroke(ctx);
+
+        // inner fill border (outer)
+        nvgBeginPath(ctx);
+        nvgArc(ctx, knobCenterX, knobCenterY, knobSize / 2, nvgDegToRad(0.0f), nvgDegToRad(360.0f), NVG_CCW);
+        nvgClosePath(ctx);
+        nvgStrokeWidth(ctx, 1);
+        nvgStrokeColor(ctx, Color(0.0f, 0.0f, 0.0f, 0.4f));
+        nvgStroke(ctx);
+
+        // line indicator
+        nvgLineCap(ctx, NVG_ROUND);
+        nvgStrokeWidth(ctx, 2);
+        nvgSave(ctx);
+        nvgTranslate(ctx, knobCenterX, knobCenterY);
+        nvgRotate(ctx, nvgDegToRad(45.0f) + normalizedValue * nvgDegToRad(270.0f));
+        nvgBeginPath(ctx);
+        nvgRoundedRect(ctx, -2, knobSize / 2 - 9, 2, 6, 1);
+        nvgClosePath(ctx);
+        nvgFillColor(ctx, Color(1.0f, 1.0f, 1.0f));
+        nvgFill(ctx);
+        nvgRestore(ctx);
+
+        // outer ring background
+        nvgBeginPath(ctx);
+        nvgArc(ctx,
+               knobCenterX,
+               knobCenterY,
+               knobSize / 2 + ringSize / 2 + 1,
+               nvgDegToRad(135.0f),
+               nvgDegToRad(45.0f),
+               NVG_CW);
+        nvgStrokeWidth(ctx, ringSize);
+        nvgStrokeColor(ctx, Color(0.5f, 0.5f, 0.5f));
+        nvgStroke(ctx);
+
+        // outer ring value
+        nvgBeginPath(ctx);
+        nvgArc(ctx,
+               knobCenterX,
+               knobCenterY,
+               knobSize / 2 + ringSize / 2 + 1,
+               nvgDegToRad(135.0f),
+               nvgDegToRad(135.0f) + nvgDegToRad(270.0f * normalizedValue),
+               NVG_CW);
+        nvgStrokeWidth(ctx, ringSize);
+        nvgStrokeColor(ctx, testing);
+        nvgStroke(ctx);
+
+        // simulate color bleeding
+        nvgBeginPath(ctx);
+        nvgArc(ctx,
+               knobCenterX,
+               knobCenterY,
+               knobSize / 2 - 3,
+               nvgDegToRad(135.0f),
+               nvgDegToRad(135.0f) + nvgDegToRad(270.0f * normalizedValue),
+               NVG_CW);
+        nvgStrokeWidth(ctx, 5);
+        nvgStrokeColor(ctx, testing.withAlpha(0.1f));
+        nvgStroke(ctx);
     }
 
     // bottom label (value)
@@ -1309,7 +1408,7 @@ void BlendishKnob::onBlendishDisplay()
             snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
 
         bndIconLabelValue(ctx, x, y + BND_WIDGET_HEIGHT + knobSize + ringSize, w, BND_WIDGET_HEIGHT, -1,
-            bnd_theme.regularTheme.textColor, BND_CENTER,
+            testing, BND_CENTER,
             BND_LABEL_FONT_SIZE, valuestr, NULL);
     }
 }

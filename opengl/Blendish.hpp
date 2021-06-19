@@ -206,12 +206,31 @@ private:
 class BlendishLabel : public BlendishSubWidget
 {
 public:
+    enum Alignment {
+        kAlignmentLeft,
+        kAlignmentCenter
+    };
+
     explicit BlendishLabel(BlendishSubWidgetSharedContext* parent);
     explicit BlendishLabel(SubWidget* parent);
+
+    bool isActive() const noexcept;
+    void setActive(bool active);
+
+    Alignment getAlignment() const noexcept;
+    void setAlignment(Alignment alignment);
+
+    int getFontSize() const noexcept;
+    void setFontSize(int fontSize);
 
 protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
+
+private:
+    bool active;
+    Alignment alignment;
+    int fontSize;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishLabel)
 };
