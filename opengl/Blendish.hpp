@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "Color.hpp"
 #include "EventHandlers.hpp"
+#include "NanoVG.hpp"
 #include "SubWidget.hpp"
 
 #include <vector>
@@ -107,6 +107,8 @@ public:
     explicit BlendishSubWidgetSharedContext(Widget* parent);
 
     ~BlendishSubWidgetSharedContext() override;
+
+    NanoVG& getNanoVGInstance();
 
     void setScaleFactor(double scaleFactor);
 
@@ -213,11 +215,11 @@ public:
     explicit BlendishLabel(BlendishSubWidgetSharedContext* parent);
     explicit BlendishLabel(SubWidget* parent);
 
-    bool isActive() const noexcept;
-    void setActive(bool active);
-
     Alignment getAlignment() const noexcept;
     void setAlignment(Alignment alignment);
+
+    Color getColor() const noexcept;
+    void setColor(Color color);
 
     int getFontSize() const noexcept;
     void setFontSize(int fontSize);
@@ -227,8 +229,8 @@ protected:
     void onBlendishDisplay() override;
 
 private:
-    bool active;
     Alignment alignment;
+    Color color;
     int fontSize;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishLabel)

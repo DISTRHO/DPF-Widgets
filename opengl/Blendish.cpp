@@ -290,6 +290,11 @@ BlendishSubWidgetSharedContext::~BlendishSubWidgetSharedContext()
     delete pData;
 }
 
+NanoVG& BlendishSubWidgetSharedContext::getNanoVGInstance()
+{
+    return pData->nvg;
+}
+
 void BlendishSubWidgetSharedContext::setScaleFactor(const double scaleFactor)
 {
     pData->scaleFactor = scaleFactor;
@@ -442,8 +447,8 @@ void BlendishSubWidget::onDisplay()
 
 BlendishLabel::BlendishLabel(BlendishSubWidgetSharedContext* const parent)
     : BlendishSubWidget(parent),
-      active(false),
       alignment(kAlignmentLeft),
+      color(bnd_theme.regularTheme.textColor),
       fontSize(BND_LABEL_FONT_SIZE)
 {
     setSize(1*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
@@ -451,23 +456,11 @@ BlendishLabel::BlendishLabel(BlendishSubWidgetSharedContext* const parent)
 
 BlendishLabel::BlendishLabel(SubWidget* const parent)
     : BlendishSubWidget(parent),
-      active(false)
+      alignment(kAlignmentLeft),
+      color(bnd_theme.regularTheme.textColor),
+      fontSize(BND_LABEL_FONT_SIZE)
 {
     setSize(1*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
-}
-
-bool BlendishLabel::isActive() const noexcept
-{
-    return active;
-}
-
-void BlendishLabel::setActive(const bool active2)
-{
-    if (active == active2)
-        return;
-
-    active = active2;
-    repaint();
 }
 
 BlendishLabel::Alignment BlendishLabel::getAlignment() const noexcept
@@ -481,6 +474,20 @@ void BlendishLabel::setAlignment(const Alignment alignment2)
         return;
 
     alignment = alignment2;
+    repaint();
+}
+
+Color BlendishLabel::getColor() const noexcept
+{
+    return color;
+}
+
+void BlendishLabel::setColor(const Color color2)
+{
+    if (color == color2)
+        return;
+
+    color = color2;
     repaint();
 }
 
@@ -515,8 +522,7 @@ void BlendishLabel::onBlendishDisplay()
     const float h = getHeight() / scaleFactor;
 
     bndIconLabelValue(bData->context, x, y, w, h, -1,
-                      active ? bnd_theme.regularTheme.textSelectedColor : bnd_theme.regularTheme.textColor,
-                      alignment, fontSize, bData->label, nullptr);
+                      color, alignment, fontSize, bData->label, nullptr);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
