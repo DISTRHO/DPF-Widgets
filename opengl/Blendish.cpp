@@ -1246,7 +1246,7 @@ void BlendishKnob::onBlendishDisplay()
     nvgFillColor(ctx, Color(0.3f, 0.8f, 0.23f, 0.1f));
     nvgFill(ctx);
 
-    const int ringSize = 4;
+    const int ringSize = 2;
     const int knobSize = std::min(w, h - BND_WIDGET_HEIGHT * 2) - ringSize;
 
     // top label (name)
@@ -1267,11 +1267,22 @@ void BlendishKnob::onBlendishDisplay()
 
         // outer ring
         nvgBeginPath(ctx);
-        nvgArc(ctx, knobCenterX, knobCenterY, knobSize / 2 + ringSize, 1, 180, NVG_CCW);
+        nvgArc(ctx, knobCenterX, knobCenterY, knobSize / 2 + ringSize / 2 + 1, 1, 180, NVG_CCW);
         nvgClosePath(ctx);
         nvgStrokeWidth(ctx, ringSize);
         nvgStrokeColor(ctx, Color(0.8f, 0.1f, 0.23f));
         nvgStroke(ctx);
+
+        // cut outer ring bottom (by drawing over background color)
+        nvgSave(ctx);
+        nvgTranslate(ctx, knobCenterX, knobCenterY);
+        nvgRotate(ctx, nvgDegToRad(45.0f));
+        nvgBeginPath(ctx);
+        nvgRect(ctx, 0, 0, knobSize / 2 + ringSize + 1, knobSize / 2 + ringSize + 1);
+        nvgClosePath(ctx);
+        nvgFillColor(ctx, Color());
+        nvgFill(ctx);
+        nvgRestore(ctx);
 
         // inner fill
         nvgBeginPath(ctx);
