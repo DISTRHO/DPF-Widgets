@@ -26,6 +26,78 @@ START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
 
+// describes the theme used to draw a single widget or widget box;
+// these values correspond to the same values that can be retrieved from
+// the Theme panel in the Blender preferences
+struct BlendishWidgetTheme {
+    // color of widget box outline
+    Color outlineColor;
+    // color of widget item (meaning changes depending on class)
+    Color itemColor;
+    // fill color of widget box
+    Color innerColor;
+    // fill color of widget box when active
+    Color innerSelectedColor;
+    // color of text label
+    Color textColor;
+    // color of text label when active
+    Color textSelectedColor;
+    // delta modifier for upper part of gradient (-100 to 100)
+    int shadeTop;
+    // delta modifier for lower part of gradient (-100 to 100)
+    int shadeDown;
+};
+
+// describes the theme used to draw widgets
+struct BlendishTheme {
+    // the background color of panels and windows
+    Color backgroundColor;
+    // theme for labels
+    BlendishWidgetTheme labelTheme;
+    // theme for tool buttons
+    BlendishWidgetTheme toolButtonTheme;
+#if 0
+    // theme for radio buttons
+    BlendishWidgetTheme radioButtonTheme;
+    // theme for text fields
+    BlendishWidgetTheme textFieldTheme;
+#endif
+    // theme for checkboxes (option buttons)
+    BlendishWidgetTheme checkBoxTheme;
+    // theme for comboboxes (choice buttons)
+    // Blender calls them "menu buttons"
+    BlendishWidgetTheme comboBoxTheme;
+    // theme for number fields
+    BlendishWidgetTheme numberFieldTheme;
+#if 0
+    // theme for slider controls
+    BlendishWidgetTheme sliderTheme;
+    // theme for scrollbars
+    BlendishWidgetTheme scrollBarTheme;
+    // theme for tooltips
+    BlendishWidgetTheme tooltipTheme;
+#endif
+    // theme for menu backgrounds
+    BlendishWidgetTheme menuTheme;
+    // theme for menu items
+    BlendishWidgetTheme menuItemTheme;
+#if 0
+    // theme for nodes
+    BNDnodeTheme nodeTheme;
+#endif
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+// set the current theme all widgets will be drawn with.
+// the default Blender 2.6 theme is set by default.
+void blendishSetTheme(const BlendishTheme& theme);
+
+// Returns the default theme
+const BlendishTheme& blendishGetDefaultTheme();
+
+// --------------------------------------------------------------------------------------------------------------------
+
 /** Base class for Blendish widget. */
 // TODO allow TopLevelWidget usage, template etc
 class BlendishSubWidgetSharedContext : public SubWidget

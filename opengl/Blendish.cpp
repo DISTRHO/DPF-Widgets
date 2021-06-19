@@ -65,6 +65,199 @@ static BNDwidgetState getBlendishState(const KnobEventHandler::State state) noex
 
 // --------------------------------------------------------------------------------------------------------------------
 
+static void blendishSetWidgetTheme(BNDwidgetTheme& wtheme, const BlendishWidgetTheme& wtheme2)
+{
+    wtheme.outlineColor = wtheme2.outlineColor;
+    wtheme.itemColor = wtheme2.itemColor;
+    wtheme.innerColor = wtheme2.innerColor;
+    wtheme.innerSelectedColor = wtheme2.innerSelectedColor;
+    wtheme.textColor = wtheme2.textColor;
+    wtheme.textSelectedColor = wtheme2.textSelectedColor;
+    wtheme.shadeTop = wtheme2.shadeTop;
+    wtheme.shadeDown = wtheme2.shadeDown;
+}
+
+void blendishSetTheme(const BlendishTheme& theme2)
+{
+    BNDtheme theme;
+    memset(&theme, 0, sizeof(theme));
+    theme.backgroundColor = theme2.backgroundColor;
+    blendishSetWidgetTheme(theme.regularTheme, theme2.labelTheme);
+    blendishSetWidgetTheme(theme.toolTheme, theme2.toolButtonTheme);
+    // blendishSetWidgetTheme(theme.radioButtonTheme, theme2.labelTheme);
+    // blendishSetWidgetTheme(theme.textFieldTheme, theme2.radioTheme);
+    blendishSetWidgetTheme(theme.optionTheme, theme2.checkBoxTheme);
+    blendishSetWidgetTheme(theme.choiceTheme, theme2.comboBoxTheme);
+    blendishSetWidgetTheme(theme.numberFieldTheme, theme2.numberFieldTheme);
+    // blendishSetWidgetTheme(theme.sliderTheme, theme2.sliderTheme);
+    // blendishSetWidgetTheme(theme.scrollBarTheme, theme2.scrollBarTheme);
+    // blendishSetWidgetTheme(theme.tooltipTheme, theme2.tooltipTheme);
+    blendishSetWidgetTheme(theme.menuTheme, theme2.menuTheme);
+    blendishSetWidgetTheme(theme.menuItemTheme, theme2.menuItemTheme);
+    // blendishSetWidgetTheme(theme.nodeTheme, theme2.nodeTheme);
+    bndSetTheme(theme);
+}
+
+const BlendishTheme& blendishGetDefaultTheme()
+{
+    static const BlendishTheme theme = {
+        // backgroundColor
+        {{ 0.447, 0.447, 0.447, 1.0 }},
+        // labelTheme
+        {
+            {{ 0.098,0.098,0.098,1 }}, // color_outline
+            {{ 0.098,0.098,0.098,1 }}, // color_item
+            {{ 0.6,0.6,0.6,1 }}, // color_inner
+            {{ 0.392,0.392,0.392,1 }}, // color_inner_selected
+            BND_COLOR_TEXT, // color_text
+            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            0, // shade_top
+            0, // shade_down
+        },
+        // toolButtonTheme
+        {
+            {{ 0.098,0.098,0.098,1 }}, // color_outline
+            {{ 0.098,0.098,0.098,1 }}, // color_item
+            {{ 0.6,0.6,0.6,1 }}, // color_inner
+            {{ 0.392,0.392,0.392,1 }}, // color_inner_selected
+            BND_COLOR_TEXT, // color_text
+            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            15, // shade_top
+            -15, // shade_down
+        },
+#if 0
+        // radioButtonTheme
+        {
+            {{ 0,0,0,1 }}, // color_outline
+            {{ 1,1,1,1 }}, // color_item
+            {{ 0.275,0.275,0.275,1 }}, // color_inner
+            {{ 0.337,0.502,0.761,1 }}, // color_inner_selected
+            BND_COLOR_TEXT_SELECTED, // color_text
+            BND_COLOR_TEXT, // color_text_selected
+            15, // shade_top
+            -15, // shade_down
+        },
+        // textFieldTheme
+        {
+            {{ 0.098,0.098,0.098,1 }}, // color_outline
+            {{ 0.353, 0.353, 0.353,1 }}, // color_item
+            {{ 0.6, 0.6, 0.6,1 }}, // color_inner
+            {{ 0.6, 0.6, 0.6,1 }}, // color_inner_selected
+            BND_COLOR_TEXT, // color_text
+            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            0, // shade_top
+            25, // shade_down
+        },
+#endif
+        // optionTheme
+        {
+            {{ 0,0,0,1 }}, // color_outline
+            {{ 1,1,1,1 }}, // color_item
+            {{ 0.275,0.275,0.275,1 }}, // color_inner
+            {{ 0.275,0.275,0.275,1 }}, // color_inner_selected
+            BND_COLOR_TEXT, // color_text
+            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            15, // shade_top
+            -15, // shade_down
+        },
+        // choiceTheme
+        {
+            {{ 0,0,0,1 }}, // color_outline
+            {{ 1,1,1,1 }}, // color_item
+            {{ 0.275,0.275,0.275,1 }}, // color_inner
+            {{ 0.275,0.275,0.275,1 }}, // color_inner_selected
+            BND_COLOR_TEXT_SELECTED, // color_text
+            {{ 0.8,0.8,0.8,1 }}, // color_text_selected
+            15, // shade_top
+            -15, // shade_down
+        },
+        // numberFieldTheme
+        {
+            {{ 0.098,0.098,0.098,1 }}, // color_outline
+            {{ 0.353, 0.353, 0.353,1 }}, // color_item
+            {{ 0.706, 0.706, 0.706,1 }}, // color_inner
+            {{ 0.6, 0.6, 0.6,1 }}, // color_inner_selected
+            BND_COLOR_TEXT, // color_text
+            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            -20, // shade_top
+            0, // shade_down
+        },
+#if 0
+        // sliderTheme
+        {
+            {{ 0.098,0.098,0.098,1 }}, // color_outline
+            {{ 0.502,0.502,0.502,1 }}, // color_item
+            {{ 0.706, 0.706, 0.706,1 }}, // color_inner
+            {{ 0.6, 0.6, 0.6,1 }}, // color_inner_selected
+            BND_COLOR_TEXT, // color_text
+            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            -20, // shade_top
+            0, // shade_down
+        },
+        // scrollBarTheme
+        {
+            {{ 0.196,0.196,0.196,1 }}, // color_outline
+            {{ 0.502,0.502,0.502,1 }}, // color_item
+            {{ 0.314, 0.314, 0.314,0.706 }}, // color_inner
+            {{ 0.392, 0.392, 0.392,0.706 }}, // color_inner_selected
+            BND_COLOR_TEXT, // color_text
+            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            5, // shade_top
+            -5, // shade_down
+        },
+        // tooltipTheme
+        {
+            {{ 0,0,0,1 }}, // color_outline
+            {{ 0.392,0.392,0.392,1 }}, // color_item
+            {{ 0.098, 0.098, 0.098, 0.902 }}, // color_inner
+            {{ 0.176, 0.176, 0.176, 0.902 }}, // color_inner_selected
+            {{ 0.627, 0.627, 0.627, 1 }}, // color_text
+            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            0, // shade_top
+            0, // shade_down
+        },
+#endif
+        // menuTheme
+        {
+            {{ 0,0,0,1 }}, // color_outline
+            {{ 0.392,0.392,0.392,1 }}, // color_item
+            {{ 0.098, 0.098, 0.098, 0.902 }}, // color_inner
+            {{ 0.176, 0.176, 0.176, 0.902 }}, // color_inner_selected
+            {{ 0.627, 0.627, 0.627, 1 }}, // color_text
+            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            0, // shade_top
+            0, // shade_down
+        },
+        // menuItemTheme
+        {
+            {{ 0,0,0,1 }}, // color_outline
+            {{ 0.675,0.675,0.675,0.502 }}, // color_item
+            {{ 0,0,0,0 }}, // color_inner
+            {{ 0.337,0.502,0.761,1 }}, // color_inner_selected
+            BND_COLOR_TEXT_SELECTED, // color_text
+            BND_COLOR_TEXT, // color_text_selected
+            38, // shade_top
+            0, // shade_down
+        },
+#if 0
+        // nodeTheme
+        {
+            {{ 0.945,0.345,0,1 }}, // nodeSelectedColor
+            {{ 0,0,0,1 }}, // wiresColor
+            {{ 0.498,0.439,0.439,1 }}, // textSelectedColor
+            {{ 1,0.667,0.251,1 }}, // activeNodeColor
+            {{ 1,1,1,1 }}, // wireSelectColor
+            {{ 0.608,0.608,0.608,0.627 }}, // nodeBackdropColor
+            5, // noodleCurving
+        },
+#endif
+    };
+
+    return theme;
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 struct BlendishSubWidgetSharedContext::PrivateData {
     NanoVG nvg;
     double scaleFactor;
@@ -757,7 +950,7 @@ void BlendishComboBox::setCurrentIndex(int index, const bool triggerCallback)
 {
     if (index < -1)
         index = -1;
-    else if (index > menu.items.size())
+    else if ((uint)index > menu.items.size())
         index = menu.items.size();
 
     if (currentIndex == index)
@@ -1037,7 +1230,7 @@ void BlendishKnob::onBlendishDisplay()
 
 //     bndSelectCorners(cr, BND_NUMBER_RADIUS, flags);
 //     bndBevelInset(ctx,x,y,w,h,cr[2],cr[3]);
-    bndInnerColors(&shade_top, &shade_down, &bnd_theme.numberFieldTheme, state, 0);
+    bndInnerColors(&shade_top, &shade_down, &bnd_theme.menuTheme, state, 0);
 
     nvgBeginPath(ctx);
     nvgRect(ctx, x, y, w, h);
@@ -1070,6 +1263,27 @@ void BlendishKnob::onBlendishDisplay()
     bndArrow(ctx,x+w-8,y+10,BND_NUMBER_ARROW_SIZE,
         bndTransparent(bnd_theme.numberFieldTheme.itemColor));
 #endif
+}
+
+bool BlendishKnob::onMouse(const MouseEvent& ev)
+{
+    if (BlendishSubWidget::onMouse(ev))
+        return true;
+    return mouseEvent(ev);
+}
+
+bool BlendishKnob::onMotion(const MotionEvent& ev)
+{
+    if (BlendishSubWidget::onMotion(ev))
+        return true;
+    return motionEvent(ev);
+}
+
+bool BlendishKnob::onScroll(const ScrollEvent& ev)
+{
+    if (BlendishSubWidget::onScroll(ev))
+        return true;
+    return scrollEvent(ev);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
