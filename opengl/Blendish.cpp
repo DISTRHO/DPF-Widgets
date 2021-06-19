@@ -1131,6 +1131,7 @@ BlendishNumberField::BlendishNumberField(BlendishSubWidgetSharedContext* const p
     : BlendishSubWidget(parent),
       KnobEventHandler(this)
 {
+    setOrientation(Horizontal);
     setStep(1.0f);
     setRange(0.0f, 100.0f);
     setValue(50.0f, false);
@@ -1141,6 +1142,7 @@ BlendishNumberField::BlendishNumberField(SubWidget* const parent)
     : BlendishSubWidget(parent),
       KnobEventHandler(this)
 {
+    setOrientation(Horizontal);
     setStep(1.0f);
     setRange(0.0f, 100.0f);
     setValue(50.0f, false);
@@ -1193,16 +1195,33 @@ bool BlendishNumberField::onScroll(const ScrollEvent& ev)
 
 BlendishKnob::BlendishKnob(BlendishSubWidgetSharedContext* const parent)
     : BlendishSubWidget(parent),
-      KnobEventHandler(this)
+      KnobEventHandler(this),
+      unit(nullptr)
 {
     setSize(64 * bData->scaleFactor, (64 + BND_WIDGET_HEIGHT) * bData->scaleFactor);
 }
 
 BlendishKnob::BlendishKnob(SubWidget* const parent)
     : BlendishSubWidget(parent),
-      KnobEventHandler(this)
+      KnobEventHandler(this),
+      unit(nullptr)
 {
     setSize(64 * bData->scaleFactor, (64 + BND_WIDGET_HEIGHT) * bData->scaleFactor);
+}
+
+BlendishKnob::~BlendishKnob()
+{
+    std::free(unit);
+}
+
+void BlendishKnob::setUnit(const char* const unit2)
+{
+    std::free(unit);
+
+    if (unit2 != nullptr && unit2[0] != '\0')
+        unit = strdup(unit2);
+    else
+        unit = nullptr;
 }
 
 uint BlendishKnob::getMinimumWidth() const noexcept
@@ -1218,51 +1237,46 @@ void BlendishKnob::onBlendishDisplay()
     const float w = getWidth() / scaleFactor;
     const float h = getHeight() / scaleFactor;
 
-    // const BNDcornerFlags flags = static_cast<BNDcornerFlags>(bData->flags);
-    const BNDwidgetState state = BND_DEFAULT; // TODO bData->getBlendishState();
+    const BNDwidgetState state = getBlendishState(getState());
     auto ctx = bData->context;
-
-    char valuestr[32];
-    snprintf(valuestr, sizeof(valuestr)-1, "%f", getValue());
-
-//     float cr[4];
-    NVGcolor shade_top, shade_down;
-
-//     bndSelectCorners(cr, BND_NUMBER_RADIUS, flags);
-//     bndBevelInset(ctx,x,y,w,h,cr[2],cr[3]);
-    bndInnerColors(&shade_top, &shade_down, &bnd_theme.menuTheme, state, 0);
 
     nvgBeginPath(ctx);
     nvgRect(ctx, x, y, w, h);
-    nvgFillColor(ctx, Color(0.3f, 0.8f, 0.23f));
+    nvgFillColor(ctx, Color(0.3f, 0.8f, 0.23f, 0.1f));
     nvgFill(ctx);
 
-    const auto knobSize = std::min(w, h - BND_WIDGET_HEIGHT);
+    const auto knobSize = std::min(w, h - BND_WIDGET_HEIGHT * 2);
 
-    nvgBeginPath(ctx);
-    nvgCircle(ctx, x + knobSize / 2, y + knobSize / 2, knobSize / 2);
-    nvgStrokeColor(ctx, shade_down);
-    nvgStrokeWidth(ctx, 1.0f);
-    nvgStroke(ctx);
-    nvgFillColor(ctx, state != BND_DEFAULT ? shade_down : shade_top);
-    nvgFill(ctx);
-
-    bndIconLabelValue(ctx, x, y + knobSize, knobSize, BND_WIDGET_HEIGHT, -1,
+    // top label (name)
+    bndIconLabelValue(ctx, x, y, w, BND_WIDGET_HEIGHT, -1,
         bnd_theme.regularTheme.textColor, BND_CENTER,
         BND_LABEL_FONT_SIZE, bData->label, NULL);
 
-#if 0
-    bndInnerBox(ctx,x,y,w,h,cr[0],cr[1],cr[2],cr[3], shade_top, shade_down);
-    bndOutlineBox(ctx,x,y,w,h,cr[0],cr[1],cr[2],cr[3],
-        bndTransparent(bnd_theme.numberFieldTheme.outlineColor));
-    bndIconLabelValue(ctx,x,y,w,h,-1,
-        bndTextColor(&bnd_theme.numberFieldTheme, state), BND_CENTER,
-        BND_LABEL_FONT_SIZE, bData->label, valuestr);
-    bndArrow(ctx,x+8,y+10,-BND_NUMBER_ARROW_SIZE,
-        bndTransparent(bnd_theme.numberFieldTheme.itemColor));
-    bndArrow(ctx,x+w-8,y+10,BND_NUMBER_ARROW_SIZE,
-        bndTransparent(bnd_theme.numberFieldTheme.itemColor));
-#endif
+    // knob
+    {
+        NVGcolor shade_top, shade_down;
+        bndInnerColors(&shade_top, &shade_down, &bnd_theme.optionTheme, state, 0);
+
+        nvgBeginPath(ctx);
+        nvgCircle(ctx, x + w / 2, y + knobSize / 2 + BND_WIDGET_HEIGHT, knobSize / 2);
+        nvgFillPaint(ctx, nvgLinearGradient(ctx,x,y,x,y+h,shade_top,shade_down));
+        nvgFill(ctx);
+    }
+
+    // bottom label (value)
+    {
+        char valuestr[32];
+        const float roundedValue = std::round(getValue() * 10.0f)/10.0f;
+
+        if (unit != nullptr)
+            snprintf(valuestr, sizeof(valuestr)-1, "%.1f %s", roundedValue, unit);
+        else
+            snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
+
+        bndIconLabelValue(ctx, x, y + knobSize + BND_WIDGET_HEIGHT, w, BND_WIDGET_HEIGHT, -1,
+            bnd_theme.regularTheme.textColor, BND_CENTER,
+            BND_LABEL_FONT_SIZE, valuestr, NULL);
+    }
 }
 
 bool BlendishKnob::onMouse(const MouseEvent& ev)

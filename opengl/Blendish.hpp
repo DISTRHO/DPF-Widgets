@@ -520,6 +520,9 @@ class BlendishKnob : public BlendishSubWidget,
 public:
     explicit BlendishKnob(BlendishSubWidgetSharedContext* parent);
     explicit BlendishKnob(SubWidget* parent);
+    ~BlendishKnob() override;
+
+    void setUnit(const char* unit);
 
 protected:
     uint getMinimumWidth() const noexcept override;
@@ -529,6 +532,8 @@ protected:
     bool onScroll(const ScrollEvent& ev) override;
 
 private:
+    char* unit;
+
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishKnob)
 };
 
