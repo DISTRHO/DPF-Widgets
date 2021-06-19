@@ -1242,10 +1242,12 @@ void BlendishKnob::onBlendishDisplay()
 
     nvgBeginPath(ctx);
     nvgRect(ctx, x, y, w, h);
+    nvgClosePath(ctx);
     nvgFillColor(ctx, Color(0.3f, 0.8f, 0.23f, 0.1f));
     nvgFill(ctx);
 
-    const auto knobSize = std::min(w, h - BND_WIDGET_HEIGHT * 2);
+    const int ringSize = 4;
+    const int knobSize = std::min(w, h - BND_WIDGET_HEIGHT * 2) - ringSize;
 
     // top label (name)
     bndIconLabelValue(ctx, x, y, w, BND_WIDGET_HEIGHT, -1,
@@ -1257,9 +1259,31 @@ void BlendishKnob::onBlendishDisplay()
         NVGcolor shade_top, shade_down;
         bndInnerColors(&shade_top, &shade_down, &bnd_theme.optionTheme, state, 0);
 
+        const float normalizedValue = getNormalizedValue();
+        const int knobStartX = x + w / 2 - knobSize / 2;
+        const int knobStartY = y + BND_WIDGET_HEIGHT + ringSize;
+        const int knobCenterX = knobStartX + knobSize / 2;
+        const int knobCenterY = knobStartY + knobSize / 2;
+
+        // outer ring
         nvgBeginPath(ctx);
-        nvgCircle(ctx, x + w / 2, y + knobSize / 2 + BND_WIDGET_HEIGHT, knobSize / 2);
-        nvgFillPaint(ctx, nvgLinearGradient(ctx,x,y,x,y+h,shade_top,shade_down));
+        nvgArc(ctx, knobCenterX, knobCenterY, knobSize / 2 + ringSize, 1, 180, NVG_CCW);
+        nvgClosePath(ctx);
+        nvgStrokeWidth(ctx, ringSize);
+        nvgStrokeColor(ctx, Color(0.8f, 0.1f, 0.23f));
+        nvgStroke(ctx);
+
+        // inner fill
+        nvgBeginPath(ctx);
+        nvgCircle(ctx, knobCenterX, knobCenterY, knobSize / 2);
+        nvgClosePath(ctx);
+        nvgFillPaint(ctx, nvgLinearGradient(ctx,
+                                            knobStartX,
+                                            knobStartY,
+                                            knobStartX,
+                                            knobStartY + knobSize,
+                                            shade_top,
+                                            shade_down));
         nvgFill(ctx);
     }
 
@@ -1273,7 +1297,7 @@ void BlendishKnob::onBlendishDisplay()
         else
             snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
 
-        bndIconLabelValue(ctx, x, y + knobSize + BND_WIDGET_HEIGHT, w, BND_WIDGET_HEIGHT, -1,
+        bndIconLabelValue(ctx, x, y + BND_WIDGET_HEIGHT + knobSize + ringSize, w, BND_WIDGET_HEIGHT, -1,
             bnd_theme.regularTheme.textColor, BND_CENTER,
             BND_LABEL_FONT_SIZE, valuestr, NULL);
     }
