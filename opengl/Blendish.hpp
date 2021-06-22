@@ -301,6 +301,44 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
+class BlendishButtonGroup : public BlendishSubWidget,
+                            public ButtonEventHandler,
+                            public ButtonEventHandler::Callback
+{
+public:
+    struct Callback {
+        virtual ~Callback() {}
+        virtual void blendishButtonGroupClicked(BlendishButtonGroup* buttonGroup, uint button) = 0;
+    };
+
+    explicit BlendishButtonGroup(BlendishSubWidgetSharedContext* parent);
+
+    void addButton(uint id, const char* label);
+    void setActiveButton(uint id, bool sendCallback);
+    void setCallback(Callback* callback);
+
+protected:
+    uint getMinimumWidth() const noexcept override;
+    void onBlendishDisplay() override;
+    bool onMouse(const MouseEvent& ev) override;
+    bool onMotion(const MotionEvent& ev) override;
+
+private:
+    struct Button {
+        uint id;
+        char* label;
+    };
+    std::vector<Button*> buttons;
+    Callback* callback;
+    uint minWidth;
+
+    void buttonClicked(SubWidget* widget, int button) override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishButtonGroup)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
 class BlendishMenu;
 
 /**

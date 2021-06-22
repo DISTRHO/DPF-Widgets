@@ -632,6 +632,85 @@ bool BlendishCheckBox::onMotion(const MotionEvent& ev)
 
 // --------------------------------------------------------------------------------------------------------------------
 
+BlendishButtonGroup::BlendishButtonGroup(BlendishSubWidgetSharedContext* const parent)
+    : BlendishSubWidget(parent),
+      ButtonEventHandler(this),
+      callback(nullptr),
+      minWidth(0)
+{
+    setSize(0, BND_WIDGET_HEIGHT * bData->scaleFactor);
+}
+
+void BlendishButtonGroup::addButton(const uint id, const char* const label)
+{
+    Button* const button = new Button;
+    button->id = id;
+    button->label = strdup(label);
+    buttons.push_back(button);
+
+    minWidth += bndLabelWidth(bData->context, -1, label) - 1;
+    setWidth(std::max(getWidth(), static_cast<uint>(minWidth * bData->scaleFactor + 0.5)));
+}
+
+void BlendishButtonGroup::setActiveButton(const uint id, const bool sendCallback)
+{
+}
+
+void BlendishButtonGroup::setCallback(Callback* const callback2)
+{
+    callback = callback2;
+}
+
+uint BlendishButtonGroup::getMinimumWidth() const noexcept
+{
+    return minWidth;
+}
+
+void BlendishButtonGroup::onBlendishDisplay()
+{
+    const double scaleFactor = bData->scaleFactor;
+    /* */ float x = getAbsoluteX() / scaleFactor;
+    const float y = getAbsoluteY() / scaleFactor;
+    const float h = getHeight() / scaleFactor;
+
+    bool isFirst = true;
+    bool isLast = false;
+    float w;
+
+    for (std::vector<Button*>::iterator it = buttons.begin(); ! isLast; x += w - 1, isFirst = false)
+    {
+        Button* const button(*it);
+        isLast = ++it == buttons.end();
+        w = bndLabelWidth(bData->context, -1, button->label);
+
+        bndToolButton(bData->context, x, y, w, h,
+                      (isFirst && ! isLast ? BND_CORNER_RIGHT : 0x0)
+                      | (isLast && ! isFirst ? BND_CORNER_LEFT : 0x0)
+                      | (! isFirst && ! isLast ? BND_CORNER_LEFT|BND_CORNER_RIGHT : 0x0),
+                      getBlendishState(getState()), -1, button->label);
+    }
+}
+
+bool BlendishButtonGroup::onMouse(const MouseEvent& ev)
+{
+    if (BlendishSubWidget::onMouse(ev))
+        return true;
+    return mouseEvent(ev);
+}
+
+bool BlendishButtonGroup::onMotion(const MotionEvent& ev)
+{
+    if (BlendishSubWidget::onMotion(ev))
+        return true;
+    return motionEvent(ev);
+}
+
+void BlendishButtonGroup::buttonClicked(SubWidget* const widget, int)
+{
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 struct BlendishMenuItem::CallbackComboBox : ButtonEventHandler::Callback
 {
     BlendishComboBox* const comboBox;
