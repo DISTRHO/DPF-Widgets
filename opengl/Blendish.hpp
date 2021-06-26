@@ -327,10 +327,13 @@ private:
     struct Button {
         uint id;
         char* label;
+        uint width;
+        bool isHovering;
     };
     std::vector<Button*> buttons;
     Callback* callback;
     uint minWidth;
+    uint activeButton;
 
     void buttonClicked(SubWidget* widget, int button) override;
 
@@ -409,7 +412,6 @@ protected:
 
 private:
     std::vector<BlendishMenuItem*> items;
-    BlendishMenuItem* lastHoveredItem;
     BlendishComboBox* matchingComboBox;
     uint biggestItemWidth;
     int nextY;

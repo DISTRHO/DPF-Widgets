@@ -636,8 +636,10 @@ BlendishButtonGroup::BlendishButtonGroup(BlendishSubWidgetSharedContext* const p
     : BlendishSubWidget(parent),
       ButtonEventHandler(this),
       callback(nullptr),
-      minWidth(0)
+      minWidth(0),
+      activeButton(0)
 {
+    ButtonEventHandler::setCallback(this);
     setSize(0, BND_WIDGET_HEIGHT * bData->scaleFactor);
 }
 
@@ -646,14 +648,24 @@ void BlendishButtonGroup::addButton(const uint id, const char* const label)
     Button* const button = new Button;
     button->id = id;
     button->label = strdup(label);
+    button->width = bndLabelWidth(bData->context, -1, label);
+    button->isHovering = false;
     buttons.push_back(button);
 
-    minWidth += bndLabelWidth(bData->context, -1, label) - 1;
+    minWidth += button->width - 1;
     setWidth(std::max(getWidth(), static_cast<uint>(minWidth * bData->scaleFactor + 0.5)));
 }
 
 void BlendishButtonGroup::setActiveButton(const uint id, const bool sendCallback)
 {
+    if (activeButton == id)
+        return;
+
+    activeButton = id;
+    repaint();
+
+    if (sendCallback && callback != nullptr)
+        callback->blendishButtonGroupClicked(this, id);
 }
 
 void BlendishButtonGroup::setCallback(Callback* const callback2)
@@ -668,6 +680,9 @@ uint BlendishButtonGroup::getMinimumWidth() const noexcept
 
 void BlendishButtonGroup::onBlendishDisplay()
 {
+    if (buttons.size() == 0)
+        return;
+
     const double scaleFactor = bData->scaleFactor;
     /* */ float x = getAbsoluteX() / scaleFactor;
     const float y = getAbsoluteY() / scaleFactor;
@@ -675,19 +690,24 @@ void BlendishButtonGroup::onBlendishDisplay()
 
     bool isFirst = true;
     bool isLast = false;
-    float w;
 
-    for (std::vector<Button*>::iterator it = buttons.begin(); ! isLast; x += w - 1, isFirst = false)
+    for (std::vector<Button*>::iterator it = buttons.begin(); ! isLast;)
     {
         Button* const button(*it);
         isLast = ++it == buttons.end();
-        w = bndLabelWidth(bData->context, -1, button->label);
 
-        bndToolButton(bData->context, x, y, w, h,
+        const BNDwidgetState state = activeButton == button->id 
+                                   ? BND_ACTIVE
+                                   : (button->isHovering ? BND_HOVER : BND_DEFAULT);
+
+        bndToolButton(bData->context, x, y, button->width, h,
                       (isFirst && ! isLast ? BND_CORNER_RIGHT : 0x0)
                       | (isLast && ! isFirst ? BND_CORNER_LEFT : 0x0)
                       | (! isFirst && ! isLast ? BND_CORNER_LEFT|BND_CORNER_RIGHT : 0x0),
-                      getBlendishState(getState()), -1, button->label);
+                      state, -1, button->label);
+
+        isFirst = false;
+        x += button->width - 1;
     }
 }
 
@@ -702,11 +722,33 @@ bool BlendishButtonGroup::onMotion(const MotionEvent& ev)
 {
     if (BlendishSubWidget::onMotion(ev))
         return true;
+
+    Rectangle<double> buttonRect(0, 0, 0, getHeight());
+
+    for (std::vector<Button*>::iterator it = buttons.begin(); it != buttons.end(); ++it)
+    {
+        Button* const button(*it);
+        buttonRect.setWidth(button->width * bData->scaleFactor);
+        button->isHovering = buttonRect.contains(ev.pos);
+        buttonRect.moveBy(buttonRect.getWidth(), 0);
+    }
+
     return motionEvent(ev);
 }
 
-void BlendishButtonGroup::buttonClicked(SubWidget* const widget, int)
+void BlendishButtonGroup::buttonClicked(SubWidget* const, int)
 {
+    const Point<double> pos(getLastClickPosition());
+    Rectangle<double> buttonRect(0, 0, 0, getHeight());
+
+    for (std::vector<Button*>::iterator it = buttons.begin(); it != buttons.end(); ++it)
+    {
+        Button* const button(*it);
+        buttonRect.setWidth(button->width * bData->scaleFactor);
+        if (buttonRect.contains(pos))
+            return setActiveButton(button->id, true);
+        buttonRect.moveBy(buttonRect.getWidth(), 0);
+    }
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -811,7 +853,6 @@ struct BlendishMenu::CallbackComboBox : ButtonEventHandler::Callback
 BlendishMenu::BlendishMenu(BlendishSubWidgetSharedContext* const parent)
     : BlendishSubWidget(parent),
       items(),
-      lastHoveredItem(nullptr),
       matchingComboBox(nullptr),
       biggestItemWidth(0),
       nextY(0),
@@ -824,7 +865,6 @@ BlendishMenu::BlendishMenu(BlendishSubWidgetSharedContext* const parent)
 BlendishMenu::BlendishMenu(BlendishComboBox* const parent)
     : BlendishSubWidget(parent->getSharedContext()),
       items(),
-      lastHoveredItem(nullptr),
       matchingComboBox(parent),
       biggestItemWidth(0),
       nextY(0),
@@ -837,7 +877,6 @@ BlendishMenu::BlendishMenu(BlendishComboBox* const parent)
 BlendishMenu::BlendishMenu(SubWidget* const parent)
     : BlendishSubWidget(parent),
       items(),
-      lastHoveredItem(nullptr),
       matchingComboBox(nullptr),
       biggestItemWidth(0),
       nextY(0),
