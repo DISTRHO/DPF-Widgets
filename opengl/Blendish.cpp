@@ -696,7 +696,7 @@ void BlendishButtonGroup::onBlendishDisplay()
         Button* const button(*it);
         isLast = ++it == buttons.end();
 
-        const BNDwidgetState state = activeButton == button->id 
+        const BNDwidgetState state = activeButton == button->id
                                    ? BND_ACTIVE
                                    : (button->isHovering ? BND_HOVER : BND_DEFAULT);
 
@@ -855,6 +855,7 @@ BlendishMenu::BlendishMenu(BlendishSubWidgetSharedContext* const parent)
       items(),
       matchingComboBox(nullptr),
       biggestItemWidth(0),
+      labelWidth(0),
       nextY(0),
       labelAtBottom(false),
       oldMotionPos()
@@ -867,6 +868,7 @@ BlendishMenu::BlendishMenu(BlendishComboBox* const parent)
       items(),
       matchingComboBox(parent),
       biggestItemWidth(0),
+      labelWidth(0),
       nextY(0),
       labelAtBottom(false),
       oldMotionPos()
@@ -924,6 +926,8 @@ void BlendishMenu::setLabel(const char* const label, bool)
             BlendishMenuItem* const firstitem = items.front();
             firstitem->setCornerFlags(firstitem->getCornerFlags() | kCornerTop);
         }
+
+        labelWidth = bndLabelWidth(bData->context, -1, label);
     }
     else
     {
@@ -932,6 +936,8 @@ void BlendishMenu::setLabel(const char* const label, bool)
             BlendishMenuItem* const firstitem = items.front();
             firstitem->setCornerFlags(firstitem->getCornerFlags() & ~kCornerTop);
         }
+
+        labelWidth = 0;
     }
 
     recheckSize(0, 0);
@@ -1044,6 +1050,8 @@ void BlendishMenu::recheckSize(const uint newItemWidth, const uint newItemHeight
     // set width
     if (newItemWidth > getWidth())
         size.setWidth(newItemWidth);
+    else if (labelWidth > getWidth())
+        size.setWidth(labelWidth);
 
     if (newItemWidth > biggestItemWidth)
         biggestItemWidth = newItemWidth;

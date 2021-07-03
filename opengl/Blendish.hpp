@@ -401,7 +401,7 @@ public:
 
     BlendishMenuItem* addMenuItem(const char* label);
 
-    void setLabel(const char* label, bool) override;
+    void setLabel(const char* label, bool adjustWidth = true) override;
 
 protected:
     uint getMinimumWidth() const noexcept override;
@@ -414,6 +414,7 @@ private:
     std::vector<BlendishMenuItem*> items;
     BlendishComboBox* matchingComboBox;
     uint biggestItemWidth;
+    uint labelWidth;
     int nextY;
     bool labelAtBottom;
     Point<double> oldMotionPos;
