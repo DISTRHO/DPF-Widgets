@@ -134,6 +134,7 @@ public:
         setSize(480 * scaleFactor, 360 * scaleFactor);
         setTitle("DPF Widgets Demo");
 
+        const ScopedGraphicsContext sgc(*this);
         createAndAddWidgetOfType<BlendishDemo>(margin);
     }
 
