@@ -209,7 +209,8 @@ class BlendishLabel : public BlendishSubWidget
 public:
     enum Alignment {
         kAlignmentLeft,
-        kAlignmentCenter
+        kAlignmentCenter,
+        kAlignmentRight
     };
 
     explicit BlendishLabel(BlendishSubWidgetSharedContext* parent);

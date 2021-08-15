@@ -168,6 +168,7 @@ typedef struct BNDtheme {
 typedef enum BNDtextAlignment {
     BND_LEFT = 0,
     BND_CENTER,
+    BND_RIGHT,
 } BNDtextAlignment;
 
 // states altering the styling of a widget
@@ -2165,6 +2166,7 @@ void bndIconLabelValue(NVGcontext *ctx, float x, float y, float w, float h,
         } else {
             nvgTextAlign(ctx,
                 (align==BND_LEFT)?(NVG_ALIGN_LEFT|NVG_ALIGN_BASELINE):
+                (align==BND_RIGHT)?(NVG_ALIGN_RIGHT|NVG_ALIGN_BASELINE):
                 (NVG_ALIGN_CENTER|NVG_ALIGN_BASELINE));
             nvgTextBox(ctx,x+pleft,y+BND_WIDGET_HEIGHT-BND_TEXT_PAD_DOWN,
                 w-BND_PAD_RIGHT-pleft,label, NULL);
