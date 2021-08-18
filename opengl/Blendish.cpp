@@ -102,36 +102,36 @@ const BlendishTheme& blendishGetDefaultTheme()
 {
     static const BlendishTheme theme = {
         // backgroundColor
-        {{ 0.447, 0.447, 0.447, 1.0 }},
+        {{{{ 0.447, 0.447, 0.447, 1.0 }}}},
         // labelTheme
         {
-            {{ 0.098,0.098,0.098,1 }}, // color_outline
-            {{ 0.098,0.098,0.098,1 }}, // color_item
-            {{ 0.6,0.6,0.6,1 }}, // color_inner
-            {{ 0.392,0.392,0.392,1 }}, // color_inner_selected
-            BND_COLOR_TEXT, // color_text
-            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            {{{{ 0.098,0.098,0.098,1 }}}}, // color_outline
+            {{{{ 0.098,0.098,0.098,1 }}}}, // color_item
+            {{{{ 0.6,0.6,0.6,1 }}}}, // color_inner
+            {{{{ 0.392,0.392,0.392,1 }}}}, // color_inner_selected
+            { BND_COLOR_TEXT }, // color_text
+            { BND_COLOR_TEXT_SELECTED }, // color_text_selected
             0, // shade_top
             0, // shade_down
         },
         // toolButtonTheme
         {
-            {{ 0.098,0.098,0.098,1 }}, // color_outline
-            {{ 0.098,0.098,0.098,1 }}, // color_item
-            {{ 0.6,0.6,0.6,1 }}, // color_inner
-            {{ 0.392,0.392,0.392,1 }}, // color_inner_selected
-            BND_COLOR_TEXT, // color_text
-            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            {{{{ 0.098,0.098,0.098,1 }}}}, // color_outline
+            {{{{ 0.098,0.098,0.098,1 }}}}, // color_item
+            {{{{ 0.6,0.6,0.6,1 }}}}, // color_inner
+            {{{{ 0.392,0.392,0.392,1 }}}}, // color_inner_selected
+            { BND_COLOR_TEXT }, // color_text
+            { BND_COLOR_TEXT_SELECTED }, // color_text_selected
             15, // shade_top
             -15, // shade_down
         },
 #if 0
         // radioButtonTheme
         {
-            {{ 0,0,0,1 }}, // color_outline
-            {{ 1,1,1,1 }}, // color_item
-            {{ 0.275,0.275,0.275,1 }}, // color_inner
-            {{ 0.337,0.502,0.761,1 }}, // color_inner_selected
+            {{{{ 0,0,0,1 }}}}, // color_outline
+            {{{{ 1,1,1,1 }}}}, // color_item
+            {{{{ 0.275,0.275,0.275,1 }}}}, // color_inner
+            {{{{ 0.337,0.502,0.761,1 }}}}, // color_inner_selected
             BND_COLOR_TEXT_SELECTED, // color_text
             BND_COLOR_TEXT, // color_text_selected
             15, // shade_top
@@ -139,10 +139,10 @@ const BlendishTheme& blendishGetDefaultTheme()
         },
         // textFieldTheme
         {
-            {{ 0.098,0.098,0.098,1 }}, // color_outline
-            {{ 0.353, 0.353, 0.353,1 }}, // color_item
-            {{ 0.6, 0.6, 0.6,1 }}, // color_inner
-            {{ 0.6, 0.6, 0.6,1 }}, // color_inner_selected
+            {{{{ 0.098,0.098,0.098,1 }}}}, // color_outline
+            {{{{ 0.353, 0.353, 0.353,1 }}}}, // color_item
+            {{{{ 0.6, 0.6, 0.6,1 }}}}, // color_inner
+            {{{{ 0.6, 0.6, 0.6,1 }}}}, // color_inner_selected
             BND_COLOR_TEXT, // color_text
             BND_COLOR_TEXT_SELECTED, // color_text_selected
             0, // shade_top
@@ -151,44 +151,44 @@ const BlendishTheme& blendishGetDefaultTheme()
 #endif
         // optionTheme
         {
-            {{ 0,0,0,1 }}, // color_outline
-            {{ 1,1,1,1 }}, // color_item
-            {{ 0.275,0.275,0.275,1 }}, // color_inner
-            {{ 0.275,0.275,0.275,1 }}, // color_inner_selected
-            BND_COLOR_TEXT, // color_text
-            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            {{{{ 0,0,0,1 }}}}, // color_outline
+            {{{{ 1,1,1,1 }}}}, // color_item
+            {{{{ 0.275,0.275,0.275,1 }}}}, // color_inner
+            {{{{ 0.275,0.275,0.275,1 }}}}, // color_inner_selected
+            { BND_COLOR_TEXT }, // color_text
+            { BND_COLOR_TEXT_SELECTED }, // color_text_selected
             15, // shade_top
             -15, // shade_down
         },
         // choiceTheme
         {
-            {{ 0,0,0,1 }}, // color_outline
-            {{ 1,1,1,1 }}, // color_item
-            {{ 0.275,0.275,0.275,1 }}, // color_inner
-            {{ 0.275,0.275,0.275,1 }}, // color_inner_selected
-            BND_COLOR_TEXT_SELECTED, // color_text
-            {{ 0.8,0.8,0.8,1 }}, // color_text_selected
+            {{{{ 0,0,0,1 }}}}, // color_outline
+            {{{{ 1,1,1,1 }}}}, // color_item
+            {{{{ 0.275,0.275,0.275,1 }}}}, // color_inner
+            {{{{ 0.275,0.275,0.275,1 }}}}, // color_inner_selected
+            { BND_COLOR_TEXT_SELECTED }, // color_text
+            {{{{ 0.8,0.8,0.8,1 }}}}, // color_text_selected
             15, // shade_top
             -15, // shade_down
         },
         // numberFieldTheme
         {
-            {{ 0.098,0.098,0.098,1 }}, // color_outline
-            {{ 0.353, 0.353, 0.353,1 }}, // color_item
-            {{ 0.706, 0.706, 0.706,1 }}, // color_inner
-            {{ 0.6, 0.6, 0.6,1 }}, // color_inner_selected
-            BND_COLOR_TEXT, // color_text
-            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            {{{{ 0.098,0.098,0.098,1 }}}}, // color_outline
+            {{{{ 0.353, 0.353, 0.353,1 }}}}, // color_item
+            {{{{ 0.706, 0.706, 0.706,1 }}}}, // color_inner
+            {{{{ 0.6, 0.6, 0.6,1 }}}}, // color_inner_selected
+            { BND_COLOR_TEXT }, // color_text
+            { BND_COLOR_TEXT_SELECTED }, // color_text_selected
             -20, // shade_top
             0, // shade_down
         },
 #if 0
         // sliderTheme
         {
-            {{ 0.098,0.098,0.098,1 }}, // color_outline
-            {{ 0.502,0.502,0.502,1 }}, // color_item
-            {{ 0.706, 0.706, 0.706,1 }}, // color_inner
-            {{ 0.6, 0.6, 0.6,1 }}, // color_inner_selected
+            {{{{ 0.098,0.098,0.098,1 }}}}, // color_outline
+            {{{{ 0.502,0.502,0.502,1 }}}}, // color_item
+            {{{{ 0.706, 0.706, 0.706,1 }}}}, // color_inner
+            {{{{ 0.6, 0.6, 0.6,1 }}}}, // color_inner_selected
             BND_COLOR_TEXT, // color_text
             BND_COLOR_TEXT_SELECTED, // color_text_selected
             -20, // shade_top
@@ -196,10 +196,10 @@ const BlendishTheme& blendishGetDefaultTheme()
         },
         // scrollBarTheme
         {
-            {{ 0.196,0.196,0.196,1 }}, // color_outline
-            {{ 0.502,0.502,0.502,1 }}, // color_item
-            {{ 0.314, 0.314, 0.314,0.706 }}, // color_inner
-            {{ 0.392, 0.392, 0.392,0.706 }}, // color_inner_selected
+            {{{{ 0.196,0.196,0.196,1 }}}}, // color_outline
+            {{{{ 0.502,0.502,0.502,1 }}}}, // color_item
+            {{{{ 0.314, 0.314, 0.314,0.706 }}}}, // color_inner
+            {{{{ 0.392, 0.392, 0.392,0.706 }}}}, // color_inner_selected
             BND_COLOR_TEXT, // color_text
             BND_COLOR_TEXT_SELECTED, // color_text_selected
             5, // shade_top
@@ -207,11 +207,11 @@ const BlendishTheme& blendishGetDefaultTheme()
         },
         // tooltipTheme
         {
-            {{ 0,0,0,1 }}, // color_outline
-            {{ 0.392,0.392,0.392,1 }}, // color_item
-            {{ 0.098, 0.098, 0.098, 0.902 }}, // color_inner
-            {{ 0.176, 0.176, 0.176, 0.902 }}, // color_inner_selected
-            {{ 0.627, 0.627, 0.627, 1 }}, // color_text
+            {{{{ 0,0,0,1 }}}}, // color_outline
+            {{{{ 0.392,0.392,0.392,1 }}}}, // color_item
+            {{{{ 0.098, 0.098, 0.098, 0.902 }}}}, // color_inner
+            {{{{ 0.176, 0.176, 0.176, 0.902 }}}}, // color_inner_selected
+            {{{{ 0.627, 0.627, 0.627, 1 }}}}, // color_text
             BND_COLOR_TEXT_SELECTED, // color_text_selected
             0, // shade_top
             0, // shade_down
@@ -219,35 +219,35 @@ const BlendishTheme& blendishGetDefaultTheme()
 #endif
         // menuTheme
         {
-            {{ 0,0,0,1 }}, // color_outline
-            {{ 0.392,0.392,0.392,1 }}, // color_item
-            {{ 0.098, 0.098, 0.098, 0.902 }}, // color_inner
-            {{ 0.176, 0.176, 0.176, 0.902 }}, // color_inner_selected
-            {{ 0.627, 0.627, 0.627, 1 }}, // color_text
-            BND_COLOR_TEXT_SELECTED, // color_text_selected
+            {{{{ 0,0,0,1 }}}}, // color_outline
+            {{{{ 0.392,0.392,0.392,1 }}}}, // color_item
+            {{{{ 0.098, 0.098, 0.098, 0.902 }}}}, // color_inner
+            {{{{ 0.176, 0.176, 0.176, 0.902 }}}}, // color_inner_selected
+            {{{{ 0.627, 0.627, 0.627, 1 }}}}, // color_text
+            { BND_COLOR_TEXT_SELECTED }, // color_text_selected
             0, // shade_top
             0, // shade_down
         },
         // menuItemTheme
         {
-            {{ 0,0,0,1 }}, // color_outline
-            {{ 0.675,0.675,0.675,0.502 }}, // color_item
-            {{ 0,0,0,0 }}, // color_inner
-            {{ 0.337,0.502,0.761,1 }}, // color_inner_selected
-            BND_COLOR_TEXT_SELECTED, // color_text
-            BND_COLOR_TEXT, // color_text_selected
+            {{{{ 0,0,0,1 }}}}, // color_outline
+            {{{{ 0.675,0.675,0.675,0.502 }}}}, // color_item
+            {{{{ 0,0,0,0 }}}}, // color_inner
+            {{{{ 0.337,0.502,0.761,1 }}}}, // color_inner_selected
+            { BND_COLOR_TEXT_SELECTED }, // color_text
+            { BND_COLOR_TEXT }, // color_text_selected
             38, // shade_top
             0, // shade_down
         },
 #if 0
         // nodeTheme
         {
-            {{ 0.945,0.345,0,1 }}, // nodeSelectedColor
-            {{ 0,0,0,1 }}, // wiresColor
-            {{ 0.498,0.439,0.439,1 }}, // textSelectedColor
-            {{ 1,0.667,0.251,1 }}, // activeNodeColor
-            {{ 1,1,1,1 }}, // wireSelectColor
-            {{ 0.608,0.608,0.608,0.627 }}, // nodeBackdropColor
+            {{{{ 0.945,0.345,0,1 }}}}, // nodeSelectedColor
+            {{{{ 0,0,0,1 }}}}, // wiresColor
+            {{{{ 0.498,0.439,0.439,1 }}}}, // textSelectedColor
+            {{{{ 1,0.667,0.251,1 }}}}, // activeNodeColor
+            {{{{ 1,1,1,1 }}}}, // wireSelectColor
+            {{ 0.608,0.608,0.608,0.627 }}}}, // nodeBackdropColor
             5, // noodleCurving
         },
 #endif
