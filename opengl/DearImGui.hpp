@@ -43,22 +43,22 @@ class ImGuiWidget : public BaseWidget,
 {
 public:
    /**
-      Constructor for a NanoSubWidget.
+      Constructor for a ImGuiSubWidget.
     */
     explicit ImGuiWidget(Widget* parentGroupWidget);
 
    /**
-      Constructor for a NanoTopLevelWidget.
+      Constructor for a ImGuiTopLevelWidget.
     */
     explicit ImGuiWidget(Window& windowToMapTo);
 
    /**
-      Constructor for a NanoStandaloneWindow without transient parent window.
+      Constructor for a ImGuiStandaloneWindow without transient parent window.
     */
     explicit ImGuiWidget(Application& app);
 
    /**
-      Constructor for a NanoStandaloneWindow with transient parent window.
+      Constructor for a ImGuiStandaloneWindow with transient parent window.
     */
     explicit ImGuiWidget(Application& app, Window& transientParentWindow);
 
