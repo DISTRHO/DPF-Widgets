@@ -290,14 +290,6 @@ void ImGuiWidget<BaseWidget>::onResize(const Widget::ResizeEvent& event)
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-
-template <class BaseWidget>
-ImGuiWidget<BaseWidget>::~ImGuiWidget()
-{
-    delete pData;
-}
-
-// --------------------------------------------------------------------------------------------------------------------
 // ImGuiSubWidget
 
 template <>
@@ -317,7 +309,14 @@ ImGuiWidget<SubWidget>::ImGuiWidget(Widget* const parent)
     : SubWidget(parent),
       pData(new PrivateData(this))
 {
-    getTopLevelWidget()->addIdleCallback(this, 1000 / 60); // 60 fps
+    getWindow().addIdleCallback(this, 1000 / 60); // 60 fps
+}
+
+template <>
+ImGuiWidget<SubWidget>::~ImGuiWidget()
+{
+    getWindow().removeIdleCallback(this);
+    delete pData;
 }
 
 template class ImGuiWidget<SubWidget>;
@@ -342,7 +341,14 @@ ImGuiWidget<TopLevelWidget>::ImGuiWidget(Window& windowToMapTo)
     : TopLevelWidget(windowToMapTo),
       pData(new PrivateData(this))
 {
-    TopLevelWidget::addIdleCallback(this, 1000 / 60); // 60 fps
+    addIdleCallback(this, 1000 / 60); // 60 fps
+}
+
+template <>
+ImGuiWidget<TopLevelWidget>::~ImGuiWidget()
+{
+    removeIdleCallback(this);
+    delete pData;
 }
 
 template class ImGuiWidget<TopLevelWidget>;
@@ -376,6 +382,13 @@ ImGuiWidget<StandaloneWindow>::ImGuiWidget(Application& app, Window& transientPa
       pData(new PrivateData(this))
 {
     Window::addIdleCallback(this, 1000 / 60); // 60 fps
+}
+
+template <>
+ImGuiWidget<StandaloneWindow>::~ImGuiWidget()
+{
+    Window::removeIdleCallback(this);
+    delete pData;
 }
 
 template class ImGuiWidget<StandaloneWindow>;
