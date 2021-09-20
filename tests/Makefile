@@ -40,9 +40,13 @@ $(DPF_DIR)/build/libdgl-vulkan.a:
 
 # ---------------------------------------------------------------------------------------------------------------------
 
-opengl$(APP_EXT): opengl.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
+opengl$(APP_EXT): opengl.cpp.o imgui.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
 	@echo "Linking $<"
 	$(SILENT)$(CXX) $^ $(LINK_FLAGS) $(DGL_SYSTEM_LIBS) $(OPENGL_LIBS) -o $@
+
+imgui.cpp.o: imgui.cpp
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -DDGL_OPENGL -c -o $@
 
 opengl.cpp.o: opengl.cpp
 	@echo "Compiling $<"
@@ -51,6 +55,7 @@ opengl.cpp.o: opengl.cpp
 # ---------------------------------------------------------------------------------------------------------------------
 
 -include cairo.cpp.d
+-include imgui.cpp.d
 -include opengl.cpp.d
 
 # ---------------------------------------------------------------------------------------------------------------------

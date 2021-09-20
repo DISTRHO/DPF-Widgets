@@ -17,8 +17,12 @@
 #include "Application.hpp"
 #include "StandaloneWindow.hpp"
 
+// ImGui is quite large, build it separately
+#define IMGUI_SKIP_IMPLEMENTATION
+
 #include "../generic/ResizeHandle.hpp"
 #include "../opengl/Blendish.cpp"
+#include "../opengl/DearImGui.cpp"
 
 #include <vector>
 
@@ -104,21 +108,64 @@ public:
 };
 
 // --------------------------------------------------------------------------------------------------------------------
+// Dear ImGui demo
+
+class DearImGuiDemo : public ImGuiSubWidget
+{
+public:
+    DearImGuiDemo(Widget* const parent)
+        : ImGuiSubWidget(parent)
+    {
+    }
+
+protected:
+    void onImGuiDisplay()
+    {
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(ImVec2(getWidth(), getHeight()));
+//         ImGui::ShowAboutWindow();
+        ImGui::ShowDemoWindow();
+        return;
+
+        if (ImGui::Begin("Simple gain", nullptr, ImGuiWindowFlags_NoTitleBar))
+        {
+            static char aboutText[256] =
+                "This is a demo plugin made with ImGui.\n";
+            ImGui::InputTextMultiline("About", aboutText, sizeof(aboutText));
+
+            static float gain = 0.0f;
+            ImGui::SliderFloat("Gain (dB)", &gain, -90.0f, 30.0f);
+        }
+        ImGui::End();
+    }
+};
+
+// --------------------------------------------------------------------------------------------------------------------
 // Main Widgets Demo Window, having a left-side tab-like widget and main area for current widget
 
 class WidgetsDemoWindow : public StandaloneWindow
 {
+    static const uint kMarginBase    = 8;
+    static const uint kMarginContent = kMarginBase + 2;
+
+    static const uint kMinWindowWidth  = 720;
+    static const uint kMinWindowHeight = 560;
+
     ResizeHandle resizeHandle;
-    std::vector<SubWidget*> widgets;
+    struct WidgetAndOffset {
+        SubWidget* widget;
+        uint offset;
+    };
+    std::vector<WidgetAndOffset> widgets;
 
     template <class W>
-    W* createAndAddWidgetOfType(const uint margin)
+    W* createAndAddWidgetOfType(const uint margin, const uint yOffset)
     {
         W* const w = new W((TopLevelWidget*)this);
-        widgets.push_back(w);
+        widgets.push_back({w, yOffset});
 
-        w->setAbsolutePos(margin, margin);
-        w->setSize(getWidth()-margin, getHeight()-margin);
+        w->setAbsolutePos(margin, margin + yOffset);
+        w->setSize(getWidth()-margin*2, getHeight()-margin*2-yOffset);
 
         return w;
     }
@@ -129,13 +176,16 @@ public:
           resizeHandle(this)
     {
         const double scaleFactor = getScaleFactor();
-        const uint margin = (16 + 2) * scaleFactor;
+        const uint margin = kMarginContent * scaleFactor;
 
-        setSize(480 * scaleFactor, 360 * scaleFactor);
+        setGeometryConstraints(kMinWindowWidth * scaleFactor, kMinWindowHeight * scaleFactor, false, false);
+        setSize(kMinWindowWidth * scaleFactor, kMinWindowHeight * scaleFactor);
+        setResizable(true);
         setTitle("DPF Widgets Demo");
 
         const ScopedGraphicsContext sgc(*this);
-        createAndAddWidgetOfType<BlendishDemo>(margin);
+        createAndAddWidgetOfType<BlendishDemo>(margin, 0);
+        createAndAddWidgetOfType<DearImGuiDemo>(margin, 200);
     }
 
 protected:
@@ -143,7 +193,7 @@ protected:
     {
         const GraphicsContext& context(getGraphicsContext());
         const double scaleFactor = getScaleFactor();
-        const uint margin = 16 * scaleFactor;
+        const uint margin = kMarginBase * scaleFactor;
         const uint width  = getWidth();
         const uint height = getHeight();
 
@@ -161,8 +211,14 @@ protected:
     {
         StandaloneWindow::onReshape(width, height);
 
-        for (SubWidget* widget : widgets)
-            widget->setSize(width, height);
+        const double scaleFactor = getScaleFactor();
+        const uint margin = kMarginContent * scaleFactor;
+
+        for (WidgetAndOffset& wo : widgets)
+        {
+            const uint yOffset = wo.offset * scaleFactor;
+            wo.widget->setSize(width-margin*2, height-margin*2-yOffset);
+        }
     }
 };
 
