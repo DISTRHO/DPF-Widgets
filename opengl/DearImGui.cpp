@@ -119,6 +119,9 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         ImGui::DestroyContext(context);
     }
 
+    float getDisplayX() const noexcept;
+    float getDisplayY() const noexcept;
+
     DISTRHO_DECLARE_NON_COPYABLE(PrivateData)
 };
 
@@ -127,30 +130,11 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
 template <class BaseWidget>
 void ImGuiWidget<BaseWidget>::idleCallback()
 {
-    /*
-    bool shouldRepaint;
-
-    if (fImpl->fWasEverPainted)
-    {
-        Impl::Clock::duration elapsed =
-            Impl::Clock::now() - fImpl->fLastRepainted;
-        std::chrono::milliseconds elapsedMs =
-            std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
-        shouldRepaint = elapsedMs.count() > fImpl->fRepaintIntervalMs;
-    }
-    else
-    {
-        shouldRepaint = true;
-    }
-
-    if (shouldRepaint)
-        repaint();
-    */
     BaseWidget::repaint();
 }
 
-template <>
-void ImGuiWidget<SubWidget>::onDisplay()
+template <class BaseWidget>
+void ImGuiWidget<BaseWidget>::onDisplay()
 {
     ImGui::SetCurrentContext(pData->context);
 
@@ -173,19 +157,14 @@ void ImGuiWidget<SubWidget>::onDisplay()
 
     if (ImDrawData* const data = ImGui::GetDrawData())
     {
-        data->DisplayPos.x = -getAbsoluteX();
-        data->DisplayPos.y = getWindow().getHeight() - (getAbsoluteY() + getHeight());
+        data->DisplayPos.x = -pData->getDisplayX();
+        data->DisplayPos.y = pData->getDisplayY();
 #ifdef DGL_USE_OPENGL3
         ImGui_ImplOpenGL3_RenderDrawData(data);
 #else
         ImGui_ImplOpenGL2_RenderDrawData(data);
 #endif
     }
-
-    /*
-    fImpl->fLastRepainted = Impl::Clock::now();
-    fImpl->fWasEverPainted = true;
-    */
 }
 
 template <class BaseWidget>
@@ -322,11 +301,23 @@ ImGuiWidget<BaseWidget>::~ImGuiWidget()
 // ImGuiSubWidget
 
 template <>
+float ImGuiWidget<SubWidget>::PrivateData::getDisplayX() const noexcept
+{
+    return self->getAbsoluteX();
+}
+
+template <>
+float ImGuiWidget<SubWidget>::PrivateData::getDisplayY() const noexcept
+{
+    return self->getWindow().getHeight() - self->getAbsoluteY() - self->getHeight();
+}
+
+template <>
 ImGuiWidget<SubWidget>::ImGuiWidget(Widget* const parent)
     : SubWidget(parent),
       pData(new PrivateData(this))
 {
-    getTopLevelWidget()->addIdleCallback(this);
+    getTopLevelWidget()->addIdleCallback(this, 1000 / 60); // 60 fps
 }
 
 template class ImGuiWidget<SubWidget>;
@@ -335,11 +326,23 @@ template class ImGuiWidget<SubWidget>;
 // ImGuiTopLevelWidget
 
 template <>
+float ImGuiWidget<TopLevelWidget>::PrivateData::getDisplayX() const noexcept
+{
+    return 0.0f;
+}
+
+template <>
+float ImGuiWidget<TopLevelWidget>::PrivateData::getDisplayY() const noexcept
+{
+    return self->getHeight();
+}
+
+template <>
 ImGuiWidget<TopLevelWidget>::ImGuiWidget(Window& windowToMapTo)
     : TopLevelWidget(windowToMapTo),
       pData(new PrivateData(this))
 {
-    TopLevelWidget::addIdleCallback(this);
+    TopLevelWidget::addIdleCallback(this, 1000 / 60); // 60 fps
 }
 
 template class ImGuiWidget<TopLevelWidget>;
@@ -348,11 +351,23 @@ template class ImGuiWidget<TopLevelWidget>;
 // ImGuiStandaloneWindow
 
 template <>
+float ImGuiWidget<StandaloneWindow>::PrivateData::getDisplayX() const noexcept
+{
+    return 0.0f;
+}
+
+template <>
+float ImGuiWidget<StandaloneWindow>::PrivateData::getDisplayY() const noexcept
+{
+    return self->getHeight();
+}
+
+template <>
 ImGuiWidget<StandaloneWindow>::ImGuiWidget(Application& app)
     : StandaloneWindow(app),
       pData(new PrivateData(this))
 {
-    Window::addIdleCallback(this);
+    Window::addIdleCallback(this, 1000 / 60); // 60 fps
 }
 
 template <>
@@ -360,7 +375,7 @@ ImGuiWidget<StandaloneWindow>::ImGuiWidget(Application& app, Window& transientPa
     : StandaloneWindow(app, transientParentWindow),
       pData(new PrivateData(this))
 {
-    Window::addIdleCallback(this);
+    Window::addIdleCallback(this, 1000 / 60); // 60 fps
 }
 
 template class ImGuiWidget<StandaloneWindow>;
