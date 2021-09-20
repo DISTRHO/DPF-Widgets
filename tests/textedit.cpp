@@ -15,16 +15,22 @@
  */
 
 // ImGui is quite large, build it separately
-#define IMGUI_DPF_BACKEND
-#include "../opengl/DearImGui/imgui.cpp"
-#include "../opengl/DearImGui/imgui_demo.cpp"
-#include "../opengl/DearImGui/imgui_draw.cpp"
-#include "../opengl/DearImGui/imgui_tables.cpp"
-#include "../opengl/DearImGui/imgui_widgets.cpp"
-#include "../opengl/DearImGuiColorTextEditor/TextEditor.cpp"
+#define IMGUI_SKIP_IMPLEMENTATION
 
-#ifdef DGL_USE_OPENGL3
-# include "../opengl/DearImGui/imgui_impl_opengl3.cpp"
-#else
-# include "../opengl/DearImGui/imgui_impl_opengl2.cpp"
-#endif
+#include "Application.hpp"
+#include "../opengl/DearImGui.cpp"
+#include "../opengl/DearImGuiColorTextEditor.cpp"
+
+int main(int, char**)
+{
+    USE_NAMESPACE_DGL;
+
+    Application app;
+    ImGuiTextEditorStandaloneWindow win(app);
+    win.setResizable(true);
+    win.setTitle("TextEdit");
+    win.show();
+    app.exec();
+
+    return 0;
+}

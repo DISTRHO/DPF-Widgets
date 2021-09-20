@@ -18,7 +18,7 @@ BUILD_CXX_FLAGS += -I$(DPF_DIR)/dgl
 
 # ---------------------------------------------------------------------------------------------------------------------
 
-all: opengl$(APP_EXT)
+all: opengl$(APP_EXT) textedit$(APP_EXT)
 
 clean:
 	rm -f *.d *.o
@@ -41,8 +41,14 @@ $(DPF_DIR)/build/libdgl-vulkan.a:
 # ---------------------------------------------------------------------------------------------------------------------
 
 opengl$(APP_EXT): opengl.cpp.o imgui.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
-	@echo "Linking $<"
+	@echo "Linking $@"
 	$(SILENT)$(CXX) $^ $(LINK_FLAGS) $(DGL_SYSTEM_LIBS) $(OPENGL_LIBS) -o $@
+
+textedit$(APP_EXT): textedit.cpp.o imgui.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
+	@echo "Linking $@"
+	$(SILENT)$(CXX) $^ $(LINK_FLAGS) $(DGL_SYSTEM_LIBS) $(OPENGL_LIBS) -o $@
+
+# ---------------------------------------------------------------------------------------------------------------------
 
 imgui.cpp.o: imgui.cpp
 	@echo "Compiling $<"
@@ -52,10 +58,15 @@ opengl.cpp.o: opengl.cpp
 	@echo "Compiling $<"
 	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -DDGL_OPENGL -c -o $@
 
+textedit.cpp.o: textedit.cpp
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -DDGL_OPENGL -c -o $@
+
 # ---------------------------------------------------------------------------------------------------------------------
 
 -include cairo.cpp.d
 -include imgui.cpp.d
 -include opengl.cpp.d
+-include textedit.cpp.d
 
 # ---------------------------------------------------------------------------------------------------------------------

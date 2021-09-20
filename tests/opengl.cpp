@@ -23,6 +23,7 @@
 #include "../generic/ResizeHandle.hpp"
 #include "../opengl/Blendish.cpp"
 #include "../opengl/DearImGui.cpp"
+#include "../opengl/DearImGuiColorTextEditor.cpp"
 
 #include <vector>
 
@@ -123,20 +124,31 @@ protected:
     {
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(getWidth(), getHeight()));
-//         ImGui::ShowAboutWindow();
+        // ImGui::ShowAboutWindow();
         ImGui::ShowDemoWindow();
-        return;
+    }
+};
 
-        if (ImGui::Begin("Simple gain", nullptr, ImGuiWindowFlags_NoTitleBar))
-        {
-            static char aboutText[256] =
-                "This is a demo plugin made with ImGui.\n";
-            ImGui::InputTextMultiline("About", aboutText, sizeof(aboutText));
+// --------------------------------------------------------------------------------------------------------------------
+// TextEdit demo
 
-            static float gain = 0.0f;
-            ImGui::SliderFloat("Gain (dB)", &gain, -90.0f, 30.0f);
-        }
-        ImGui::End();
+class TextEditDemo : public ImGuiTextEditorSubWidget
+{
+public:
+    TextEditDemo(Widget* const parent)
+        : ImGuiTextEditorSubWidget(parent)
+    {
+        setText(
+            "/* This is a text editor */\n"
+            "// Showing C++ syntax highlighting.\n"
+            "\n"
+            "#define HERE_COMES_A_MACRO\n"
+            "\n"
+            "int main()\n"
+            "{\n"
+            "    return 0;\n"
+            "}\n"
+        );
     }
 };
 
@@ -148,24 +160,28 @@ class WidgetsDemoWindow : public StandaloneWindow
     static const uint kMarginBase    = 8;
     static const uint kMarginContent = kMarginBase + 2;
 
-    static const uint kMinWindowWidth  = 720;
+    static const uint kMinWindowWidth  = 920;
     static const uint kMinWindowHeight = 560;
 
     ResizeHandle resizeHandle;
     struct WidgetAndOffset {
         SubWidget* widget;
-        uint offset;
+        uint maxHeight;
+        uint xOffset;
+        uint yOffset;
     };
     std::vector<WidgetAndOffset> widgets;
 
     template <class W>
-    W* createAndAddWidgetOfType(const uint margin, const uint yOffset)
+    W* createAndAddWidgetOfType(const uint margin, const uint xOffset, const uint yOffset, const uint maxHeight)
     {
         W* const w = new W((TopLevelWidget*)this);
-        widgets.push_back({w, yOffset});
+        widgets.push_back({w, maxHeight, xOffset, yOffset});
 
-        w->setAbsolutePos(margin, margin + yOffset);
-        w->setSize(getWidth()-margin*2, getHeight()-margin*2-yOffset);
+        const uint height = getHeight()-margin*2-yOffset;
+
+        w->setAbsolutePos(margin + xOffset, margin + yOffset);
+        w->setSize(getWidth()-margin*2-xOffset, maxHeight != 0 ? std::min(maxHeight, height) : height);
 
         return w;
     }
@@ -184,8 +200,9 @@ public:
         setTitle("DPF Widgets Demo");
 
         const ScopedGraphicsContext sgc(*this);
-        createAndAddWidgetOfType<BlendishDemo>(margin, 0);
-        createAndAddWidgetOfType<DearImGuiDemo>(margin, 200);
+        createAndAddWidgetOfType<BlendishDemo>(margin, 0, 0, 0);
+        createAndAddWidgetOfType<DearImGuiDemo>(margin, 0, 200, 0);
+        createAndAddWidgetOfType<TextEditDemo>(margin, 450, 0, 200);
     }
 
 protected:
@@ -216,8 +233,12 @@ protected:
 
         for (WidgetAndOffset& wo : widgets)
         {
-            const uint yOffset = wo.offset * scaleFactor;
-            wo.widget->setSize(width-margin*2, height-margin*2-yOffset);
+            const uint maxHeight = wo.maxHeight * scaleFactor;
+            const uint xOffset   = wo.xOffset * scaleFactor;
+            const uint yOffset   = wo.yOffset * scaleFactor;
+            const uint yheight   = height-margin*2-yOffset;
+
+            wo.widget->setSize(width-margin*2-xOffset, maxHeight != 0 ? std::min(maxHeight, yheight) : yheight);
         }
     }
 };
