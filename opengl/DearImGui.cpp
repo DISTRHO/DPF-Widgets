@@ -333,7 +333,7 @@ float ImGuiWidget<TopLevelWidget>::PrivateData::getDisplayX() const noexcept
 template <>
 float ImGuiWidget<TopLevelWidget>::PrivateData::getDisplayY() const noexcept
 {
-    return self->getHeight();
+    return 0.0f;
 }
 
 template <>
@@ -365,7 +365,7 @@ float ImGuiWidget<StandaloneWindow>::PrivateData::getDisplayX() const noexcept
 template <>
 float ImGuiWidget<StandaloneWindow>::PrivateData::getDisplayY() const noexcept
 {
-    return self->getHeight();
+    return 0.0f;
 }
 
 template <>
