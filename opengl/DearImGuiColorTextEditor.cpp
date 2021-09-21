@@ -50,6 +50,16 @@ struct ImGuiTextEditor<BaseWidget>::PrivateData {
         // https://github.com/BalazsJako/ColorTextEditorDemo/blob/master/main.cpp
 
         editor.SetLanguageDefinition(TextEditor::LanguageDefinition::CPlusPlus());
+
+        // TESTING
+        std::ifstream t("/Shared/Personal/FOSS/GIT/DISTRHO/DISTRHO_OneKnob-Series/dpf/dgl/Image.hpp");
+
+        if (t.good())
+        {
+            const std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+            editor.SetText(str);
+            file = "/Shared/Personal/FOSS/GIT/DISTRHO/DISTRHO_OneKnob-Series/dpf/dgl/Image.hpp";
+        }
     }
 
     void renderMenuContent()
@@ -100,7 +110,7 @@ struct ImGuiTextEditor<BaseWidget>::PrivateData {
 
                 ImGui::Separator();
 
-                if (ImGui::MenuItem("Select all", nullptr, nullptr))
+                if (ImGui::MenuItem("Select all", "Ctrl-A", nullptr))
                     editor.SetSelection(TextEditor::Coordinates(), TextEditor::Coordinates(editor.GetTotalLines(), 0));
 
                 ImGui::EndMenu();

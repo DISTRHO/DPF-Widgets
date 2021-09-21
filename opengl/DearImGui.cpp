@@ -77,8 +77,8 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         io.DisplaySize.y = std::round(scaleFactor * self->getHeight());
         io.IniFilename = nullptr;
 
-        /*
         io.KeyMap[ImGuiKey_Tab] = '\t';
+        /*
         io.KeyMap[ImGuiKey_LeftArrow] = IM_ARRAYSIZE(io.KeysDown) - kKeyLeft;
         io.KeyMap[ImGuiKey_RightArrow] = IM_ARRAYSIZE(io.KeysDown) - kKeyRight;
         io.KeyMap[ImGuiKey_UpArrow] = IM_ARRAYSIZE(io.KeysDown) - kKeyUp;
@@ -88,18 +88,21 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         io.KeyMap[ImGuiKey_Home] = IM_ARRAYSIZE(io.KeysDown) - kKeyHome;
         io.KeyMap[ImGuiKey_End] = IM_ARRAYSIZE(io.KeysDown) - kKeyEnd;
         io.KeyMap[ImGuiKey_Insert] = IM_ARRAYSIZE(io.KeysDown) - kKeyInsert;
-        io.KeyMap[ImGuiKey_Delete] = 127;
-        io.KeyMap[ImGuiKey_Backspace] = '\b';
+        */
+        io.KeyMap[ImGuiKey_Delete] = kKeyDelete;
+        io.KeyMap[ImGuiKey_Backspace] = kKeyBackspace;
         io.KeyMap[ImGuiKey_Space] = ' ';
         io.KeyMap[ImGuiKey_Enter] = '\r';
-        io.KeyMap[ImGuiKey_Escape] = 27;
+        io.KeyMap[ImGuiKey_Escape] = kKeyEscape;
+        /*
+        io.KeyMap[ImGuiKey_KeyPadEnter] = '\n';
+        */
         io.KeyMap[ImGuiKey_A] = 'A';
         io.KeyMap[ImGuiKey_C] = 'C';
         io.KeyMap[ImGuiKey_V] = 'V';
         io.KeyMap[ImGuiKey_X] = 'X';
         io.KeyMap[ImGuiKey_Y] = 'Y';
         io.KeyMap[ImGuiKey_Z] = 'Z';
-        */
 
 #ifdef DGL_USE_OPENGL3
         ImGui_ImplOpenGL3_Init();
@@ -170,11 +173,14 @@ void ImGuiWidget<BaseWidget>::onDisplay()
 template <class BaseWidget>
 bool ImGuiWidget<BaseWidget>::onKeyboard(const Widget::KeyboardEvent& event)
 {
-    /*
+    if (BaseWidget::onKeyboard(event))
+        return true;
+
     ImGui::SetCurrentContext(pData->context);
 
     ImGuiIO& io(ImGui::GetIO());
 
+    /*
     if (event.press)
         io.AddInputCharacter(event.key);
 
@@ -185,23 +191,7 @@ bool ImGuiWidget<BaseWidget>::onKeyboard(const Widget::KeyboardEvent& event)
             imGuiKey = imGuiKey - 'a' + 'A';
         io.KeysDown[imGuiKey] = event.press;
     }
-
-    return io.WantCaptureKeyboard;
     */
-
-    return BaseWidget::onKeyboard(event);
-}
-
-template <class BaseWidget>
-bool ImGuiWidget<BaseWidget>::onSpecial(const Widget::SpecialEvent& event)
-{
-    /*
-    ImGui::SetCurrentContext(pData->context);
-
-    ImGuiIO& io(ImGui::GetIO());
-
-    int imGuiKey = IM_ARRAYSIZE(io.KeysDown) - event.key;
-    io.KeysDown[imGuiKey] = event.press;
 
     switch (event.key)
     {
@@ -217,19 +207,82 @@ bool ImGuiWidget<BaseWidget>::onSpecial(const Widget::SpecialEvent& event)
     case kKeySuper:
         io.KeySuper = event.press;
         break;
+    case kKeyBackspace:
+    case kKeyEscape:
+    case kKeyDelete:
+    case ' ':
+    case '\t':
+    case '\r':
+    case '\n':
+        io.KeysDown[event.key] = event.press;
+        break;
     default:
         break;
     }
 
     return io.WantCaptureKeyboard;
+}
+
+template <class BaseWidget>
+bool ImGuiWidget<BaseWidget>::onSpecial(const Widget::SpecialEvent& event)
+{
+    if (BaseWidget::onSpecial(event))
+        return true;
+
+    ImGui::SetCurrentContext(pData->context);
+
+    ImGuiIO& io(ImGui::GetIO());
+
+    /*
+    int imGuiKey = IM_ARRAYSIZE(io.KeysDown) - event.key;
+    io.KeysDown[imGuiKey] = event.press;
     */
 
-    return BaseWidget::onSpecial(event);
+    switch (event.key)
+    {
+    case kKeyShift:
+        io.KeyShift = event.press;
+        break;
+    case kKeyControl:
+        io.KeyCtrl = event.press;
+        break;
+    case kKeyAlt:
+        io.KeyAlt = event.press;
+        break;
+    case kKeySuper:
+        io.KeySuper = event.press;
+        break;
+    case kKeyBackspace:
+    case kKeyEscape:
+    case kKeyDelete:
+        io.KeysDown[event.key] = event.press;
+        break;
+    default:
+        break;
+    }
+
+    return io.WantCaptureKeyboard;
+}
+
+template <class BaseWidget>
+bool ImGuiWidget<BaseWidget>::onCharacterInput(const Widget::CharacterInputEvent& event)
+{
+    if (BaseWidget::onCharacterInput(event))
+        return true;
+
+    ImGuiIO& io(ImGui::GetIO());
+
+    io.AddInputCharactersUTF8(event.string);
+
+    return io.WantCaptureKeyboard;
 }
 
 template <class BaseWidget>
 bool ImGuiWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
 {
+    if (BaseWidget::onMouse(event))
+        return true;
+
     ImGui::SetCurrentContext(pData->context);
 
     ImGuiIO& io(ImGui::GetIO());
@@ -239,13 +292,14 @@ bool ImGuiWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
         io.MouseDown[imGuiButton] = event.press;
 
     return io.WantCaptureMouse;
-
-    return BaseWidget::onMouse(event);
 }
 
 template <class BaseWidget>
 bool ImGuiWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
 {
+    if (BaseWidget::onMotion(event))
+        return true;
+
     ImGui::SetCurrentContext(pData->context);
 
     ImGuiIO& io(ImGui::GetIO());
@@ -255,12 +309,15 @@ bool ImGuiWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
     io.MousePos.x = std::round(scaleFactor * event.pos.getX());
     io.MousePos.y = std::round(scaleFactor * event.pos.getY());
 
-    return BaseWidget::onMotion(event);
+    return false;
 }
 
 template <class BaseWidget>
 bool ImGuiWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
 {
+    if (BaseWidget::onScroll(event))
+        return true;
+
     ImGui::SetCurrentContext(pData->context);
 
     ImGuiIO& io(ImGui::GetIO());
@@ -268,8 +325,6 @@ bool ImGuiWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
     io.MouseWheelH += event.delta.getX();
 
     return io.WantCaptureMouse;
-
-    return BaseWidget::onScroll(event);
 }
 
 template <class BaseWidget>

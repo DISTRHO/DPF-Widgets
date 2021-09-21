@@ -58,7 +58,7 @@ public:
     virtual ~ImGuiTextEditor();
 
    /**
-      Methods from from internal TextEdit.
+      Methods from internal TextEdit.
     */
     void setText(const std::string& text);
     std::string getText() const;

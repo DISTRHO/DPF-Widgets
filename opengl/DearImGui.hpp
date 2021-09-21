@@ -79,6 +79,7 @@ private:
     void onDisplay() override;
     bool onKeyboard(const Widget::KeyboardEvent& event) override;
     bool onSpecial(const Widget::SpecialEvent& event) override;
+    bool onCharacterInput(const Widget::CharacterInputEvent&) override;
     bool onMouse(const Widget::MouseEvent& event) override;
     bool onMotion(const Widget::MotionEvent& event) override;
     bool onScroll(const Widget::ScrollEvent& event) override;
