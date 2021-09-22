@@ -16,6 +16,7 @@
  */
 
 #include "DearImGui.hpp"
+#include "src/Resources.hpp"
 
 #ifndef IMGUI_SKIP_IMPLEMENTATION
 # define IMGUI_DPF_BACKEND
@@ -60,22 +61,31 @@ template <class BaseWidget>
 struct ImGuiWidget<BaseWidget>::PrivateData {
     ImGuiWidget<BaseWidget>* const self;
     ImGuiContext* context;
+    double scaleFactor;
 
     explicit PrivateData(ImGuiWidget<BaseWidget>* const s)
         : self(s),
-          context(nullptr)
+          context(nullptr),
+          scaleFactor(s->getTopLevelWidget()->getScaleFactor())
     {
         IMGUI_CHECKVERSION();
         context = ImGui::CreateContext();
         ImGui::SetCurrentContext(context);
 
-        const double scaleFactor = self->getTopLevelWidget()->getScaleFactor();
-
         ImGuiIO& io(ImGui::GetIO());
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        io.DisplaySize.x = std::round(scaleFactor * self->getWidth());
-        io.DisplaySize.y = std::round(scaleFactor * self->getHeight());
+        io.DisplaySize.x = self->getWidth();
+        io.DisplaySize.y = self->getHeight();
+        io.DisplayFramebufferScale = ImVec2(scaleFactor, scaleFactor);
+        io.FontGlobalScale = scaleFactor;
         io.IniFilename = nullptr;
+
+        using namespace dpf_resources;
+        io.Fonts->AddFontFromMemoryTTF((void*)dejavusans_ttf,
+                                       dejavusans_ttf_size,
+                                       10 * scaleFactor); // ->ConfigData->FontDataOwnedByAtlas = false;
+        io.Fonts->Build();
+        ImGui::GetStyle().ScaleAllSizes(scaleFactor);
 
         io.KeyMap[ImGuiKey_Tab] = '\t';
         /*
@@ -191,7 +201,6 @@ bool ImGuiWidget<BaseWidget>::onKeyboard(const Widget::KeyboardEvent& event)
             imGuiKey = imGuiKey - 'a' + 'A';
         io.KeysDown[imGuiKey] = event.press;
     }
-    */
 
     switch (event.key)
     {
@@ -219,6 +228,7 @@ bool ImGuiWidget<BaseWidget>::onKeyboard(const Widget::KeyboardEvent& event)
     default:
         break;
     }
+    */
 
     return io.WantCaptureKeyboard;
 }
@@ -236,7 +246,6 @@ bool ImGuiWidget<BaseWidget>::onSpecial(const Widget::SpecialEvent& event)
     /*
     int imGuiKey = IM_ARRAYSIZE(io.KeysDown) - event.key;
     io.KeysDown[imGuiKey] = event.press;
-    */
 
     switch (event.key)
     {
@@ -260,6 +269,7 @@ bool ImGuiWidget<BaseWidget>::onSpecial(const Widget::SpecialEvent& event)
     default:
         break;
     }
+    */
 
     return io.WantCaptureKeyboard;
 }
@@ -271,9 +281,7 @@ bool ImGuiWidget<BaseWidget>::onCharacterInput(const Widget::CharacterInputEvent
         return true;
 
     ImGuiIO& io(ImGui::GetIO());
-
     io.AddInputCharactersUTF8(event.string);
-
     return io.WantCaptureKeyboard;
 }
 
@@ -303,12 +311,8 @@ bool ImGuiWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
     ImGui::SetCurrentContext(pData->context);
 
     ImGuiIO& io(ImGui::GetIO());
-
-    // FIXME
-    const double scaleFactor = 1; // getScaleFactor();
-    io.MousePos.x = std::round(scaleFactor * event.pos.getX());
-    io.MousePos.y = std::round(scaleFactor * event.pos.getY());
-
+    io.MousePos.x = std::round(1 * event.pos.getX());
+    io.MousePos.y = std::round(1 * event.pos.getY());
     return false;
 }
 
@@ -332,16 +336,11 @@ void ImGuiWidget<BaseWidget>::onResize(const Widget::ResizeEvent& event)
 {
     BaseWidget::onResize(event);
 
-    const double scaleFactor = BaseWidget::getTopLevelWidget()->getScaleFactor();
-
-    const uint width = event.size.getWidth();
-    const uint height = event.size.getHeight();
-
     ImGui::SetCurrentContext(pData->context);
 
     ImGuiIO& io(ImGui::GetIO());
-    io.DisplaySize.x = std::round(scaleFactor * width);
-    io.DisplaySize.y = std::round(scaleFactor * height);
+    io.DisplaySize.x = event.size.getWidth();
+    io.DisplaySize.y = event.size.getHeight();
 }
 
 // --------------------------------------------------------------------------------------------------------------------

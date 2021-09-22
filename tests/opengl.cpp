@@ -201,8 +201,8 @@ public:
 
         const ScopedGraphicsContext sgc(*this);
         createAndAddWidgetOfType<BlendishDemo>(margin, 0, 0, 0);
-        createAndAddWidgetOfType<DearImGuiDemo>(margin, 0, 200, 0);
-        createAndAddWidgetOfType<TextEditDemo>(margin, 450, 0, 200);
+        createAndAddWidgetOfType<DearImGuiDemo>(margin, 0, 200 * scaleFactor, 0);
+        createAndAddWidgetOfType<TextEditDemo>(margin, 450 * scaleFactor, 0, 200 * scaleFactor);
     }
 
 protected:
@@ -233,9 +233,9 @@ protected:
 
         for (WidgetAndOffset& wo : widgets)
         {
-            const uint maxHeight = wo.maxHeight * scaleFactor;
-            const uint xOffset   = wo.xOffset * scaleFactor;
-            const uint yOffset   = wo.yOffset * scaleFactor;
+            const uint maxHeight = wo.maxHeight;
+            const uint xOffset   = wo.xOffset;
+            const uint yOffset   = wo.yOffset;
             const uint yheight   = height-margin*2-yOffset;
 
             wo.widget->setSize(width-margin*2-xOffset, maxHeight != 0 ? std::min(maxHeight, yheight) : yheight);

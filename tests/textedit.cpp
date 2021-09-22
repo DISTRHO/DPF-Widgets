@@ -27,6 +27,7 @@ int main(int, char**)
 
     Application app;
     ImGuiTextEditorStandaloneWindow win(app);
+    win.setGeometryConstraints(640*win.getScaleFactor(), 480*win.getScaleFactor(), false);
     win.setResizable(true);
     win.setTitle("TextEdit");
     win.show();
