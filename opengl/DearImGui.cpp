@@ -16,7 +16,10 @@
  */
 
 #include "DearImGui.hpp"
-#include "src/Resources.hpp"
+
+#ifndef DGL_NO_SHARED_RESOURCES
+# include "src/Resources.hpp"
+#endif
 
 #ifndef IMGUI_SKIP_IMPLEMENTATION
 # define IMGUI_DPF_BACKEND
@@ -42,21 +45,6 @@ START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
 
-int mouseButtonToImGui(int button)
-{
-    switch (button)
-    {
-    case 1:
-        return 0;
-    case 2:
-        return 2;
-    case 3:
-        return 1;
-    default:
-        return -1;
-    }
-}
-
 template <class BaseWidget>
 struct ImGuiWidget<BaseWidget>::PrivateData {
     ImGuiWidget<BaseWidget>* const self;
@@ -80,39 +68,40 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         io.FontGlobalScale = scaleFactor;
         io.IniFilename = nullptr;
 
+#ifndef DGL_NO_SHARED_RESOURCES
         using namespace dpf_resources;
-        io.Fonts->AddFontFromMemoryTTF((void*)dejavusans_ttf,
-                                       dejavusans_ttf_size,
-                                       10 * scaleFactor); // ->ConfigData->FontDataOwnedByAtlas = false;
+        ImFontConfig fc;
+        fc.FontDataOwnedByAtlas = false;
+        fc.OversampleH = 1;
+        fc.OversampleV = 1;
+        fc.PixelSnapH = 1;
+        io.Fonts->AddFontFromMemoryTTF((void*)dejavusans_ttf, dejavusans_ttf_size, 13.0f * scaleFactor, &fc);
         io.Fonts->Build();
-        ImGui::GetStyle().ScaleAllSizes(scaleFactor);
+        // ImGui::GetStyle().ScaleAllSizes(scaleFactor);
+#endif
 
         io.KeyMap[ImGuiKey_Tab] = '\t';
-        /*
-        io.KeyMap[ImGuiKey_LeftArrow] = IM_ARRAYSIZE(io.KeysDown) - kKeyLeft;
-        io.KeyMap[ImGuiKey_RightArrow] = IM_ARRAYSIZE(io.KeysDown) - kKeyRight;
-        io.KeyMap[ImGuiKey_UpArrow] = IM_ARRAYSIZE(io.KeysDown) - kKeyUp;
-        io.KeyMap[ImGuiKey_DownArrow] = IM_ARRAYSIZE(io.KeysDown) - kKeyDown;
-        io.KeyMap[ImGuiKey_PageUp] = IM_ARRAYSIZE(io.KeysDown) - kKeyPageUp;
-        io.KeyMap[ImGuiKey_PageDown] = IM_ARRAYSIZE(io.KeysDown) - kKeyPageDown;
-        io.KeyMap[ImGuiKey_Home] = IM_ARRAYSIZE(io.KeysDown) - kKeyHome;
-        io.KeyMap[ImGuiKey_End] = IM_ARRAYSIZE(io.KeysDown) - kKeyEnd;
-        io.KeyMap[ImGuiKey_Insert] = IM_ARRAYSIZE(io.KeysDown) - kKeyInsert;
-        */
+        io.KeyMap[ImGuiKey_LeftArrow] = 0xff + kKeyLeft - kKeyF1;
+        io.KeyMap[ImGuiKey_RightArrow] = 0xff + kKeyRight - kKeyF1;
+        io.KeyMap[ImGuiKey_UpArrow] = 0xff + kKeyUp - kKeyF1;
+        io.KeyMap[ImGuiKey_DownArrow] = 0xff + kKeyDown - kKeyF1;
+        io.KeyMap[ImGuiKey_PageUp] = 0xff + kKeyPageUp - kKeyF1;
+        io.KeyMap[ImGuiKey_PageDown] = 0xff + kKeyPageDown - kKeyF1;
+        io.KeyMap[ImGuiKey_Home] = 0xff + kKeyHome - kKeyF1;
+        io.KeyMap[ImGuiKey_End] = 0xff + kKeyEnd - kKeyF1;
+        io.KeyMap[ImGuiKey_Insert] = 0xff + kKeyInsert - kKeyF1;
         io.KeyMap[ImGuiKey_Delete] = kKeyDelete;
         io.KeyMap[ImGuiKey_Backspace] = kKeyBackspace;
         io.KeyMap[ImGuiKey_Space] = ' ';
         io.KeyMap[ImGuiKey_Enter] = '\r';
         io.KeyMap[ImGuiKey_Escape] = kKeyEscape;
-        /*
-        io.KeyMap[ImGuiKey_KeyPadEnter] = '\n';
-        */
-        io.KeyMap[ImGuiKey_A] = 'A';
-        io.KeyMap[ImGuiKey_C] = 'C';
-        io.KeyMap[ImGuiKey_V] = 'V';
-        io.KeyMap[ImGuiKey_X] = 'X';
-        io.KeyMap[ImGuiKey_Y] = 'Y';
-        io.KeyMap[ImGuiKey_Z] = 'Z';
+        // io.KeyMap[ImGuiKey_KeyPadEnter] = '\n';
+        io.KeyMap[ImGuiKey_A] = 'a';
+        io.KeyMap[ImGuiKey_C] = 'c';
+        io.KeyMap[ImGuiKey_V] = 'v';
+        io.KeyMap[ImGuiKey_X] = 'x';
+        io.KeyMap[ImGuiKey_Y] = 'y';
+        io.KeyMap[ImGuiKey_Z] = 'z';
 
 #ifdef DGL_USE_OPENGL3
         ImGui_ImplOpenGL3_Init();
@@ -190,86 +179,17 @@ bool ImGuiWidget<BaseWidget>::onKeyboard(const Widget::KeyboardEvent& event)
 
     ImGuiIO& io(ImGui::GetIO());
 
-    /*
-    if (event.press)
-        io.AddInputCharacter(event.key);
+    io.KeyCtrl  = event.mod & kModifierControl;
+    io.KeyShift = event.mod & kModifierShift;
+    io.KeyAlt   = event.mod & kModifierAlt;
+    io.KeySuper = event.mod & kModifierSuper;
 
-    int imGuiKey = event.key;
-    if (imGuiKey >= 0 && imGuiKey < 128)
-    {
-        if (imGuiKey >= 'a' && imGuiKey <= 'z')
-            imGuiKey = imGuiKey - 'a' + 'A';
-        io.KeysDown[imGuiKey] = event.press;
-    }
+    d_stdout("onKeyboard %u %u", event.key, event.keycode);
 
-    switch (event.key)
-    {
-    case kKeyShift:
-        io.KeyShift = event.press;
-        break;
-    case kKeyControl:
-        io.KeyCtrl = event.press;
-        break;
-    case kKeyAlt:
-        io.KeyAlt = event.press;
-        break;
-    case kKeySuper:
-        io.KeySuper = event.press;
-        break;
-    case kKeyBackspace:
-    case kKeyEscape:
-    case kKeyDelete:
-    case ' ':
-    case '\t':
-    case '\r':
-    case '\n':
+    if (event.key <= kKeyDelete)
         io.KeysDown[event.key] = event.press;
-        break;
-    default:
-        break;
-    }
-    */
-
-    return io.WantCaptureKeyboard;
-}
-
-template <class BaseWidget>
-bool ImGuiWidget<BaseWidget>::onSpecial(const Widget::SpecialEvent& event)
-{
-    if (BaseWidget::onSpecial(event))
-        return true;
-
-    ImGui::SetCurrentContext(pData->context);
-
-    ImGuiIO& io(ImGui::GetIO());
-
-    /*
-    int imGuiKey = IM_ARRAYSIZE(io.KeysDown) - event.key;
-    io.KeysDown[imGuiKey] = event.press;
-
-    switch (event.key)
-    {
-    case kKeyShift:
-        io.KeyShift = event.press;
-        break;
-    case kKeyControl:
-        io.KeyCtrl = event.press;
-        break;
-    case kKeyAlt:
-        io.KeyAlt = event.press;
-        break;
-    case kKeySuper:
-        io.KeySuper = event.press;
-        break;
-    case kKeyBackspace:
-    case kKeyEscape:
-    case kKeyDelete:
-        io.KeysDown[event.key] = event.press;
-        break;
-    default:
-        break;
-    }
-    */
+    else if (event.key >= kKeyF1 && event.key <= kKeyPause)
+        io.KeysDown[0xff + event.key - kKeyF1] = event.press;
 
     return io.WantCaptureKeyboard;
 }
@@ -281,7 +201,22 @@ bool ImGuiWidget<BaseWidget>::onCharacterInput(const Widget::CharacterInputEvent
         return true;
 
     ImGuiIO& io(ImGui::GetIO());
-    io.AddInputCharactersUTF8(event.string);
+
+    switch (event.character)
+    {
+    case kKeyBackspace:
+    case kKeyEscape:
+    case kKeyDelete:
+    case '\n':
+    case '\r':
+    case '\t':
+        break;
+    default:
+        d_stdout("input %u %u %lu '%s'", event.keycode, event.character, std::strlen(event.string), event.string);
+        io.AddInputCharactersUTF8(event.string);
+        break;
+    }
+
     return io.WantCaptureKeyboard;
 }
 
@@ -295,9 +230,18 @@ bool ImGuiWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
 
     ImGuiIO& io(ImGui::GetIO());
 
-    int imGuiButton = mouseButtonToImGui(event.button);
-    if (imGuiButton != -1)
-        io.MouseDown[imGuiButton] = event.press;
+    switch (event.button)
+    {
+    case 1:
+        io.MouseDown[0] = event.press;
+        break;
+    case 2:
+        io.MouseDown[2] = event.press;
+        break;
+    case 3:
+        io.MouseDown[1] = event.press;
+        break;
+    }
 
     return io.WantCaptureMouse;
 }
@@ -311,8 +255,8 @@ bool ImGuiWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
     ImGui::SetCurrentContext(pData->context);
 
     ImGuiIO& io(ImGui::GetIO());
-    io.MousePos.x = std::round(1 * event.pos.getX());
-    io.MousePos.y = std::round(1 * event.pos.getY());
+    io.MousePos.x = event.pos.getX();
+    io.MousePos.y = event.pos.getY();
     return false;
 }
 
@@ -327,7 +271,6 @@ bool ImGuiWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
     ImGuiIO& io(ImGui::GetIO());
     io.MouseWheel += event.delta.getY();
     io.MouseWheelH += event.delta.getX();
-
     return io.WantCaptureMouse;
 }
 
