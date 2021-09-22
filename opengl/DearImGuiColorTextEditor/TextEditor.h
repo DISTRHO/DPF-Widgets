@@ -153,6 +153,7 @@ public:
 		typedef std::pair<std::string, PaletteIndex> TokenRegexString;
 		typedef std::vector<TokenRegexString> TokenRegexStrings;
 		typedef bool(*TokenizeCallback)(const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end, PaletteIndex & paletteIndex);
+		typedef void(*ColorizeCallback)(Lines &lines, void *data);
 
 		std::string mName;
 		Keywords mKeywords;
@@ -162,6 +163,9 @@ public:
 		char mPreprocChar;
 		bool mAutoIndentation;
 
+		ColorizeCallback mColorize;
+		void *mColorizeData;
+
 		TokenizeCallback mTokenize;
 
 		TokenRegexStrings mTokenRegexStrings;
@@ -169,7 +173,12 @@ public:
 		bool mCaseSensitive;
 
 		LanguageDefinition()
-			: mPreprocChar('#'), mAutoIndentation(true), mTokenize(nullptr), mCaseSensitive(true)
+			: mPreprocChar('#')
+			, mAutoIndentation(true)
+			, mColorize(nullptr)
+			, mColorizeData(nullptr)
+			, mTokenize(nullptr)
+			, mCaseSensitive(true)
 		{
 		}
 
@@ -219,7 +228,7 @@ public:
 	void SetCursorPosition(const Coordinates& aPosition);
 
 	inline void SetHandleMouseInputs    (bool aValue){ mHandleMouseInputs    = aValue;}
-	inline bool IsHandleMouseInputsEnabled() const { return mHandleKeyboardInputs; }
+	inline bool IsHandleMouseInputsEnabled() const { return mHandleMouseInputs; }
 
 	inline void SetHandleKeyboardInputs (bool aValue){ mHandleKeyboardInputs = aValue;}
 	inline bool IsHandleKeyboardInputsEnabled() const { return mHandleKeyboardInputs; }

@@ -184,7 +184,7 @@ bool ImGuiWidget<BaseWidget>::onKeyboard(const Widget::KeyboardEvent& event)
     io.KeyAlt   = event.mod & kModifierAlt;
     io.KeySuper = event.mod & kModifierSuper;
 
-    d_stdout("onKeyboard %u %u", event.key, event.keycode);
+    // d_stdout("onKeyboard %u %u", event.key, event.keycode);
 
     if (event.key <= kKeyDelete)
         io.KeysDown[event.key] = event.press;
@@ -212,7 +212,7 @@ bool ImGuiWidget<BaseWidget>::onCharacterInput(const Widget::CharacterInputEvent
     case '\t':
         break;
     default:
-        d_stdout("input %u %u %lu '%s'", event.keycode, event.character, std::strlen(event.string), event.string);
+        // d_stdout("input %u %u %lu '%s'", event.keycode, event.character, std::strlen(event.string), event.string);
         io.AddInputCharactersUTF8(event.string);
         break;
     }

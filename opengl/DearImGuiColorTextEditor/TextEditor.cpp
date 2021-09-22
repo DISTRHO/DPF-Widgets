@@ -41,13 +41,13 @@ TextEditor::TextEditor()
 	, mColorRangeMin(0)
 	, mColorRangeMax(0)
 	, mSelectionMode(SelectionMode::Normal)
-	, mCheckComments(true)
-	, mLastClick(-1.0f)
 	, mHandleKeyboardInputs(true)
 	, mHandleMouseInputs(true)
 	, mIgnoreImGuiChild(false)
 	, mShowWhitespaces(true)
+	, mCheckComments(true)
 	, mStartTime(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+	, mLastClick(-1.0f)
 {
 	SetPalette(GetDarkPalette());
 	SetLanguageDefinition(LanguageDefinition::HLSL());
@@ -1127,7 +1127,11 @@ void TextEditor::Render(const char* aTitle, const ImVec2& aSize, bool aBorder)
 	ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::ColorConvertU32ToFloat4(mPalette[(int)PaletteIndex::Background]));
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 	if (!mIgnoreImGuiChild)
-		ImGui::BeginChild(aTitle, aSize, aBorder, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove);
+		ImGui::BeginChild(aTitle, aSize, aBorder,
+		                  ImGuiWindowFlags_HorizontalScrollbar |
+		                  ImGuiWindowFlags_AlwaysHorizontalScrollbar |
+		                  ImGuiWindowFlags_NoMove |
+		                  ImGuiWindowFlags_NoNavInputs);
 
 	if (mHandleKeyboardInputs)
 	{
@@ -1442,7 +1446,7 @@ void TextEditor::SetSelection(const Coordinates & aStart, const Coordinates & aE
 	case TextEditor::SelectionMode::Line:
 	{
 		const auto lineNo = mState.mSelectionEnd.mLine;
-		const auto lineSize = (size_t)lineNo < mLines.size() ? mLines[lineNo].size() : 0;
+		// const auto lineSize = (size_t)lineNo < mLines.size() ? mLines[lineNo].size() : 0;
 		mState.mSelectionStart = Coordinates(mState.mSelectionStart.mLine, 0);
 		mState.mSelectionEnd = Coordinates(lineNo, GetLineMaxColumn(lineNo));
 		break;
@@ -2251,6 +2255,14 @@ void TextEditor::ColorizeInternal()
 	if (mLines.empty() || !mColorizerEnabled)
 		return;
 
+	if (mLanguageDefinition.mColorize && (mCheckComments || mColorRangeMin < mColorRangeMax))
+	{
+		mCheckComments = false;
+		mColorRangeMin = std::numeric_limits<int>::max();
+		mColorRangeMax = 0;
+		return mLanguageDefinition.mColorize(mLines, mLanguageDefinition.mColorizeData);
+	}
+
 	if (mCheckComments)
 	{
 		auto endLine = mLines.size();
@@ -2333,7 +2345,14 @@ void TextEditor::ColorizeInternal()
 							currentIndex + singleStartStr.size() <= line.size() &&
 							equals(singleStartStr.begin(), singleStartStr.end(), from, from + singleStartStr.size(), pred))
 						{
-							withinSingleLineComment = true;
+							if (currentIndex + startStr.size() > line.size())
+							{
+								withinSingleLineComment = true;
+							}
+							else if (!equals(startStr.begin(), startStr.end(), from, from + startStr.size(), pred))
+							{
+								withinSingleLineComment = true;
+							}
 						}
 						else if (!withinSingleLineComment && currentIndex + startStr.size() <= line.size() &&
 							equals(startStr.begin(), startStr.end(), from, from + startStr.size(), pred))
@@ -2342,7 +2361,7 @@ void TextEditor::ColorizeInternal()
 							commentStartIndex = currentIndex;
 						}
 
-						inComment = inComment = (commentStartLine < currentLine || (commentStartLine == currentLine && commentStartIndex <= currentIndex));
+						inComment = (commentStartLine < currentLine || (commentStartLine == currentLine && commentStartIndex <= currentIndex));
 
 						line[currentIndex].mMultiLineComment = inComment;
 						line[currentIndex].mComment = withinSingleLineComment;
