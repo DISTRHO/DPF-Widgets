@@ -23,6 +23,13 @@
 
 #include "DearImGui/imgui.h"
 
+#ifdef DISTRHO_UI_HPP_INCLUDED
+START_NAMESPACE_DISTRHO
+class UI;
+class UIExporter;
+END_NAMESPACE_DISTRHO
+#endif
+
 START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -84,9 +91,13 @@ private:
     bool onScroll(const Widget::ScrollEvent& event) override;
     void onResize(const Widget::ResizeEvent& event) override;
 
-private:
     struct PrivateData;
-    PrivateData* const pData;
+    PrivateData* const imData;
+
+#ifdef DISTRHO_UI_HPP_INCLUDED
+    friend class DISTRHO_NAMESPACE::UI;
+    friend class DISTRHO_NAMESPACE::UIExporter;
+#endif
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ImGuiWidget)
 };

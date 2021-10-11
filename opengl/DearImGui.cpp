@@ -138,7 +138,7 @@ void ImGuiWidget<BaseWidget>::idleCallback()
 template <class BaseWidget>
 void ImGuiWidget<BaseWidget>::onDisplay()
 {
-    ImGui::SetCurrentContext(pData->context);
+    ImGui::SetCurrentContext(imData->context);
 
 #ifdef DGL_USE_OPENGL3
     ImGui_ImplOpenGL3_NewFrame();
@@ -159,8 +159,8 @@ void ImGuiWidget<BaseWidget>::onDisplay()
 
     if (ImDrawData* const data = ImGui::GetDrawData())
     {
-        data->DisplayPos.x = -pData->getDisplayX();
-        data->DisplayPos.y = pData->getDisplayY();
+        data->DisplayPos.x = -imData->getDisplayX();
+        data->DisplayPos.y = imData->getDisplayY();
 #ifdef DGL_USE_OPENGL3
         ImGui_ImplOpenGL3_RenderDrawData(data);
 #else
@@ -175,7 +175,7 @@ bool ImGuiWidget<BaseWidget>::onKeyboard(const Widget::KeyboardEvent& event)
     if (BaseWidget::onKeyboard(event))
         return true;
 
-    ImGui::SetCurrentContext(pData->context);
+    ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
 
@@ -226,7 +226,7 @@ bool ImGuiWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
     if (BaseWidget::onMouse(event))
         return true;
 
-    ImGui::SetCurrentContext(pData->context);
+    ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
 
@@ -252,7 +252,7 @@ bool ImGuiWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
     if (BaseWidget::onMotion(event))
         return true;
 
-    ImGui::SetCurrentContext(pData->context);
+    ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
     io.MousePos.x = event.pos.getX();
@@ -266,7 +266,7 @@ bool ImGuiWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
     if (BaseWidget::onScroll(event))
         return true;
 
-    ImGui::SetCurrentContext(pData->context);
+    ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
     io.MouseWheel += event.delta.getY();
@@ -279,7 +279,7 @@ void ImGuiWidget<BaseWidget>::onResize(const Widget::ResizeEvent& event)
 {
     BaseWidget::onResize(event);
 
-    ImGui::SetCurrentContext(pData->context);
+    ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
     io.DisplaySize.x = event.size.getWidth();
@@ -304,7 +304,7 @@ float ImGuiWidget<SubWidget>::PrivateData::getDisplayY() const noexcept
 template <>
 ImGuiWidget<SubWidget>::ImGuiWidget(Widget* const parent)
     : SubWidget(parent),
-      pData(new PrivateData(this))
+      imData(new PrivateData(this))
 {
     getWindow().addIdleCallback(this, 1000 / 60); // 60 fps
 }
@@ -313,7 +313,7 @@ template <>
 ImGuiWidget<SubWidget>::~ImGuiWidget()
 {
     getWindow().removeIdleCallback(this);
-    delete pData;
+    delete imData;
 }
 
 template class ImGuiWidget<SubWidget>;
@@ -336,7 +336,7 @@ float ImGuiWidget<TopLevelWidget>::PrivateData::getDisplayY() const noexcept
 template <>
 ImGuiWidget<TopLevelWidget>::ImGuiWidget(Window& windowToMapTo)
     : TopLevelWidget(windowToMapTo),
-      pData(new PrivateData(this))
+      imData(new PrivateData(this))
 {
     addIdleCallback(this, 1000 / 60); // 60 fps
 }
@@ -345,7 +345,7 @@ template <>
 ImGuiWidget<TopLevelWidget>::~ImGuiWidget()
 {
     removeIdleCallback(this);
-    delete pData;
+    delete imData;
 }
 
 template class ImGuiWidget<TopLevelWidget>;
@@ -368,7 +368,7 @@ float ImGuiWidget<StandaloneWindow>::PrivateData::getDisplayY() const noexcept
 template <>
 ImGuiWidget<StandaloneWindow>::ImGuiWidget(Application& app)
     : StandaloneWindow(app),
-      pData(new PrivateData(this))
+      imData(new PrivateData(this))
 {
     Window::addIdleCallback(this, 1000 / 60); // 60 fps
 }
@@ -376,7 +376,7 @@ ImGuiWidget<StandaloneWindow>::ImGuiWidget(Application& app)
 template <>
 ImGuiWidget<StandaloneWindow>::ImGuiWidget(Application& app, Window& transientParentWindow)
     : StandaloneWindow(app, transientParentWindow),
-      pData(new PrivateData(this))
+      imData(new PrivateData(this))
 {
     Window::addIdleCallback(this, 1000 / 60); // 60 fps
 }
@@ -385,7 +385,7 @@ template <>
 ImGuiWidget<StandaloneWindow>::~ImGuiWidget()
 {
     Window::removeIdleCallback(this);
-    delete pData;
+    delete imData;
 }
 
 template class ImGuiWidget<StandaloneWindow>;
