@@ -16,6 +16,10 @@
 
 #pragma once
 
+#ifdef DGL_OPENGL
+# include "OpenGL.hpp"
+#endif
+
 #include "TopLevelWidget.hpp"
 #include "Color.hpp"
 
