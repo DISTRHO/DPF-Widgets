@@ -177,11 +177,9 @@ void ImGui_ImplOpenGL2_RenderDrawData(ImDrawData* draw_data)
     // Setup desired GL state
     ImGui_ImplOpenGL2_SetupRenderState(draw_data, fb_width, fb_height);
 
-#ifndef IMGUI_DPF_NO_CLIP_TEST
     // Will project scissor/clipping rectangles into framebuffer space
     ImVec2 clip_off = draw_data->DisplayPos;         // (0,0) unless using multi-viewports
     ImVec2 clip_scale = draw_data->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
-#endif
 
     // Render command lists
     for (int n = 0; n < draw_data->CmdListsCount; n++)
@@ -207,7 +205,6 @@ void ImGui_ImplOpenGL2_RenderDrawData(ImDrawData* draw_data)
             }
             else
             {
-#ifndef IMGUI_DPF_NO_CLIP_TEST
                 // Project scissor/clipping rectangles into framebuffer space
                 ImVec2 clip_min((pcmd->ClipRect.x - clip_off.x) * clip_scale.x, (pcmd->ClipRect.y - clip_off.y) * clip_scale.y);
                 ImVec2 clip_max((pcmd->ClipRect.z - clip_off.x) * clip_scale.x, (pcmd->ClipRect.w - clip_off.y) * clip_scale.y);
@@ -216,7 +213,6 @@ void ImGui_ImplOpenGL2_RenderDrawData(ImDrawData* draw_data)
 
                 // Apply scissor/clipping rectangle (Y is inverted in OpenGL)
                 glScissor((int)clip_min.x, (int)(fb_height - clip_max.y), (int)(clip_max.x - clip_min.x), (int)(clip_max.y - clip_min.y));
-#endif
 
                 // Bind texture, Draw
                 glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->GetTexID());
