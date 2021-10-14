@@ -64,9 +64,12 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.DisplaySize.x = self->getWidth();
         io.DisplaySize.y = self->getHeight();
-        io.DisplayFramebufferScale = ImVec2(scaleFactor, scaleFactor);
-        io.FontGlobalScale = scaleFactor;
+        // not needed, we handle this ourselves
+        // io.DisplayFramebufferScale = ImVec2(scaleFactor, scaleFactor);
         io.IniFilename = nullptr;
+
+        ImGuiStyle& style(ImGui::GetStyle());
+        style.ScaleAllSizes(scaleFactor);
 
 #ifndef DGL_NO_SHARED_RESOURCES
         using namespace dpf_resources;
@@ -74,10 +77,9 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         fc.FontDataOwnedByAtlas = false;
         fc.OversampleH = 1;
         fc.OversampleV = 1;
-        fc.PixelSnapH = 1;
+        fc.PixelSnapH = true;
         io.Fonts->AddFontFromMemoryTTF((void*)dejavusans_ttf, dejavusans_ttf_size, 13.0f * scaleFactor, &fc);
         io.Fonts->Build();
-        // ImGui::GetStyle().ScaleAllSizes(scaleFactor);
 #endif
 
         io.KeyMap[ImGuiKey_Tab] = '\t';
