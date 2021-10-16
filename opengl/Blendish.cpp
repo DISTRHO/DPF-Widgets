@@ -316,6 +316,21 @@ void BlendishSubWidgetSharedContext::onDisplay()
     pData->nvg.endFrame();
 }
 
+void BlendishSubWidgetSharedContext::onPositionChanged(const PositionChangedEvent& ev)
+{
+    const int xOffset = ev.oldPos.getX() - ev.pos.getX();
+    const int yOffset = ev.oldPos.getY() - ev.pos.getY();
+
+    for (std::list<BlendishSubWidget*>::iterator it = pData->widgets.begin(); it != pData->widgets.end(); ++it)
+    {
+        BlendishSubWidget* const widget(*it);
+
+        Point<int> pos(widget->getMargin());
+        pos.moveBy(xOffset, yOffset);
+        widget->setMargin(pos);
+    }
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 
 struct BlendishSubWidget::ProtectedData {

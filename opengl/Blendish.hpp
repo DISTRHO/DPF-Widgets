@@ -114,6 +114,7 @@ public:
 
 protected:
     void onDisplay() override;
+    void onPositionChanged(const PositionChangedEvent& ev) override;
 
 private:
     struct PrivateData;
