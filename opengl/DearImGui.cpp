@@ -202,6 +202,8 @@ bool ImGuiWidget<BaseWidget>::onCharacterInput(const Widget::CharacterInputEvent
     if (BaseWidget::onCharacterInput(event))
         return true;
 
+    ImGui::SetCurrentContext(imData->context);
+
     ImGuiIO& io(ImGui::GetIO());
 
     switch (event.character)
