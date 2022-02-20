@@ -1,6 +1,6 @@
 /*
  * Dear ImGui for DPF
- * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2021-2022 Filipe Coelho <falktx@falktx.com>
  * Copyright (C) 2021 Jean Pierre Cimalando <jp-dev@inbox.ru>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
@@ -16,6 +16,7 @@
  */
 
 #include "DearImGui.hpp"
+#include "Application.hpp"
 
 #ifndef DGL_NO_SHARED_RESOURCES
 # include "src/Resources.hpp"
@@ -45,16 +46,44 @@ START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
 
+static const char* GetClipboardTextFn(void* const userData)
+{
+    TopLevelWidget* const tlw = static_cast<TopLevelWidget*>(userData);
+
+    const char* mimeType = nullptr;
+    size_t dataSize = 0;
+
+    if (const void* const clipboard = tlw->getClipboard(mimeType, dataSize))
+    {
+        if (mimeType == nullptr || std::strcmp(mimeType, "text/plain") != 0)
+            return nullptr;
+        return static_cast<const char*>(clipboard);
+    }
+
+    return nullptr;
+}
+
+static void SetClipboardTextFn(void* const userData, const char* const text)
+{
+    TopLevelWidget* const tlw = static_cast<TopLevelWidget*>(userData);
+    DISTRHO_SAFE_ASSERT_RETURN(tlw!= nullptr,);
+    DISTRHO_SAFE_ASSERT_RETURN(text != nullptr,);
+
+    tlw->setClipboard(nullptr, text, std::strlen(text)+1);
+}
+
 template <class BaseWidget>
 struct ImGuiWidget<BaseWidget>::PrivateData {
     ImGuiWidget<BaseWidget>* const self;
     ImGuiContext* context;
     double scaleFactor;
+    double lastFrameTime;
 
     explicit PrivateData(ImGuiWidget<BaseWidget>* const s)
         : self(s),
           context(nullptr),
-          scaleFactor(s->getTopLevelWidget()->getScaleFactor())
+          scaleFactor(s->getTopLevelWidget()->getScaleFactor()),
+          lastFrameTime(0.0)
     {
         IMGUI_CHECKVERSION();
         context = ImGui::CreateContext();
@@ -67,6 +96,7 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         // not needed, we handle this ourselves
         // io.DisplayFramebufferScale = ImVec2(scaleFactor, scaleFactor);
         io.IniFilename = nullptr;
+        io.LogFilename = nullptr;
 
         ImGuiStyle& style(ImGui::GetStyle());
         style.ScaleAllSizes(scaleFactor);
@@ -105,6 +135,10 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         io.KeyMap[ImGuiKey_Y] = 'y';
         io.KeyMap[ImGuiKey_Z] = 'z';
 
+        io.GetClipboardTextFn = GetClipboardTextFn;
+        io.SetClipboardTextFn = SetClipboardTextFn;
+        io.ClipboardUserData = s->getTopLevelWidget();
+
 #ifdef DGL_USE_OPENGL3
         ImGui_ImplOpenGL3_Init();
 #else
@@ -125,6 +159,15 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
 
     float getDisplayX() const noexcept;
     float getDisplayY() const noexcept;
+    double getTime() const noexcept;
+
+    inline double getTimeDelta() noexcept
+    {
+        const double time = getTime();
+        const double delta = time - lastFrameTime;
+        lastFrameTime = time;
+        return delta;
+    }
 
     DISTRHO_DECLARE_NON_COPYABLE(PrivateData)
 };
@@ -141,6 +184,10 @@ template <class BaseWidget>
 void ImGuiWidget<BaseWidget>::onDisplay()
 {
     ImGui::SetCurrentContext(imData->context);
+
+    ImGuiIO& io(ImGui::GetIO());
+
+    io.DeltaTime = imData->getTimeDelta();
 
 #ifdef DGL_USE_OPENGL3
     ImGui_ImplOpenGL3_NewFrame();
@@ -306,6 +353,12 @@ float ImGuiWidget<SubWidget>::PrivateData::getDisplayY() const noexcept
 }
 
 template <>
+double ImGuiWidget<SubWidget>::PrivateData::getTime() const noexcept
+{
+    return self->getApp().getTime();
+}
+
+template <>
 ImGuiWidget<SubWidget>::ImGuiWidget(Widget* const parent)
     : SubWidget(parent),
       imData(new PrivateData(this))
@@ -338,6 +391,12 @@ float ImGuiWidget<TopLevelWidget>::PrivateData::getDisplayY() const noexcept
 }
 
 template <>
+double ImGuiWidget<TopLevelWidget>::PrivateData::getTime() const noexcept
+{
+    return self->getApp().getTime();
+}
+
+template <>
 ImGuiWidget<TopLevelWidget>::ImGuiWidget(Window& windowToMapTo)
     : TopLevelWidget(windowToMapTo),
       imData(new PrivateData(this))
@@ -367,6 +426,12 @@ template <>
 float ImGuiWidget<StandaloneWindow>::PrivateData::getDisplayY() const noexcept
 {
     return 0.0f;
+}
+
+template <>
+double ImGuiWidget<StandaloneWindow>::PrivateData::getTime() const noexcept
+{
+    return self->getApp().getTime();
 }
 
 template <>
