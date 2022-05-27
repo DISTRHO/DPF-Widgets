@@ -205,6 +205,12 @@ public:
         createAndAddWidgetOfType<TextEditDemo>(margin, 450 * scaleFactor, 0, 200 * scaleFactor);
     }
 
+    ~WidgetsDemoWindow() override
+    {
+        for (WidgetAndOffset& wo : widgets)
+            delete wo.widget;
+    }
+
 protected:
     void onDisplay() override
     {
