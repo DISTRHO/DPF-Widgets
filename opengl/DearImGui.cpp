@@ -50,17 +50,8 @@ static const char* GetClipboardTextFn(void* const userData)
 {
     TopLevelWidget* const tlw = static_cast<TopLevelWidget*>(userData);
 
-    const char* mimeType = nullptr;
-    size_t dataSize = 0;
-
-    if (const void* const clipboard = tlw->getClipboard(mimeType, dataSize))
-    {
-        if (mimeType == nullptr || std::strcmp(mimeType, "text/plain") != 0)
-            return nullptr;
-        return static_cast<const char*>(clipboard);
-    }
-
-    return nullptr;
+    size_t dataSize;
+    return static_cast<const char*>(tlw->getClipboard(dataSize));
 }
 
 static void SetClipboardTextFn(void* const userData, const char* const text)
