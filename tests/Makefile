@@ -23,6 +23,7 @@ all: opengl$(APP_EXT) textedit$(APP_EXT)
 clean:
 	rm -f *.d *.o
 	rm -f opengl$(APP_EXT)
+	rm -f textedit$(APP_EXT)
 
 # ---------------------------------------------------------------------------------------------------------------------
 

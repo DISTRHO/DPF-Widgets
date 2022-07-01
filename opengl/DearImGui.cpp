@@ -22,6 +22,12 @@
 # include "src/Resources.hpp"
 #endif
 
+#if defined(DGL_USE_GLES2)
+# define IMGUI_IMPL_OPENGL_ES2
+#elif defined(DGL_USE_GLES3)
+# define IMGUI_IMPL_OPENGL_ES3
+#endif
+
 #ifndef IMGUI_SKIP_IMPLEMENTATION
 # define IMGUI_DPF_BACKEND
 # include "DearImGui/imgui.cpp"
@@ -29,13 +35,13 @@
 # include "DearImGui/imgui_draw.cpp"
 # include "DearImGui/imgui_tables.cpp"
 # include "DearImGui/imgui_widgets.cpp"
-# ifdef DGL_USE_OPENGL3
+# if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
 #  include "DearImGui/imgui_impl_opengl3.cpp"
 # else
 #  include "DearImGui/imgui_impl_opengl2.cpp"
 # endif
 #else
-# ifdef DGL_USE_OPENGL3
+# if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
 #  include "DearImGui/imgui_impl_opengl3.h"
 # else
 #  include "DearImGui/imgui_impl_opengl2.h"
@@ -130,7 +136,7 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         io.SetClipboardTextFn = SetClipboardTextFn;
         io.ClipboardUserData = s->getTopLevelWidget();
 
-#ifdef DGL_USE_OPENGL3
+#if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
         ImGui_ImplOpenGL3_Init();
 #else
         ImGui_ImplOpenGL2_Init();
@@ -140,7 +146,7 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
     ~PrivateData()
     {
         ImGui::SetCurrentContext(context);
-#ifdef DGL_USE_OPENGL3
+#if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
         ImGui_ImplOpenGL3_Shutdown();
 #else
         ImGui_ImplOpenGL2_Shutdown();
@@ -180,7 +186,7 @@ void ImGuiWidget<BaseWidget>::onDisplay()
 
     io.DeltaTime = imData->getTimeDelta();
 
-#ifdef DGL_USE_OPENGL3
+#if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
     ImGui_ImplOpenGL3_NewFrame();
 #else
     ImGui_ImplOpenGL2_NewFrame();
@@ -201,7 +207,7 @@ void ImGuiWidget<BaseWidget>::onDisplay()
     {
         data->DisplayPos.x = -imData->getDisplayX();
         data->DisplayPos.y = imData->getDisplayY();
-#ifdef DGL_USE_OPENGL3
+#if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
         ImGui_ImplOpenGL3_RenderDrawData(data);
 #else
         ImGui_ImplOpenGL2_RenderDrawData(data);

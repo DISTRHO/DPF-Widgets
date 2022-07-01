@@ -1,6 +1,6 @@
 /*
  * DISTRHO Plugin Framework (DPF)
- * Copyright (C) 2012-2021 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2012-2022 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -23,7 +23,13 @@
 #include "../opengl/DearImGui/imgui_widgets.cpp"
 #include "../opengl/DearImGuiColorTextEditor/TextEditor.cpp"
 
-#ifdef DGL_USE_OPENGL3
+#if defined(DGL_USE_GLES2)
+# define IMGUI_IMPL_OPENGL_ES2
+#elif defined(DGL_USE_GLES3)
+# define IMGUI_IMPL_OPENGL_ES3
+#endif
+
+# if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
 # include "../opengl/DearImGui/imgui_impl_opengl3.cpp"
 #else
 # include "../opengl/DearImGui/imgui_impl_opengl2.cpp"
