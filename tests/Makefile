@@ -16,12 +16,17 @@ include $(DPF_DIR)/Makefile.base.mk
 BUILD_CXX_FLAGS += $(DGL_FLAGS) -DDONT_SET_USING_DGL_NAMESPACE
 BUILD_CXX_FLAGS += -I$(DPF_DIR)/dgl
 
+ifeq ($(WASM),true)
+LINK_FLAGS += --shell-file=./emscripten/shell.html
+LINK_FLAGS += -sEXPORTED_RUNTIME_METHODS=FS,cwrap
+endif
+
 # ---------------------------------------------------------------------------------------------------------------------
 
-all: opengl$(APP_EXT) textedit$(APP_EXT)
+all: imgui$(APP_EXT) opengl$(APP_EXT) textedit$(APP_EXT)
 
 clean:
-	rm -f *.d *.o
+	rm -f *.d *.o *.js *.html *.wasm
 	rm -f opengl$(APP_EXT)
 	rm -f textedit$(APP_EXT)
 
@@ -41,17 +46,25 @@ $(DPF_DIR)/build/libdgl-vulkan.a:
 
 # ---------------------------------------------------------------------------------------------------------------------
 
-opengl$(APP_EXT): opengl.cpp.o imgui.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
+imgui$(APP_EXT): imgui.cpp.o imgui-src.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
 	@echo "Linking $@"
 	$(SILENT)$(CXX) $^ $(LINK_FLAGS) $(DGL_SYSTEM_LIBS) $(OPENGL_LIBS) -o $@
 
-textedit$(APP_EXT): textedit.cpp.o imgui.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
+opengl$(APP_EXT): opengl.cpp.o imgui-src.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
+	@echo "Linking $@"
+	$(SILENT)$(CXX) $^ $(LINK_FLAGS) $(DGL_SYSTEM_LIBS) $(OPENGL_LIBS) -o $@
+
+textedit$(APP_EXT): textedit.cpp.o imgui-src.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
 	@echo "Linking $@"
 	$(SILENT)$(CXX) $^ $(LINK_FLAGS) $(DGL_SYSTEM_LIBS) $(OPENGL_LIBS) -o $@
 
 # ---------------------------------------------------------------------------------------------------------------------
 
 imgui.cpp.o: imgui.cpp
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -DDGL_OPENGL -c -o $@
+
+imgui-src.cpp.o: imgui-src.cpp
 	@echo "Compiling $<"
 	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -DDGL_OPENGL -c -o $@
 
@@ -67,6 +80,7 @@ textedit.cpp.o: textedit.cpp
 
 -include cairo.cpp.d
 -include imgui.cpp.d
+-include imgui-src.cpp.d
 -include opengl.cpp.d
 -include textedit.cpp.d
 

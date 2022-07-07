@@ -1,6 +1,6 @@
 /*
  * DISTRHO Plugin Framework (DPF)
- * Copyright (C) 2012-2021 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2012-2022 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -15,24 +15,22 @@
  */
 
 // ImGui is quite large, build it separately
-#define IMGUI_SKIP_IMPLEMENTATION
+#define IMGUI_DPF_BACKEND
+#include "../opengl/DearImGui/imgui.cpp"
+#include "../opengl/DearImGui/imgui_demo.cpp"
+#include "../opengl/DearImGui/imgui_draw.cpp"
+#include "../opengl/DearImGui/imgui_tables.cpp"
+#include "../opengl/DearImGui/imgui_widgets.cpp"
+#include "../opengl/DearImGuiColorTextEditor/TextEditor.cpp"
 
-#include "Application.hpp"
-#include "../opengl/DearImGui.cpp"
-#include "../opengl/DearImGuiColorTextEditor.cpp"
+#if defined(DGL_USE_GLES2)
+# define IMGUI_IMPL_OPENGL_ES2
+#elif defined(DGL_USE_GLES3)
+# define IMGUI_IMPL_OPENGL_ES3
+#endif
 
-int main(int, char**)
-{
-    USE_NAMESPACE_DGL;
-
-    Application app;
-    ImGuiTextEditorStandaloneWindow win(app);
-    win.setGeometryConstraints(640*win.getScaleFactor(), 480*win.getScaleFactor(), false);
-    win.setSize(1280*win.getScaleFactor(), 480*win.getScaleFactor());
-    win.setResizable(true);
-    win.setTitle("TextEdit");
-    win.show();
-    app.exec();
-
-    return 0;
-}
+# if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
+# include "../opengl/DearImGui/imgui_impl_opengl3.cpp"
+#else
+# include "../opengl/DearImGui/imgui_impl_opengl2.cpp"
+#endif

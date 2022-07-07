@@ -1,5 +1,8 @@
 *.d
 *.exe
+*.js
+*.html
 *.o
+*.wasm
 /tests/opengl
 /tests/textedit
