@@ -215,9 +215,6 @@ void ImGuiWidget<BaseWidget>::onDisplay()
         ImGui_ImplOpenGL2_RenderDrawData(data);
 #endif
     }
-
-    // FIXME
-    io.KeysDown[kKeyDelete] = io.KeysDown[kKeyBackspace] = io.KeysDown['\r'] = false;
 }
 
 template <class BaseWidget>
