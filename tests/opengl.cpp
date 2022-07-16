@@ -51,6 +51,9 @@ class BlendishDemo : public BlendishSubWidgetSharedContext
 
     BlendishMenu menu;
 
+    BlendishKnob knob;
+    BlendishNode node;
+
 public:
     BlendishDemo(Widget* const parent)
         : BlendishSubWidgetSharedContext(parent),
@@ -65,7 +68,9 @@ public:
           checkBox2(this),
           checkBox3(this),
           comboBox(this),
-          menu(this)
+          menu(this),
+          knob(this),
+          node(this)
     {
         toolButton1.setLabel("A toolbutton");
         toolButton2.setLabel("Another toolbutton");
@@ -105,6 +110,14 @@ public:
         menu.addMenuItem("Thirsty third");
         menu.addMenuItem("Furious Four");
         menu.addMenuItem("Fast Five");
+
+        knob.setAbsoluteX(menu.getAbsoluteX() + menu.getWidth() + 5);
+        knob.setAbsoluteY(toolButton1.getAbsoluteY() + toolButton1.getHeight() + 5);
+        knob.setLabel("Lil' knob");
+        knob.setUnitLabel("kudos");
+
+        node.setAbsoluteX(menu.getAbsoluteX() + menu.getWidth() + 5);
+        node.setAbsoluteY(menu.getAbsoluteY() + menu.getHeight() / 2 - 16);
     }
 };
 

@@ -540,7 +540,7 @@ private:
 
    This widget is a slider-like value,
    with centered text and a small button on each side for decreasing and increasing the current value.
-   It can a label, plus rounded corners when part of a group.
+   It can have a label, plus rounded corners when part of a group.
 
    Uses the label methods from BlendishSubWidget to set its contents.
    Provides its own methods for setting and getting current value.
@@ -585,7 +585,16 @@ public:
     explicit BlendishKnob(SubWidget* parent);
     ~BlendishKnob() override;
 
-    void setUnit(const char* unit);
+    Color getRingColor() const noexcept;
+    void setRingColor(Color color);
+
+    Color getUnitColor() const noexcept;
+    void setUnitColor(Color color);
+
+    // returns null if label is empty
+    const char* getUnitLabel() const noexcept;
+
+    void setUnitLabel(const char* label);
 
 protected:
     uint getMinimumWidth() const noexcept override;
@@ -595,9 +604,31 @@ protected:
     bool onScroll(const ScrollEvent& ev) override;
 
 private:
-    char* unit;
+    Color ringColor;
+    Color unitColor;
+    char* unitLabel;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishKnob)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+/**
+   Blendish Node class.
+   TODO WIP and experimental
+ */
+class BlendishNode : public BlendishSubWidget
+{
+public:
+    explicit BlendishNode(BlendishSubWidgetSharedContext* parent);
+    explicit BlendishNode(SubWidget* parent);
+    ~BlendishNode() override;
+
+protected:
+    uint getMinimumWidth() const noexcept override;
+    void onBlendishDisplay() override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishNode)
 };
 
 // --------------------------------------------------------------------------------------------------------------------

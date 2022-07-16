@@ -1387,7 +1387,9 @@ bool BlendishNumberField::onScroll(const ScrollEvent& ev)
 BlendishKnob::BlendishKnob(BlendishSubWidgetSharedContext* const parent)
     : BlendishSubWidget(parent),
       KnobEventHandler(this),
-      unit(nullptr)
+      ringColor(0.337f-0.2f,0.502f-0.2f,0.761f-0.2f),
+      unitColor(),
+      unitLabel(nullptr)
 {
     setSize(64 * bData->scaleFactor, (64 + BND_WIDGET_HEIGHT) * bData->scaleFactor);
 }
@@ -1395,24 +1397,51 @@ BlendishKnob::BlendishKnob(BlendishSubWidgetSharedContext* const parent)
 BlendishKnob::BlendishKnob(SubWidget* const parent)
     : BlendishSubWidget(parent),
       KnobEventHandler(this),
-      unit(nullptr)
+      ringColor(0.337f-0.2f,0.502f-0.2f,0.761f-0.2f),
+      unitColor(),
+      unitLabel(nullptr)
 {
     setSize(64 * bData->scaleFactor, (64 + BND_WIDGET_HEIGHT) * bData->scaleFactor);
 }
 
 BlendishKnob::~BlendishKnob()
 {
-    std::free(unit);
+    std::free(unitLabel);
 }
 
-void BlendishKnob::setUnit(const char* const unit2)
+Color BlendishKnob::getRingColor() const noexcept
 {
-    std::free(unit);
+    return ringColor;
+}
 
-    if (unit2 != nullptr && unit2[0] != '\0')
-        unit = strdup(unit2);
+void BlendishKnob::setRingColor(Color color)
+{
+    ringColor = color;
+}
+
+Color BlendishKnob::getUnitColor() const noexcept
+{
+    return unitColor;
+}
+
+void BlendishKnob::setUnitColor(Color color)
+{
+    unitColor = color;
+}
+
+const char* BlendishKnob::getUnitLabel() const noexcept
+{
+    return unitLabel;
+}
+
+void BlendishKnob::setUnitLabel(const char* const label)
+{
+    std::free(unitLabel);
+
+    if (label != nullptr && label[0] != '\0')
+        unitLabel = strdup(label);
     else
-        unit = nullptr;
+        unitLabel = nullptr;
 }
 
 uint BlendishKnob::getMinimumWidth() const noexcept
@@ -1437,8 +1466,8 @@ void BlendishKnob::onBlendishDisplay()
     nvgClosePath(ctx);
     nvgFillColor(ctx, Color(0.3f, 0.8f, 0.23f, 0.1f));
     nvgFill(ctx);
-    */
     Color testing(Color::fromHTML("#665d98"));
+    */
 
     const int ringSize = 2;
     const int knobSize = std::min(w, h - BND_WIDGET_HEIGHT * 2) - ringSize;
@@ -1523,7 +1552,7 @@ void BlendishKnob::onBlendishDisplay()
                nvgDegToRad(135.0f) + nvgDegToRad(270.0f * normalizedValue),
                NVG_CW);
         nvgStrokeWidth(ctx, ringSize);
-        nvgStrokeColor(ctx, testing);
+        nvgStrokeColor(ctx, ringColor);
         nvgStroke(ctx);
 
         // simulate color bleeding
@@ -1536,7 +1565,7 @@ void BlendishKnob::onBlendishDisplay()
                nvgDegToRad(135.0f) + nvgDegToRad(270.0f * normalizedValue),
                NVG_CW);
         nvgStrokeWidth(ctx, 5);
-        nvgStrokeColor(ctx, testing.withAlpha(0.1f));
+        nvgStrokeColor(ctx, ringColor.withAlpha(0.1f));
         nvgStroke(ctx);
     }
 
@@ -1545,13 +1574,13 @@ void BlendishKnob::onBlendishDisplay()
         char valuestr[32];
         const float roundedValue = std::round(getValue() * 10.0f)/10.0f;
 
-        if (unit != nullptr)
-            snprintf(valuestr, sizeof(valuestr)-1, "%.1f %s", roundedValue, unit);
+        if (unitLabel != nullptr)
+            snprintf(valuestr, sizeof(valuestr)-1, "%.1f %s", roundedValue, unitLabel);
         else
             snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
 
         bndIconLabelValue(ctx, x, y + BND_WIDGET_HEIGHT + knobSize + ringSize, w, BND_WIDGET_HEIGHT, -1,
-            testing, BND_CENTER,
+            unitColor, BND_CENTER,
             BND_LABEL_FONT_SIZE, valuestr, NULL);
     }
 }
@@ -1575,6 +1604,65 @@ bool BlendishKnob::onScroll(const ScrollEvent& ev)
     if (BlendishSubWidget::onScroll(ev))
         return true;
     return scrollEvent(ev);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+BlendishNode::BlendishNode(BlendishSubWidgetSharedContext* parent)
+    : BlendishSubWidget(parent)
+{
+    setSize(128 * bData->scaleFactor, (64 + BND_WIDGET_HEIGHT) * bData->scaleFactor);
+}
+
+BlendishNode::BlendishNode(SubWidget* parent)
+    : BlendishSubWidget(parent)
+{
+    setSize(128 * bData->scaleFactor, (64 + BND_WIDGET_HEIGHT) * bData->scaleFactor);
+}
+
+BlendishNode::~BlendishNode()
+{
+}
+
+uint BlendishNode::getMinimumWidth() const noexcept
+{
+    return 128;
+}
+
+void BlendishNode::onBlendishDisplay()
+{
+    const double scaleFactor = bData->scaleFactor;
+    const float x = getAbsoluteX() / scaleFactor;
+    const float y = getAbsoluteY() / scaleFactor;
+    const float w = getWidth() / scaleFactor;
+    const float h = getHeight() / scaleFactor;
+
+    auto ctx = bData->context;
+
+    bndNodeBackground(ctx, x, y, w, h, BND_DEFAULT, -1, "Node title", NVGcolor());
+
+    bndNumberField(ctx, x, y + 40 - BND_WIDGET_HEIGHT/2, w, BND_WIDGET_HEIGHT, BND_CORNER_ALL, BND_DEFAULT, "Port A", "100%");
+    bndNumberField(ctx, x, y + 60 - BND_WIDGET_HEIGHT/2, w, BND_WIDGET_HEIGHT, BND_CORNER_ALL, BND_DEFAULT, "Port B", "34%");
+
+    bndNodePort(ctx, x + w, y + 40, BND_DEFAULT, Color::fromHTML("#665d98"));
+    bndNodePort(ctx, x + w, y + 60, BND_DEFAULT, Color::fromHTML("#665d98"));
+
+    /*
+// Draw a node port at the given position filled with the given color
+
+// Draw a node wire originating at (x0,y0) and floating to (x1,y1), with
+// a colored gradient based on the states state0 and state1:
+// BND_DEFAULT: default wire color
+// BND_HOVER: selected wire color
+// BND_ACTIVE: dragged wire color
+    void bndNodeWire(ctx, float x0, float y0, float x1, float y1,
+    BNDwidgetState state0, BNDwidgetState state1);
+
+// Draw a node wire originating at (x0,y0) and floating to (x1,y1), with
+// a colored gradient based on the two colors color0 and color1
+    void bndColoredNodeWire(ctx, float x0, float y0, float x1, float y1,
+    NVGcolor color0, NVGcolor color1);
+    */
 }
 
 // --------------------------------------------------------------------------------------------------------------------
