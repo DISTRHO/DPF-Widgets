@@ -1,6 +1,6 @@
 /*
  * Blendish widgets for DPF
- * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2021-2022 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -15,7 +15,6 @@
  */
 
 #include "Blendish.hpp"
-#include "NanoVG.hpp"
 
 // import DPF nanovg copy
 #include "src/nanovg/nanovg.h"
@@ -1571,7 +1570,7 @@ void BlendishKnob::onBlendishDisplay()
 
     // bottom label (value)
     {
-        char valuestr[32];
+        char valuestr[32] = {};
         const float roundedValue = std::round(getValue() * 10.0f)/10.0f;
 
         if (unitLabel != nullptr)
