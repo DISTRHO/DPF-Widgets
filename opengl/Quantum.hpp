@@ -23,7 +23,7 @@ START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
 
-struct QuantaTheme {
+struct QuantumTheme {
     // background color for widgets, e.g. slider line and knob padding, typically dark
     Color widgetBackgroundColor = Color::fromHTML("#141414");
     // foreground color for widgets, e.g. slider handle or knob indicator, typically light
@@ -42,14 +42,14 @@ struct QuantaTheme {
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class QuantaKnob : public NanoSubWidget,
-                   public KnobEventHandler
+class QuantumKnob : public NanoSubWidget,
+                    public KnobEventHandler
 {
     Color backgroundColor = Color::fromHTML("#3f535a");
-    const QuantaTheme& theme;
+    const QuantumTheme& theme;
 
 public:
-    explicit QuantaKnob(TopLevelWidget* parent, const QuantaTheme& theme);
+    explicit QuantumKnob(TopLevelWidget* parent, const QuantumTheme& theme);
 
     Color getBackgroundColor() const noexcept;
     void setBackgroundColor(Color color);
@@ -60,18 +60,44 @@ protected:
     bool onMotion(const MotionEvent& ev) override;
     bool onScroll(const ScrollEvent& ev) override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantaKnob)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumKnob)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class QuantaMixerSlider : public NanoSubWidget,
-                          public KnobEventHandler
+class QuantumLevelMeter : public NanoSubWidget,
+                          public IdleCallback
 {
-    const QuantaTheme& theme;
+    float value = 0.f;
+    float falloff = 0.f;
+    const QuantumTheme& theme;
 
 public:
-    explicit QuantaMixerSlider(TopLevelWidget* parent, const QuantaTheme& theme);
+    explicit QuantumLevelMeter(TopLevelWidget* parent, const QuantumTheme& theme);
+
+    inline float getNormalizedValue() const noexcept
+    {
+        return value;
+    }
+
+    bool setNormalizedValue(float value);
+
+protected:
+    void onNanoDisplay() override;
+    void idleCallback() override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumLevelMeter)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+class QuantumMixerSlider : public NanoSubWidget,
+                           public KnobEventHandler
+{
+    const QuantumTheme& theme;
+
+public:
+    explicit QuantumMixerSlider(TopLevelWidget* parent, const QuantumTheme& theme);
 
 protected:
     void onNanoDisplay() override;
@@ -79,20 +105,43 @@ protected:
     bool onMotion(const MotionEvent& ev) override;
     bool onScroll(const ScrollEvent& ev) override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantaMixerSlider)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumMixerSlider)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class QuantaValueSlider : public NanoSubWidget,
-                          public KnobEventHandler
+class QuantumMixerSliderWithLevelMeter : public NanoSubWidget,
+                                         public IdleCallback
+{
+    const QuantumTheme& theme;
+
+public:
+    explicit QuantumMixerSliderWithLevelMeter(TopLevelWidget* parent, const QuantumTheme& theme);
+
+    // publicly exposed for convenience, please do not resize or reposition these
+    QuantumLevelMeter meter;
+    QuantumMixerSlider slider;
+
+protected:
+    void onNanoDisplay() override;
+    void onPositionChanged(const PositionChangedEvent& ev) override;
+    void onResize(const ResizeEvent& ev) override;
+    void idleCallback() override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumMixerSliderWithLevelMeter)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+class QuantumValueSlider : public NanoSubWidget,
+                           public KnobEventHandler
 {
     Color backgroundColor = Color::fromHTML("#3f535a");
     char* unitLabel = nullptr;
-    const QuantaTheme& theme;
+    const QuantumTheme& theme;
 
 public:
-    explicit QuantaValueSlider(TopLevelWidget* parent, const QuantaTheme& theme);
+    explicit QuantumValueSlider(TopLevelWidget* parent, const QuantumTheme& theme);
 
     Color getBackgroundColor() const noexcept;
     void setBackgroundColor(Color color);
@@ -107,7 +156,7 @@ protected:
     bool onMotion(const MotionEvent& ev) override;
     bool onScroll(const ScrollEvent& ev) override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantaValueSlider)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumValueSlider)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
