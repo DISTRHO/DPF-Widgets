@@ -16,6 +16,8 @@
 
 #include "Quantum.hpp"
 
+#include <cmath>
+
 START_NAMESPACE_DGL
 
 static constexpr const uint labelHeight = 24;
@@ -289,7 +291,7 @@ void QuantumLevelMeter::onNanoDisplay()
     const float usableHeight = getHeight() - theme.widgetBorderAndLineSize * 2;
 
     // FIXME have linear value and do log scale on UI side
-    const float valuableHeight = usableHeight * std::min(1.f, std::min(1.f, value > -90.f ? std::powf(10.f, value * 0.05f) : 0.f));
+    const float valuableHeight = usableHeight * std::min(1.f, std::min(1.f, value > -90.f ? std::pow(10.f, value * 0.05f) : 0.f));
 
     beginPath();
     rect(theme.widgetBorderAndLineSize, theme.widgetBorderAndLineSize + usableHeight - valuableHeight, usableWidth, valuableHeight);
