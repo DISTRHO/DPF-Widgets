@@ -42,6 +42,53 @@ struct QuantumTheme {
 
 // --------------------------------------------------------------------------------------------------------------------
 
+class QuantumSwitch : public NanoSubWidget,
+                      public ButtonEventHandler
+{
+    char* label = nullptr;
+    const QuantumTheme& theme;
+
+public:
+    explicit QuantumSwitch(TopLevelWidget* parent, const QuantumTheme& theme);
+    ~QuantumSwitch() override;
+
+    // width changes when called
+    void setLabel(const char* label);
+
+protected:
+    void onNanoDisplay() override;
+    bool onMouse(const MouseEvent& ev) override;
+    bool onMotion(const MotionEvent& ev) override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumSwitch)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+class QuantumDualSidedSwitch : public NanoSubWidget,
+                               public ButtonEventHandler
+{
+    char* labelLeft = nullptr;
+    char* labelRight = nullptr;
+    const QuantumTheme& theme;
+
+public:
+    explicit QuantumDualSidedSwitch(TopLevelWidget* parent, const QuantumTheme& theme);
+    ~QuantumDualSidedSwitch() override;
+
+    // width changes when called
+    void setLabels(const char* left, const char* right);
+
+protected:
+    void onNanoDisplay() override;
+    bool onMouse(const MouseEvent& ev) override;
+    bool onMotion(const MotionEvent& ev) override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumDualSidedSwitch)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
 class QuantumKnob : public NanoSubWidget,
                     public KnobEventHandler
 {
@@ -157,6 +204,27 @@ protected:
     bool onScroll(const ScrollEvent& ev) override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumValueSlider)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+class QuantumGroup : public NanoSubWidget
+{
+    const QuantumTheme& theme;
+
+public:
+    explicit QuantumGroup(TopLevelWidget* parent, const QuantumTheme& theme);
+
+    // publicly exposed for convenience, please do not resize or reposition these
+    QuantumSwitch mainSwitch;
+    // FIXME use proper children proceedure
+    std::vector<NanoSubWidget*> groupedWidgets;
+
+protected:
+    void onNanoDisplay() override;
+    void onPositionChanged(const PositionChangedEvent& ev) override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumGroup)
 };
 
 // --------------------------------------------------------------------------------------------------------------------

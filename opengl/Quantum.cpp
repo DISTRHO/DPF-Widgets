@@ -22,6 +22,173 @@ static constexpr const uint labelHeight = 24;
 
 // --------------------------------------------------------------------------------------------------------------------
 
+QuantumSwitch::QuantumSwitch(TopLevelWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      ButtonEventHandler(this),
+      theme(t)
+{
+    loadSharedResources();
+    setCheckable(true);
+    setSize(labelHeight * 2 + theme.widgetBorderAndLineSize * 2,
+            labelHeight / 2 + theme.widgetBorderAndLineSize * 2);
+}
+
+QuantumSwitch::~QuantumSwitch()
+{
+    std::free(label);
+}
+
+void QuantumSwitch::setLabel(const char* const label2)
+{
+    std::free(label);
+    label = strdup(label2);
+
+    Rectangle<float> bounds;
+    fontSize(16);
+
+    uint width = labelHeight + theme.widgetBorderAndLineSize * 6;
+
+    textBounds(0, 0, label2, nullptr, bounds);
+    width += bounds.getWidth();
+
+    setWidth(width);
+}
+
+void QuantumSwitch::onNanoDisplay()
+{
+    const bool checked = isChecked();
+
+    fontSize(16);
+
+    if (label != nullptr)
+    {
+        fillColor(checked ? Color(255, 255, 255) : theme.textMidColor);
+        textAlign(ALIGN_LEFT|ALIGN_MIDDLE);
+        text(labelHeight + theme.widgetBorderAndLineSize * 3, getHeight() / 2, label, nullptr);
+    }
+
+    beginPath();
+    rect(0, 0, labelHeight + theme.widgetBorderAndLineSize * 2, getHeight());
+    fillColor(theme.widgetBackgroundColor);
+    fill();
+
+    beginPath();
+    if (checked)
+    {
+        rect(theme.widgetBorderAndLineSize, theme.widgetBorderAndLineSize, labelHeight / 2, labelHeight / 2);
+        fillColor(Color::fromHTML("#3f535a"));
+    }
+    else
+    {
+        rect(theme.widgetBorderAndLineSize + labelHeight / 2 , theme.widgetBorderAndLineSize, labelHeight / 2, labelHeight / 2);
+        fillColor(theme.textDarkColor);
+    }
+    fill();
+}
+
+bool QuantumSwitch::onMouse(const MouseEvent& ev)
+{
+    return mouseEvent(ev);
+}
+
+bool QuantumSwitch::onMotion(const MotionEvent& ev)
+{
+    return motionEvent(ev);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+QuantumDualSidedSwitch::QuantumDualSidedSwitch(TopLevelWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      ButtonEventHandler(this),
+      theme(t)
+{
+    loadSharedResources();
+    setCheckable(true);
+    setSize(labelHeight * 2 + theme.widgetBorderAndLineSize * 2,
+            labelHeight / 2 + theme.widgetBorderAndLineSize * 2);
+}
+
+QuantumDualSidedSwitch::~QuantumDualSidedSwitch()
+{
+    std::free(labelLeft);
+    std::free(labelRight);
+}
+
+void QuantumDualSidedSwitch::setLabels(const char* const left, const char* const right)
+{
+    std::free(labelLeft);
+    std::free(labelRight);
+    labelLeft = strdup(left);
+    labelRight = strdup(right);
+
+    Rectangle<float> bounds;
+    fontSize(16);
+
+    uint width = labelHeight + theme.widgetBorderAndLineSize * 8;
+
+    textBounds(0, 0, labelLeft, nullptr, bounds);
+    width += bounds.getWidth();
+
+    textBounds(0, 0, labelRight, nullptr, bounds);
+    width += bounds.getWidth();
+
+    setWidth(width);
+}
+
+void QuantumDualSidedSwitch::onNanoDisplay()
+{
+    const float centerX = getWidth() / 2;
+    const bool checked = isChecked();
+
+    fontSize(16);
+
+    if (labelLeft != nullptr)
+    {
+        fillColor(checked ? theme.textMidColor : Color(255, 255, 255));
+        textAlign(ALIGN_RIGHT|ALIGN_MIDDLE);
+        text(centerX - labelHeight / 2 - theme.widgetBorderAndLineSize * 2, getHeight() / 2, labelLeft, nullptr);
+    }
+
+    if (labelRight != nullptr)
+    {
+        fillColor(checked ? Color(255, 255, 255) : theme.textMidColor);
+        textAlign(ALIGN_LEFT|ALIGN_MIDDLE);
+        text(centerX + labelHeight / 2 + theme.widgetBorderAndLineSize * 2, getHeight() / 2, labelRight, nullptr);
+    }
+
+    beginPath();
+    rect(centerX - labelHeight / 2 - theme.widgetBorderAndLineSize, 0, 
+         labelHeight + theme.widgetBorderAndLineSize * 2, getHeight());
+    fillColor(theme.widgetBackgroundColor);
+    fill();
+
+    beginPath();
+    if (checked)
+    {
+        rect(centerX, theme.widgetBorderAndLineSize, labelHeight / 2, labelHeight / 2);
+        fillColor(Color::fromHTML("#3f535a"));
+    }
+    else
+    {
+        rect(centerX - labelHeight / 2 , theme.widgetBorderAndLineSize, labelHeight / 2, labelHeight / 2);
+        fillColor(Color::fromHTML("#585338"));
+    }
+    fill();
+}
+
+bool QuantumDualSidedSwitch::onMouse(const MouseEvent& ev)
+{
+    return mouseEvent(ev);
+}
+
+bool QuantumDualSidedSwitch::onMotion(const MotionEvent& ev)
+{
+    return motionEvent(ev);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 QuantumKnob::QuantumKnob(TopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       KnobEventHandler(this),
@@ -120,7 +287,9 @@ void QuantumLevelMeter::onNanoDisplay()
 
     const float usableWidth = getWidth() - theme.widgetBorderAndLineSize * 2;
     const float usableHeight = getHeight() - theme.widgetBorderAndLineSize * 2;
-    const float valuableHeight = usableHeight * std::min(1.f, value);
+
+    // FIXME have linear value and do log scale on UI side
+    const float valuableHeight = usableHeight * std::min(1.f, std::min(1.f, value > -90.f ? std::powf(10.f, value * 0.05f) : 0.f));
 
     beginPath();
     rect(theme.widgetBorderAndLineSize, theme.widgetBorderAndLineSize + usableHeight - valuableHeight, usableWidth, valuableHeight);
@@ -134,7 +303,7 @@ void QuantumLevelMeter::onNanoDisplay()
     textAlign(ALIGN_CENTER|ALIGN_TOP);
 
     // clipping
-    if (value > 1.f)
+    if (value > 0.f)
     {
         beginPath();
         rect(theme.widgetBorderAndLineSize, theme.widgetBorderAndLineSize, usableWidth, labelHeight);
@@ -150,10 +319,10 @@ void QuantumLevelMeter::onNanoDisplay()
     {
         fillColor(theme.textMidColor);
 
-        if (d_isZero(value))
+        if (value < 120.f)
             std::strncpy(valuestr, "-inf", sizeof(valuestr)-1);
         else
-            std::snprintf(valuestr, sizeof(valuestr)-1, "-%.1f", value);
+            std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", value);
     }
 
     text(centerX, theme.widgetBorderAndLineSize * 2, valuestr, nullptr);
@@ -211,12 +380,14 @@ void QuantumMixerSlider::onNanoDisplay()
     strokeWidth(theme.widgetBorderAndLineSize);
     stroke();
 
+    /*
     beginPath();
     moveTo(0, sliderLineY + sliderLineHeight * 0.15);
     lineTo(width, sliderLineY + sliderLineHeight * 0.15);
     strokeColor(theme.widgetBackgroundColor);
     strokeWidth(std::max(1, theme.widgetBorderAndLineSize / 2));
     stroke();
+    */
 
     // slider handle
     save();
@@ -276,6 +447,9 @@ QuantumMixerSliderWithLevelMeter::QuantumMixerSliderWithLevelMeter(TopLevelWidge
 {
     loadSharedResources();
 
+    meter.setName("+ Level Meter");
+    slider.setName("+ Mixer Slider");
+
     const uint meteringHeight = 300;
 
     meter.setAbsoluteX(theme.widgetBorderAndLineSize);
@@ -285,7 +459,7 @@ QuantumMixerSliderWithLevelMeter::QuantumMixerSliderWithLevelMeter(TopLevelWidge
     slider.setHeight(meteringHeight);
 
     setSize(meter.getWidth() + slider.getWidth() + theme.widgetBorderAndLineSize * 3,
-            meteringHeight + labelHeight + theme.widgetBorderAndLineSize * 2);
+            meteringHeight + labelHeight + theme.widgetBorderAndLineSize);
 }
 
 void QuantumMixerSliderWithLevelMeter::onNanoDisplay()
@@ -296,7 +470,7 @@ void QuantumMixerSliderWithLevelMeter::onNanoDisplay()
     fill();
 
     char valuestr[32] = {};
-    std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", slider.getNormalizedValue());
+    std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f dB", slider.getValue());
 
     fontSize(16);
     fillColor(theme.textLightColor);
@@ -405,6 +579,54 @@ bool QuantumValueSlider::onMotion(const MotionEvent& ev)
 bool QuantumValueSlider::onScroll(const ScrollEvent& ev)
 {
     return scrollEvent(ev);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+QuantumGroup::QuantumGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      theme(t),
+      mainSwitch(parent, t)
+{
+    mainSwitch.setAbsolutePos(theme.widgetBorderAndLineSize, theme.widgetBorderAndLineSize);
+    mainSwitch.setCheckable(true);
+    mainSwitch.setChecked(true, false);
+    groupedWidgets.push_back(&mainSwitch);
+
+    setSize(mainSwitch.getWidth() + theme.widgetBorderAndLineSize * 2,
+            mainSwitch.getHeight() + theme.widgetBorderAndLineSize * 2);
+}
+
+void QuantumGroup::onNanoDisplay()
+{
+    /*
+    beginPath();
+    rect(0, mainSwitch.getHeight() + theme.widgetBorderAndLineSize * 2, getWidth(), getHeight() - mainSwitch.getHeight() - theme.widgetBorderAndLineSize);
+    fillColor(theme.widgetBackgroundColor);
+    fill();
+
+    beginPath();
+    rect(theme.widgetBorderAndLineSize, mainSwitch.getHeight() + theme.widgetBorderAndLineSize * 3,
+         getWidth() - theme.widgetBorderAndLineSize * 2, getHeight() - mainSwitch.getHeight() - theme.widgetBorderAndLineSize * 4);
+    fillColor(theme.windowBackgroundColor);
+    fill();
+    */
+
+    beginPath();
+    rect(theme.widgetBorderAndLineSize/2, mainSwitch.getHeight() + theme.widgetBorderAndLineSize * 2,
+         getWidth() - theme.widgetBorderAndLineSize, getHeight() - mainSwitch.getHeight() - theme.widgetBorderAndLineSize * 3);
+    strokeColor(theme.widgetBackgroundColor);
+    strokeWidth(theme.widgetBorderAndLineSize);
+    stroke();
+}
+
+void QuantumGroup::onPositionChanged(const PositionChangedEvent& ev)
+{
+    const int diffX = ev.pos.getX() - ev.oldPos.getX();
+    const int diffY = ev.pos.getY() - ev.oldPos.getY();
+
+    for (NanoSubWidget* w : groupedWidgets)
+        w->setAbsolutePos(w->getAbsoluteX() + diffX, w->getAbsoluteY() + diffY);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
