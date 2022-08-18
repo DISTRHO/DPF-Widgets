@@ -17,6 +17,7 @@
 #pragma once
 
 #include "EventHandlers.hpp"
+#include "Layout.hpp"
 #include "NanoVG.hpp"
 
 START_NAMESPACE_DGL
@@ -25,17 +26,17 @@ START_NAMESPACE_DGL
 
 struct QuantumTheme {
     // border size for widgets, e.g. button and knob outline border
-    int borderSize = 4;
+    uint borderSize = 2;
     // padding for widgets, the space between each other when in a group
-    int padding = 4;
+    uint padding = 4;
     // main font size, used for all text unless otherwise stated
-    int fontSize = 16;
+    uint fontSize = 16;
     // height given to text labels and widgets that use text (without padding)
-    int textHeight = 24;
+    uint textHeight = 24;
     // line size for widgets, e.g. slider line
-    int widgetLineSize = 4;
+    uint widgetLineSize = 4;
     // how much padding to give from window border to widgets
-    int windowPadding = padding * 3;
+    uint windowPadding = padding * 3;
     // background color for widgets, e.g. slider line and knob padding, typically dark
     Color widgetBackgroundColor = Color::fromHTML("#141414");
     // default active color for widgets, e.g. pressed button and knob body
@@ -52,6 +53,29 @@ struct QuantumTheme {
     Color textDarkColor = Color::fromHTML("#8c8c8c");
     // text color, very dark tone
     Color textVeryDarkColor = Color::fromHTML("#383838");
+};
+
+struct QuantumMetrics
+{
+    Size<uint> button;
+    Size<uint> label;
+    Size<uint> switch_;
+    Size<uint> knob;
+    Size<uint> valueSlider;
+
+    explicit QuantumMetrics(const QuantumTheme& theme) noexcept
+        : button(theme.textHeight + theme.borderSize * 2,
+                 theme.textHeight + theme.borderSize * 2),
+          label(theme.textHeight,
+                theme.textHeight),
+          switch_(theme.textHeight * 2 + theme.borderSize * 2,
+                 theme.textHeight / 2 + theme.borderSize * 2),
+          knob(theme.textHeight * 3 / 2,
+                 theme.textHeight * 3 / 2),
+          valueSlider(theme.textHeight * 4,
+                      theme.textHeight)
+    {
+    }
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -320,23 +344,42 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class QuantumValueSliderGroup : public NanoSubWidget
+struct QuantumValueSliderWithLabel : HorizontalLayout
+{
+    QuantumValueSlider slider;
+    QuantumLabel label;
+
+    explicit QuantumValueSliderWithLabel(TopLevelWidget* parent, const QuantumTheme& theme);
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+class QuantumGroupWithVerticallyStackedLayout : public NanoSubWidget
 {
     const QuantumTheme& theme;
 
 public:
-    explicit QuantumValueSliderGroup(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumGroupWithVerticallyStackedLayout(TopLevelWidget* parent, const QuantumTheme& theme);
 
-    // publicly exposed for convenience, please do not resize or reposition these
+    // place widgets here
+    VerticallyStackedHorizontalLayout layout;
+
+    // publicly exposed for convenience, do not resize or reposition
     QuantumSwitch mainSwitch;
-    // FIXME use proper children proceedure
-    std::vector<QuantumValueSlider*> groupedWidgets;
+
+    // adjust size to fit full layout contents
+    void adjustSize();
+
+    // FIXME remove this once proper child widget setup id added
+    void showAll();
+    void hideAll();
 
 protected:
     void onNanoDisplay() override;
     void onPositionChanged(const PositionChangedEvent& ev) override;
+    void onResize(const ResizeEvent& ev) override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumValueSliderGroup)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumGroupWithVerticallyStackedLayout)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
