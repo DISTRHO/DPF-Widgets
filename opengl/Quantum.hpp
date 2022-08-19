@@ -114,20 +114,28 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
+// alignment uses NanoVG::Align
 class QuantumLabel : public NanoSubWidget
 {
     const QuantumTheme& theme;
+    uint alignment = ALIGN_MIDDLE|ALIGN_LEFT;
     char* label = nullptr;
 
 public:
     explicit QuantumLabel(TopLevelWidget* parent, const QuantumTheme& theme);
     ~QuantumLabel() override;
 
+    inline uint getAlignment() const noexcept
+    {
+        return alignment;
+    }
+
     inline const char* getLabel() const noexcept
     {
         return label;
     }
 
+    void setAlignment(uint alignment);
     void setLabel(const char* label, bool adjustWidth = true);
 
 protected:
@@ -310,20 +318,20 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class QuantumValueMeter16 : public NanoSubWidget
+class QuantumValueMeter17 : public NanoSubWidget
 {
     const QuantumTheme& theme;
-    float values[16] = {};
+    float values[17] = {};
 
 public:
-    explicit QuantumValueMeter16(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumValueMeter17(TopLevelWidget* parent, const QuantumTheme& theme);
 
     void setValue(uint index, float value);
 
 protected:
     void onNanoDisplay() override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumValueMeter16)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumValueMeter17)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -344,6 +352,7 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
+// fixed slider, expanding label
 struct QuantumValueSliderWithLabel : HorizontalLayout
 {
     QuantumValueSlider slider;
@@ -352,8 +361,27 @@ struct QuantumValueSliderWithLabel : HorizontalLayout
     explicit QuantumValueSliderWithLabel(TopLevelWidget* parent, const QuantumTheme& theme);
 };
 
+// sliders on both sides, center expanding label
+struct QuantumDualValueSliderWithCenterLabel : HorizontalLayout
+{
+    QuantumValueSlider sliderL;
+    QuantumLabel label;
+    QuantumValueSlider sliderR;
+
+    explicit QuantumDualValueSliderWithCenterLabel(TopLevelWidget* parent, const QuantumTheme& theme);
+};
+
+// single expanding switch
+struct QuantumSwitchWithLayout : HorizontalLayout
+{
+    QuantumSwitch switch_;
+
+    explicit QuantumSwitchWithLayout(TopLevelWidget* parent, const QuantumTheme& theme);
+};
+
 // --------------------------------------------------------------------------------------------------------------------
 
+template<class tMainWidget>
 class QuantumGroupWithVerticallyStackedLayout : public NanoSubWidget
 {
     const QuantumTheme& theme;
@@ -365,7 +393,7 @@ public:
     VerticallyStackedHorizontalLayout layout;
 
     // publicly exposed for convenience, do not resize or reposition
-    QuantumSwitch mainSwitch;
+    tMainWidget mainWidget;
 
     // adjust size to fit full layout contents
     void adjustSize();
