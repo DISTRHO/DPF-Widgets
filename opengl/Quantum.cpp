@@ -15,6 +15,7 @@
  */
 
 #include "Quantum.hpp"
+#include "DistrhoUtils.hpp"
 
 #include <cmath>
 
@@ -166,13 +167,19 @@ void QuantumLabel::onNanoDisplay()
     if (label == nullptr)
         return;
 
-    beginPath();
-    rect(0, 0, getWidth(), getHeight());
-
     fillColor(theme.textLightColor);
     fontSize(theme.fontSize);
     textAlign(alignment);
-    textBox(theme.padding, getHeight() / 2, getWidth(), label);
+
+    float y;
+    if (alignment & ALIGN_MIDDLE)
+        y = getHeight() / 2;
+    else if (alignment & ALIGN_BOTTOM)
+        y = getHeight();
+    else
+        y = 0;
+
+    textBox(0, y, getWidth(), label);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -349,11 +356,6 @@ QuantumKnob::QuantumKnob(TopLevelWidget* const parent, const QuantumTheme& t)
     setSize(QuantumMetrics(t).knob);
 }
 
-Color QuantumKnob::getBackgroundColor() const noexcept
-{
-    return backgroundColor;
-}
-
 void QuantumKnob::setBackgroundColor(Color color)
 {
     backgroundColor = color;
@@ -404,101 +406,6 @@ bool QuantumKnob::onMotion(const MotionEvent& ev)
 bool QuantumKnob::onScroll(const ScrollEvent& ev)
 {
     return scrollEvent(ev);
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-
-QuantumLevelMeter::QuantumLevelMeter(TopLevelWidget* const parent, const QuantumTheme& t)
-    : NanoSubWidget(parent),
-      theme(t)
-{
-    loadSharedResources();
-    setSize(40, 128);
-}
-
-bool QuantumLevelMeter::setNormalizedValue(float newValue)
-{
-    if (d_isEqual(value, newValue))
-        return true;
-
-    value = newValue;
-
-    if (newValue > falloff)
-        falloff = newValue;
-
-    repaint();
-    return true;
-}
-
-void QuantumLevelMeter::onNanoDisplay()
-{
-    beginPath();
-    rect(0, 0, getWidth(), getHeight());
-    fillColor(theme.widgetBackgroundColor);
-    fill();
-
-    const float usableWidth = getWidth() - theme.borderSize * 2;
-    const float usableHeight = getHeight() - theme.borderSize * 2;
-
-    // FIXME have linear value and do log scale on UI side
-    const float valuableHeight = usableHeight * std::min(1.f, std::max(0.f, value > -90.f ? std::pow(10.f, value * 0.05f) : 0.f));
-
-    beginPath();
-    rect(theme.borderSize, theme.borderSize + usableHeight - valuableHeight, usableWidth, valuableHeight);
-    fillColor(Color(93, 231, 61));
-    fill();
-
-    const float centerX = getWidth() / 2;
-    char valuestr[32] = {};
-
-    fontSize(16);
-    textAlign(ALIGN_CENTER|ALIGN_TOP);
-
-    // clipping
-    if (value > 0.f)
-    {
-        beginPath();
-        rect(theme.borderSize, theme.borderSize, usableWidth, theme.textHeight);
-        fillColor(Color(200, 0, 0));
-        fill();
-
-        fillColor(theme.textLightColor);
-
-         // level value
-        std::snprintf(valuestr, sizeof(valuestr)-1, "+%.1f", value);
-    }
-    else
-    {
-        fillColor(theme.textMidColor);
-
-        if (value < 120.f)
-            std::strncpy(valuestr, "-inf", sizeof(valuestr)-1);
-        else
-            std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", value);
-    }
-
-    text(centerX, theme.borderSize * 2, valuestr, nullptr);
-
-    fillColor(theme.textDarkColor);
-    textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
-    text(centerX, theme.borderSize + usableHeight * 1/6, "-6-", nullptr);
-    text(centerX, theme.borderSize + usableHeight * 2/6, "-18-", nullptr);
-    text(centerX, theme.borderSize + usableHeight * 3/6, "-30-", nullptr);
-    text(centerX, theme.borderSize + usableHeight * 4/6, "-42-", nullptr);
-    text(centerX, theme.borderSize + usableHeight * 5/6, "-54-", nullptr);
-}
-
-void QuantumLevelMeter::idleCallback()
-{
-    if (d_isEqual(value, falloff))
-        return;
-
-    // should not typically happen
-    if (value > falloff)
-    {
-        falloff = value;
-        return;
-    }
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -652,6 +559,113 @@ void QuantumMixerSliderWithLevelMeter::idleCallback()
 
 // --------------------------------------------------------------------------------------------------------------------
 
+QuantumValueMeter::QuantumValueMeter(TopLevelWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      theme(t)
+{
+    loadSharedResources();
+    setSize(QuantumMetrics(t).valueMeterHorizontal);
+}
+
+void QuantumValueMeter::setBackgroundColor(Color color)
+{
+    backgroundColor = color;
+}
+
+void QuantumValueMeter::setOrientation(const Orientation orientation2)
+{
+    orientation = orientation2;
+}
+
+void QuantumValueMeter::setRange(const float min, const float max)
+{
+    DISTRHO_SAFE_ASSERT_RETURN(max > min,);
+
+    minimum = min;
+    maximum = max;
+}
+
+void QuantumValueMeter::setUnitLabel(const char* const label)
+{
+    std::free(unitLabel);
+
+    if (label != nullptr && label[0] != '\0')
+        unitLabel = strdup(label);
+    else
+        unitLabel = nullptr;
+}
+
+void QuantumValueMeter::setValue(const float value2)
+{
+    if (d_isEqual(value, value2))
+        return;
+
+    value = value2;
+    repaint();
+}
+
+void QuantumValueMeter::onNanoDisplay()
+{
+    beginPath();
+    rect(0, 0, getWidth(), getHeight());
+    fillColor(theme.widgetBackgroundColor);
+    fill();
+
+    const float normalizedValue = (value - minimum) / (maximum - minimum);
+
+    if (d_isNotZero(normalizedValue))
+    {
+        beginPath();
+        switch (orientation)
+        {
+        case LeftToRight:
+            rect(theme.borderSize, theme.borderSize, 
+                 (getWidth() - theme.borderSize * 2) * normalizedValue, getHeight() - theme.borderSize * 2);
+            break;
+        case RightToLeft:
+            rect(theme.borderSize + (getWidth() - theme.borderSize * 2) * normalizedValue, theme.borderSize,
+                 (getWidth() - theme.borderSize * 2) * (1.f - normalizedValue), getHeight() - theme.borderSize * 2);
+            break;
+        case TopToBottom:
+            rect(theme.borderSize, theme.borderSize,
+                 getWidth() - theme.borderSize * 2, (getHeight() - theme.borderSize * 2) * (1.f - normalizedValue));
+            break;
+        case BottomToTop:
+            rect(theme.borderSize, theme.borderSize + (getHeight() - theme.borderSize * 2) * (1.f - normalizedValue),
+                 getWidth() - theme.borderSize * 2, (getHeight() - theme.borderSize * 2) * normalizedValue);
+            break;
+        }
+        fillColor(backgroundColor);
+        fill();
+    }
+
+    // only draw value text if in horizontal orientation
+    switch (orientation)
+    {
+    case LeftToRight:
+    case RightToLeft:
+        break;
+    default:
+        return;
+    }
+
+    char valuestr[32] = {};
+    const float roundedValue = std::round(value * 10.0f)/10.0f;
+
+    if (unitLabel != nullptr)
+        std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f %s", roundedValue, unitLabel);
+    else
+        std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
+
+    beginPath();
+    fontSize(16);
+    fillColor(theme.textLightColor);
+    textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
+    text(getWidth()/2, getHeight()/2, valuestr, nullptr);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 QuantumValueSlider::QuantumValueSlider(TopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       KnobEventHandler(this),
@@ -675,6 +689,17 @@ void QuantumValueSlider::setUnitLabel(const char* const label)
         unitLabel = strdup(label);
     else
         unitLabel = nullptr;
+}
+
+bool QuantumValueSlider::setValue(const float value, const bool sendCallback) noexcept
+{
+    if (KnobEventHandler::setValue(value, sendCallback))
+    {
+        repaint();
+        return true;
+    }
+
+    return false;
 }
 
 void QuantumValueSlider::onNanoDisplay()
@@ -723,6 +748,102 @@ bool QuantumValueSlider::onMotion(const MotionEvent& ev)
 bool QuantumValueSlider::onScroll(const ScrollEvent& ev)
 {
     return scrollEvent(ev);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+QuantumLevelMeter::QuantumLevelMeter(TopLevelWidget* const parent, const QuantumTheme& t)
+    : QuantumValueMeter(parent, t)
+{
+    loadSharedResources();
+    setBackgroundColor(Color(93, 231, 61));
+    setOrientation(BottomToTop);
+}
+
+void QuantumLevelMeter::onNanoDisplay()
+{
+    beginPath();
+    rect(0, 0, getWidth(), getHeight());
+    fillColor(theme.widgetBackgroundColor);
+    fill();
+
+    const float normalizedValue = (value - minimum) / (maximum - minimum);
+
+    if (d_isNotZero(normalizedValue))
+    {
+        beginPath();
+        rect(theme.borderSize, theme.borderSize + (getHeight() - theme.borderSize * 2) * (1.f - normalizedValue),
+             getWidth() - theme.borderSize * 2, (getHeight() - theme.borderSize * 2) * normalizedValue);
+        fillColor(backgroundColor);
+        fill();
+    }
+
+#if 0
+    const float usableWidth = getWidth() - theme.borderSize * 2;
+    const float usableHeight = getHeight() - theme.borderSize * 2;
+
+    // FIXME have linear value and do log scale on UI side
+    const float valuableHeight = usableHeight * std::min(1.f, std::max(0.f, value > -90.f ? std::pow(10.f, value * 0.05f) : 0.f));
+
+    beginPath();
+    rect(theme.borderSize, theme.borderSize + usableHeight - valuableHeight, usableWidth, valuableHeight);
+    fillColor(Color(93, 231, 61));
+    fill();
+
+    const float centerX = getWidth() / 2;
+    char valuestr[32] = {};
+
+    fontSize(16);
+    textAlign(ALIGN_CENTER|ALIGN_TOP);
+
+    // clipping
+    if (value > 0.f)
+    {
+        beginPath();
+        rect(theme.borderSize, theme.borderSize, usableWidth, theme.textHeight);
+        fillColor(Color(200, 0, 0));
+        fill();
+
+        fillColor(theme.textLightColor);
+
+         // level value
+        std::snprintf(valuestr, sizeof(valuestr)-1, "+%.1f", value);
+    }
+    else
+    {
+        fillColor(theme.textMidColor);
+
+        if (value < 120.f)
+            std::strncpy(valuestr, "-inf", sizeof(valuestr)-1);
+        else
+            std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", value);
+    }
+
+    text(centerX, theme.borderSize * 2, valuestr, nullptr);
+
+    fillColor(theme.textDarkColor);
+    textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
+    text(centerX, theme.borderSize + usableHeight * 1/6, "-6-", nullptr);
+    text(centerX, theme.borderSize + usableHeight * 2/6, "-18-", nullptr);
+    text(centerX, theme.borderSize + usableHeight * 3/6, "-30-", nullptr);
+    text(centerX, theme.borderSize + usableHeight * 4/6, "-42-", nullptr);
+    text(centerX, theme.borderSize + usableHeight * 5/6, "-54-", nullptr);
+#endif
+}
+
+void QuantumLevelMeter::idleCallback()
+{
+#if 0
+    if (d_isEqual(value, falloff))
+        return;
+
+    // should not typically happen
+    if (value > falloff)
+    {
+        falloff = value;
+        return;
+    }
+#endif
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -802,6 +923,16 @@ void QuantumFrameGroup::onPositionChanged(const PositionChangedEvent& ev)
 
     for (SubWidget* w : getChildren())
         w->setAbsolutePos(w->getAbsoluteX() + diffX, w->getAbsoluteY() + diffY);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+QuantumValueMeterWithLabel::QuantumValueMeterWithLabel(TopLevelWidget* parent, const QuantumTheme& theme)
+    : meter(parent, theme),
+      label(parent, theme)
+{
+    widgets.push_back({ &meter, Fixed });
+    widgets.push_back({ &label, Expanding });
 }
 
 // --------------------------------------------------------------------------------------------------------------------
