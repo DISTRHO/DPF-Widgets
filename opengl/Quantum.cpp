@@ -167,7 +167,7 @@ void QuantumLabel::adjustSize()
         fontSize(theme.fontSize);
 
         textBounds(0, 0, label, nullptr, bounds);
-        width = std::max(static_cast<uint>(bounds.getWidth() + 0.5f), theme.padding);
+        width = std::max(static_cast<uint>(bounds.getWidth() + 0.5f), theme.padding) + theme.textPixelRatioWidthCompensation;
         height = std::max(static_cast<uint>(bounds.getHeight() + 0.5f), theme.textHeight);
     }
     else

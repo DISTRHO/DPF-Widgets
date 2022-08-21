@@ -38,6 +38,8 @@ struct QuantumTheme {
     uint widgetLineSize = 4;
     // how much padding to give from window border to widgets
     uint windowPadding = padding * 3;
+    // how much extra width to give to text labels to compensate for rounding with >= 2x scaling factor
+    uint textPixelRatioWidthCompensation = 0;
     // background color for level meter widgets
     Color levelMeterColor = Color::fromHTML("#4ca947");
     // alternative background color for level meter widgets
