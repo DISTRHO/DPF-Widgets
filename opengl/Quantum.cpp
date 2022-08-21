@@ -197,12 +197,18 @@ void QuantumLabel::setLabel(const char* const label2, const bool adjustSizeNow)
         adjustSize();
 }
 
+void QuantumLabel::setLabelColor(const Color color)
+{
+    labelColor = color;
+    repaint();
+}
+
 void QuantumLabel::onNanoDisplay()
 {
     if (label == nullptr || label[0] == '\0')
         return;
 
-    fillColor(theme.textLightColor);
+    fillColor(labelColor);
     fontSize(theme.fontSize);
     textAlign(alignment);
 
@@ -325,12 +331,12 @@ void QuantumSwitch::onNanoDisplay()
     beginPath();
     if (checked)
     {
-        rect(theme.borderSize, yOffset + theme.borderSize, theme.textHeight / 2, theme.textHeight / 2);
-        fillColor(Color::fromHTML("#3f535a"));
+        rect(theme.borderSize + theme.textHeight / 2 , yOffset + theme.borderSize, theme.textHeight / 2, theme.textHeight / 2);
+        fillColor(theme.widgetDefaultActiveColor);
     }
     else
     {
-        rect(theme.borderSize + theme.textHeight / 2 , yOffset + theme.borderSize, theme.textHeight / 2, theme.textHeight / 2);
+        rect(theme.borderSize, yOffset + theme.borderSize, theme.textHeight / 2, theme.textHeight / 2);
         fillColor(theme.textDarkColor);
     }
     fill();
@@ -728,6 +734,12 @@ void QuantumValueMeter::setValue(const float value2)
     repaint();
 }
 
+void QuantumValueMeter::setTextColor(const Color color)
+{
+    textColor = color;
+    repaint();
+}
+
 void QuantumValueMeter::onNanoDisplay()
 {
     beginPath();
@@ -783,7 +795,7 @@ void QuantumValueMeter::onNanoDisplay()
 
     beginPath();
     fontSize(16);
-    fillColor(theme.textLightColor);
+    fillColor(textColor);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     text(getWidth()/2, getHeight()/2, valuestr, nullptr);
 }
@@ -813,6 +825,13 @@ QuantumValueSlider::QuantumValueSlider(NanoSubWidget* const parent, const Quantu
 void QuantumValueSlider::setBackgroundColor(Color color)
 {
     backgroundColor = color;
+    repaint();
+}
+
+void QuantumValueSlider::setTextColor(const Color color)
+{
+    textColor = color;
+    repaint();
 }
 
 void QuantumValueSlider::setUnitLabel(const char* const label)
@@ -864,7 +883,7 @@ void QuantumValueSlider::onNanoDisplay()
 
     beginPath();
     fontSize(16);
-    fillColor(theme.textLightColor);
+    fillColor(textColor);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     text(getWidth()/2, getHeight()/2, valuestr, nullptr);
 }

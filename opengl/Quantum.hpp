@@ -137,6 +137,7 @@ class QuantumLabel : public NanoSubWidget
     const QuantumTheme& theme;
     uint alignment = ALIGN_LEFT|ALIGN_MIDDLE;
     char* label = nullptr;
+    Color labelColor = theme.textLightColor;
 
 public:
     explicit QuantumLabel(TopLevelWidget* parent, const QuantumTheme& theme);
@@ -153,9 +154,15 @@ public:
         return label;
     }
 
+    inline Color getLabelColor() const noexcept
+    {
+        return labelColor;
+    }
+
     void adjustSize();
     void setAlignment(uint alignment);
     void setLabel(const char* label, bool adjustSizeNow = true);
+    void setLabelColor(Color color);
 
 protected:
     void onNanoDisplay() override;
@@ -323,6 +330,11 @@ public:
         return orientation;
     }
 
+    inline Color getTextColor() const noexcept
+    {
+        return textColor;
+    }
+
     inline const char* getUnitLabel() const noexcept
     {
         return unitLabel;
@@ -332,6 +344,7 @@ public:
     void setOrientation(Orientation orientation);
     void setRange(float min, float max);
     void setValue(float value);
+    void setTextColor(Color color);
     void setUnitLabel(const char* label);
 
 protected:
@@ -342,6 +355,7 @@ protected:
     float maximum = 1.f;
     float minimum = 0.f;
     Orientation orientation = LeftToRight;
+    Color textColor = theme.textLightColor;
     char* unitLabel = nullptr;
     float value = 0.f;
 
@@ -355,6 +369,7 @@ class QuantumValueSlider : public NanoSubWidget,
 {
     const QuantumTheme& theme;
     Color backgroundColor = theme.widgetDefaultActiveColor;
+    Color textColor = theme.textLightColor;
     char* unitLabel = nullptr;
 
 public:
@@ -366,12 +381,18 @@ public:
         return backgroundColor;
     }
 
+    inline Color getTextColor() const noexcept
+    {
+        return textColor;
+    }
+
     inline const char* getUnitLabel() const noexcept
     {
         return unitLabel;
     }
 
     void setBackgroundColor(Color color);
+    void setTextColor(Color color);
     void setUnitLabel(const char* label);
 
     bool setValue(float value, bool sendCallback = false) noexcept override;
