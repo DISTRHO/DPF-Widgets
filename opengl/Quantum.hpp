@@ -38,6 +38,10 @@ struct QuantumTheme {
     uint widgetLineSize = 4;
     // how much padding to give from window border to widgets
     uint windowPadding = padding * 3;
+    // background color for level meter widgets
+    Color levelMeterColor = Color::fromHTML("#4ca947");
+    // alternative background color for level meter widgets
+    Color levelMeterAlternativeColor = Color::fromHTML("#ffc400");
     // background color for widgets, e.g. slider line and knob padding, typically dark
     Color widgetBackgroundColor = Color::fromHTML("#141414");
     // default active color for widgets, e.g. pressed button and knob body

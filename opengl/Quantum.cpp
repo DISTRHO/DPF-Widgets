@@ -422,7 +422,7 @@ void QuantumDualSidedSwitch::onNanoDisplay()
     }
 
     beginPath();
-    rect(centerX - theme.textHeight / 2 - theme.padding, 0, 
+    rect(centerX - theme.textHeight / 2 - theme.padding, 0,
          theme.textHeight + theme.padding * 2, getHeight());
     fillColor(theme.widgetBackgroundColor);
     fill();
@@ -755,7 +755,7 @@ void QuantumValueMeter::onNanoDisplay()
         switch (orientation)
         {
         case LeftToRight:
-            rect(theme.borderSize, theme.borderSize, 
+            rect(theme.borderSize, theme.borderSize,
                  (getWidth() - theme.borderSize * 2) * normalizedValue, getHeight() - theme.borderSize * 2);
             break;
         case RightToLeft:
@@ -909,7 +909,7 @@ QuantumLevelMeter::QuantumLevelMeter(TopLevelWidget* const parent, const Quantum
     : QuantumValueMeter(parent, t)
 {
     loadSharedResources();
-    setBackgroundColor(Color(93, 231, 61));
+    setBackgroundColor(theme.levelMeterColor);
     setOrientation(BottomToTop);
 }
 
@@ -917,7 +917,7 @@ QuantumLevelMeter::QuantumLevelMeter(NanoSubWidget* const parent, const QuantumT
     : QuantumValueMeter(parent, t)
 {
     loadSharedResources();
-    setBackgroundColor(Color(93, 231, 61));
+    setBackgroundColor(theme.levelMeterColor);
     setOrientation(BottomToTop);
 }
 
