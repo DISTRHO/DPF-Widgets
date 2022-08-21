@@ -387,7 +387,7 @@ void QuantumDualSidedSwitch::setLabels(const char* const left, const char* const
     labelRight = strdup(right);
 
     Rectangle<float> bounds;
-    fontSize(16);
+    fontSize(theme.fontSize);
 
     uint width = theme.textHeight + theme.borderSize * 2 + theme.padding * 4;
 
@@ -405,7 +405,7 @@ void QuantumDualSidedSwitch::onNanoDisplay()
     const float centerX = getWidth() / 2;
     const bool checked = isChecked();
 
-    fontSize(16);
+    fontSize(theme.fontSize);
 
     if (labelLeft != nullptr)
     {
@@ -794,7 +794,7 @@ void QuantumValueMeter::onNanoDisplay()
         std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
 
     beginPath();
-    fontSize(16);
+    fontSize(theme.fontSize);
     fillColor(textColor);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     text(getWidth()/2, getHeight()/2, valuestr, nullptr);
@@ -882,7 +882,7 @@ void QuantumValueSlider::onNanoDisplay()
         std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
 
     beginPath();
-    fontSize(16);
+    fontSize(theme.fontSize);
     fillColor(textColor);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     text(getWidth()/2, getHeight()/2, valuestr, nullptr);
@@ -954,7 +954,7 @@ void QuantumLevelMeter::onNanoDisplay()
     const float centerX = getWidth() / 2;
     char valuestr[32] = {};
 
-    fontSize(16);
+    fontSize(theme.fontSize);
     textAlign(ALIGN_CENTER|ALIGN_TOP);
 
     // clipping
@@ -1009,14 +1009,14 @@ void QuantumLevelMeter::idleCallback()
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumValueMeter17::QuantumValueMeter17(TopLevelWidget* const parent, const QuantumTheme& t)
+QuantumValueMeter18::QuantumValueMeter18(TopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       theme(t)
 {
     setSize(32, 32);
 }
 
-void QuantumValueMeter17::setValue(const uint index, const float value)
+void QuantumValueMeter18::setValue(const uint index, const float value)
 {
     DISTRHO_SAFE_ASSERT_INT_RETURN(index < ARRAY_SIZE(values), index,);
 
@@ -1027,29 +1027,32 @@ void QuantumValueMeter17::setValue(const uint index, const float value)
     repaint();
 }
 
-void QuantumValueMeter17::onNanoDisplay()
+void QuantumValueMeter18::onNanoDisplay()
 {
-    /*
-    beginPath();
-    rect(0, 0, getWidth(), getHeight());
-    fillColor(theme.widgetBackgroundColor);
-    fill();
-    */
-
-    const uint wpb = getWidth() / ARRAY_SIZE(values);
+    const uint wpb = getWidth() / (ARRAY_SIZE(values) / 2);
 
     fillColor(Color(93, 231, 61, 0.1f));
     strokeColor(theme.widgetBackgroundColor.withAlpha(0.25f));
     strokeWidth(theme.borderSize / 2);
 
-    for (size_t i=0; i<ARRAY_SIZE(values); ++i)
+    const float usableHeight = getHeight() / 2 - theme.padding;
+
+    for (size_t i=0; i<ARRAY_SIZE(values)/2; ++i)
     {
-        const float usableHeight = getHeight() - theme.padding;
-        const float valuableHeight = usableHeight * std::min(1.f, std::max(0.f, values[i] > -90.f ? std::pow(10.f, values[i] * 0.05f) : 0.f));
+        const float valuableHeight = usableHeight * ((values[i] + 3) / 3);
 
         beginPath();
-        rect(wpb * i, theme.padding / 2 + usableHeight - valuableHeight,
-             wpb, valuableHeight);
+        rect(wpb * i, usableHeight - valuableHeight, wpb, valuableHeight);
+        fill();
+        stroke();
+    }
+
+    for (size_t i=0; i<ARRAY_SIZE(values)/2; ++i)
+    {
+        const float valuableHeight = usableHeight * ((values[ARRAY_SIZE(values)/2 + i] + 3) / 3);
+
+        beginPath();
+        rect(wpb * i, usableHeight * 2 + theme.padding - valuableHeight, wpb, valuableHeight);
         fill();
         stroke();
     }

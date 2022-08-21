@@ -449,20 +449,20 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class QuantumValueMeter17 : public NanoSubWidget
+class QuantumValueMeter18 : public NanoSubWidget
 {
     const QuantumTheme& theme;
-    float values[17] = {};
+    float values[18] = {};
 
 public:
-    explicit QuantumValueMeter17(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumValueMeter18(TopLevelWidget* parent, const QuantumTheme& theme);
 
     void setValue(uint index, float value);
 
 protected:
     void onNanoDisplay() override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumValueMeter17)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumValueMeter18)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -499,39 +499,6 @@ private:
 typedef AbstractQuantumFrame<char> QuantumFrame;
 typedef AbstractQuantumFrame<QuantumLabel> QuantumFrameWithLabel;
 typedef AbstractQuantumFrame<QuantumSwitch> QuantumFrameWithSwitch;
-
-// --------------------------------------------------------------------------------------------------------------------
-
-/*
-template<class tMainWidget>
-class QuantumGroupWithVerticallyStackedLayout : public NanoSubWidget
-{
-    const QuantumTheme& theme;
-
-public:
-    explicit QuantumGroupWithVerticallyStackedLayout(TopLevelWidget* parent, const QuantumTheme& theme);
-
-    // place widgets here
-    VerticallyStackedHorizontalLayout layout;
-
-    // publicly exposed for convenience, do not resize or reposition
-    tMainWidget mainWidget;
-
-    // adjust size to fit full layout contents
-    void adjustSize();
-
-    // FIXME remove this once proper child widget setup id added
-    void showAll();
-    void hideAll();
-
-protected:
-    void onNanoDisplay() override;
-    void onPositionChanged(const PositionChangedEvent& ev) override;
-    void onResize(const ResizeEvent& ev) override;
-
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumGroupWithVerticallyStackedLayout)
-};
-*/
 
 // --------------------------------------------------------------------------------------------------------------------
 
