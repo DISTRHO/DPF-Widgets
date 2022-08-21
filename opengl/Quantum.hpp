@@ -27,17 +27,17 @@ START_NAMESPACE_DGL
 
 struct QuantumTheme {
     // border size for widgets, e.g. button and knob outline border
-    uint borderSize = 2;
+    uint borderSize = 1;
     // padding for widgets, the space between each other when in a group
-    uint padding = 4;
+    uint padding = 2;
     // main font size, used for all text unless otherwise stated
-    uint fontSize = 16;
+    uint fontSize = 15;
     // height given to text labels and widgets that use text (without padding)
-    uint textHeight = 24;
+    uint textHeight = 20;
     // line size for widgets, e.g. slider line
-    uint widgetLineSize = 4;
+    uint widgetLineSize = 2;
     // how much padding to give from window border to widgets
-    uint windowPadding = padding * 3;
+    uint windowPadding = borderSize + padding * 3;
     // how much extra width to give to text labels to compensate for rounding with >= 2x scaling factor
     uint textPixelRatioWidthCompensation = 0;
     // background color for level meter widgets

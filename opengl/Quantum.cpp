@@ -574,8 +574,10 @@ void QuantumMixerSlider::onNanoDisplay()
     save();
     translate(0, (1.0f - getNormalizedValue()) * (sliderLineHeight - sliderLineY));
 
+    const float round = std::max(1.f, static_cast<float>(theme.widgetLineSize) * 3/2);
+
     beginPath();
-    roundedRect(0, 0, width, sliderHandleHeight, theme.borderSize*2);
+    roundedRect(0, 0, width, sliderHandleHeight, round);
     fillColor(theme.widgetBackgroundColor);
     fill();
 
@@ -583,13 +585,13 @@ void QuantumMixerSlider::onNanoDisplay()
     roundedRect(theme.borderSize, theme.borderSize,
                 width - theme.borderSize * 2,
                 sliderHandleHeight - theme.borderSize * 2,
-                theme.borderSize * 3/2);
+                round);
     fillColor(theme.widgetForegroundColor);
     fill();
 
     lineCap(ROUND);
     strokeColor(theme.widgetBackgroundColor);
-    strokeWidth(theme.borderSize/2);
+    strokeWidth(std::max(1u, theme.widgetLineSize / 4));
 
     for (int i=0; i<4; ++i)
     {
@@ -1033,7 +1035,7 @@ void QuantumValueMeter18::onNanoDisplay()
 
     fillColor(Color(93, 231, 61, 0.1f));
     strokeColor(theme.widgetBackgroundColor.withAlpha(0.25f));
-    strokeWidth(theme.borderSize / 2);
+    strokeWidth(std::max(1u, theme.borderSize / 2));
 
     const float usableHeight = getHeight() / 2 - theme.padding;
 
@@ -1181,144 +1183,6 @@ void AbstractQuantumFrame<QuantumSwitch>::onPositionChanged(const PositionChange
 }
 
 template class AbstractQuantumFrame<QuantumSwitch>;
-
-// --------------------------------------------------------------------------------------------------------------------
-
-/*
-template<class tMainWidget>
-QuantumGroupWithVerticallyStackedLayout<tMainWidget>::QuantumGroupWithVerticallyStackedLayout(TopLevelWidget* const parent, const QuantumTheme& t)
-    : NanoSubWidget(parent),
-      theme(t),
-      mainWidget(parent, t)
-{
-    setSize(mainWidget.getWidth() + theme.borderSize * 2 + theme.padding * 3,
-            mainWidget.getHeight() + theme.borderSize * 2 + theme.padding * 3);
-}
-
-template<>
-QuantumGroupWithVerticallyStackedLayout<QuantumSwitch>::QuantumGroupWithVerticallyStackedLayout(TopLevelWidget* const parent, const QuantumTheme& t)
-    : NanoSubWidget(parent),
-      theme(t),
-      mainWidget(parent, t)
-{
-    mainWidget.setCheckable(true);
-    mainWidget.setChecked(true, false);
-
-    setSize(mainWidget.getWidth() + theme.borderSize * 2 + theme.padding * 3,
-            mainWidget.getHeight() + theme.borderSize * 2 + theme.padding * 3);
-}
-
-template<class tMainWidget>
-void QuantumGroupWithVerticallyStackedLayout<tMainWidget>::adjustSize()
-{
-    const QuantumMetrics metrics(theme);
-
-    uint width = 0;
-    uint height = 0;
-
-    for (HorizontalLayout* l : layout.items)
-    {
-        uint lineWidth = 0;
-
-        for (SubWidgetWithSizeHint& s : l->widgets)
-        {
-            if (lineWidth != 0)
-                lineWidth += theme.padding;
-
-            lineWidth += s.widget->getWidth();
-            height = std::max(height, s.widget->getHeight());
-        }
-
-        width = std::max(width, lineWidth);
-    }
-
-    if (height != 0)
-    {
-        height *= layout.items.size();
-        height += theme.padding * (layout.items.size() - 1);
-    }
-
-    width = std::max(width, metrics.switch_.getWidth() + theme.borderSize * 2 + theme.padding * 3);
-    height += metrics.switch_.getHeight() + theme.borderSize * 2 + theme.padding * 3;
-
-    mainWidget.setSize(width, metrics.switch_.getHeight());
-    setSize(width, height);
-}
-
-template<class tMainWidget>
-void QuantumGroupWithVerticallyStackedLayout<tMainWidget>::showAll()
-{
-    show();
-    mainWidget.show();
-
-    for (HorizontalLayout* l : layout.items)
-    {
-        for (SubWidgetWithSizeHint& s : l->widgets)
-            s.widget->show();
-    }
-}
-
-template<class tMainWidget>
-void QuantumGroupWithVerticallyStackedLayout<tMainWidget>::hideAll()
-{
-    hide();
-    mainWidget.hide();
-
-    for (HorizontalLayout* l : layout.items)
-    {
-        for (SubWidgetWithSizeHint& s : l->widgets)
-            s.widget->hide();
-    }
-}
-
-template<class tMainWidget>
-void QuantumGroupWithVerticallyStackedLayout<tMainWidget>::onNanoDisplay()
-{
-    beginPath();
-    rect(0, mainWidget.getHeight() + theme.padding, getWidth(), getHeight() - mainWidget.getHeight() - theme.padding);
-    fillColor(theme.widgetBackgroundColor);
-    fill();
-
-    beginPath();
-    rect(theme.borderSize, mainWidget.getHeight() + theme.padding + theme.borderSize,
-         getWidth() - theme.borderSize * 2, getHeight() - mainWidget.getHeight() - theme.padding - theme.borderSize * 2);
-    fillColor(theme.windowBackgroundColor);
-    fill();
-}
-
-template<>
-void QuantumGroupWithVerticallyStackedLayout<QuantumSwitch>::onNanoDisplay()
-{
-    beginPath();
-    rect(0, mainWidget.getHeight() + theme.padding, getWidth(), getHeight() - mainWidget.getHeight() - theme.padding);
-    fillColor(theme.widgetBackgroundColor);
-    fill();
-
-    beginPath();
-    rect(theme.borderSize, mainWidget.getHeight() + theme.padding + theme.borderSize,
-         getWidth() - theme.borderSize * 2, getHeight() - mainWidget.getHeight() - theme.padding - theme.borderSize * 2);
-    fillColor(mainWidget.isChecked() ? theme.windowBackgroundColor : Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.75f));
-    fill();
-}
-
-template<class tMainWidget>
-void QuantumGroupWithVerticallyStackedLayout<tMainWidget>::onPositionChanged(const PositionChangedEvent& ev)
-{
-    mainWidget.setAbsolutePos(ev.pos.getX(), ev.pos.getY());
-    layout.setAbsolutePos(ev.pos.getX() + theme.borderSize + theme.padding,
-                          mainWidget.getAbsoluteY() + mainWidget.getHeight() + theme.borderSize + theme.padding * 2, theme.padding);
-}
-
-template<class tMainWidget>
-void QuantumGroupWithVerticallyStackedLayout<tMainWidget>::onResize(const ResizeEvent& ev)
-{
-    layout.setWidth(ev.size.getWidth() - theme.borderSize * 2 - theme.padding * 2, theme.padding);
-    NanoSubWidget::onResize(ev);
-}
-
-template class QuantumGroupWithVerticallyStackedLayout<QuantumLabel>;
-template class QuantumGroupWithVerticallyStackedLayout<QuantumSwitch>;
-*/
 
 // --------------------------------------------------------------------------------------------------------------------
 
