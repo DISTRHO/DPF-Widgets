@@ -19,6 +19,7 @@
 #include "EventHandlers.hpp"
 #include "Layout.hpp"
 #include "NanoVG.hpp"
+#include "SubWidget.hpp"
 
 START_NAMESPACE_DGL
 
@@ -60,6 +61,7 @@ struct QuantumTheme {
 struct QuantumMetrics
 {
     Size<uint> button;
+    Size<uint> frame;
     Size<uint> label;
     Size<uint> switch_;
     Size<uint> knob;
@@ -70,7 +72,9 @@ struct QuantumMetrics
     explicit QuantumMetrics(const QuantumTheme& theme) noexcept
         : button(theme.textHeight + theme.borderSize * 2,
                  theme.textHeight + theme.borderSize * 2),
-          label(theme.textHeight,
+          frame(theme.borderSize * 2 + theme.padding * 2,
+                theme.borderSize * 2 + theme.padding * 2),
+          label(0,
                 theme.textHeight),
           switch_(theme.textHeight * 2 + theme.borderSize * 2,
                  theme.textHeight / 2 + theme.borderSize * 2),
@@ -97,6 +101,7 @@ class QuantumButton : public NanoSubWidget,
 
 public:
     explicit QuantumButton(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumButton(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumButton() override;
 
     inline Color getBackgroundColor() const noexcept
@@ -109,8 +114,9 @@ public:
         return label;
     }
 
+    void adjustSize();
     void setBackgroundColor(Color color);
-    void setLabel(const char* label, bool adjustWidth = true);
+    void setLabel(const char* label, bool adjustSizeNow = true);
 
 protected:
     void onNanoDisplay() override;
@@ -131,6 +137,7 @@ class QuantumLabel : public NanoSubWidget
 
 public:
     explicit QuantumLabel(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumLabel(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumLabel() override;
 
     inline uint getAlignment() const noexcept
@@ -143,13 +150,28 @@ public:
         return label;
     }
 
+    void adjustSize();
     void setAlignment(uint alignment);
-    void setLabel(const char* label, bool adjustWidth = true);
+    void setLabel(const char* label, bool adjustSizeNow = true);
 
 protected:
     void onNanoDisplay() override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumLabel)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+class QuantumSpacer : public SubWidget
+{
+public:
+    explicit QuantumSpacer(TopLevelWidget* parent);
+    explicit QuantumSpacer(SubWidget* parent);
+
+protected:
+    void onDisplay() override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumSpacer)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -162,6 +184,7 @@ class QuantumSwitch : public NanoSubWidget,
 
 public:
     explicit QuantumSwitch(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumSwitch(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumSwitch() override;
 
     inline const char* getLabel() const noexcept
@@ -169,8 +192,10 @@ public:
         return label;
     }
 
+    void adjustSize();
+
     // width changes when called
-    void setLabel(const char* label);
+    void setLabel(const char* label, bool adjustSizeNow = true);
 
 protected:
     void onNanoDisplay() override;
@@ -182,6 +207,7 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
+/*
 class QuantumDualSidedSwitch : public NanoSubWidget,
                                public ButtonEventHandler
 {
@@ -203,6 +229,7 @@ protected:
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumDualSidedSwitch)
 };
+*/
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -214,6 +241,7 @@ class QuantumKnob : public NanoSubWidget,
 
 public:
     explicit QuantumKnob(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumKnob(NanoSubWidget* parent, const QuantumTheme& theme);
 
     inline Color getBackgroundColor() const noexcept
     {
@@ -240,6 +268,7 @@ class QuantumMixerSlider : public NanoSubWidget,
 
 public:
     explicit QuantumMixerSlider(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumMixerSlider(NanoSubWidget* parent, const QuantumTheme& theme);
 
 protected:
     void onNanoDisplay() override;
@@ -263,6 +292,7 @@ public:
     };
 
     explicit QuantumValueMeter(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumValueMeter(NanoSubWidget* parent, const QuantumTheme& theme);
 
     inline Color getBackgroundColor() const noexcept
     {
@@ -310,6 +340,7 @@ class QuantumValueSlider : public NanoSubWidget,
 
 public:
     explicit QuantumValueSlider(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumValueSlider(NanoSubWidget* parent, const QuantumTheme& theme);
 
     inline Color getBackgroundColor() const noexcept
     {
@@ -344,6 +375,7 @@ class QuantumLevelMeter : public QuantumValueMeter,
 
 public:
     explicit QuantumLevelMeter(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumLevelMeter(NanoSubWidget* parent, const QuantumTheme& theme);
 
 protected:
     void onNanoDisplay() override;
@@ -395,60 +427,42 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class QuantumFrameGroup : public NanoSubWidget
+template<class tMainWidget>
+class AbstractQuantumFrame : public NanoSubWidget
 {
     const QuantumTheme& theme;
 
 public:
-    explicit QuantumFrameGroup(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit AbstractQuantumFrame(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit AbstractQuantumFrame(NanoSubWidget* parent, const QuantumTheme& theme);
+
+    // publicly exposed for convenience, do not resize or reposition
+    tMainWidget mainWidget;
+
+    void adjustMainWidgetSize();
+
+    inline uint getOffset() const noexcept
+    {
+        return offset;
+    }
 
 protected:
     void onNanoDisplay() override;
     void onPositionChanged(const PositionChangedEvent& ev) override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumFrameGroup)
+private:
+    uint offset = 0;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AbstractQuantumFrame)
 };
+
+typedef AbstractQuantumFrame<char> QuantumFrame;
+typedef AbstractQuantumFrame<QuantumLabel> QuantumFrameWithLabel;
+typedef AbstractQuantumFrame<QuantumSwitch> QuantumFrameWithSwitch;
 
 // --------------------------------------------------------------------------------------------------------------------
 
-// fixed meter, expanding label
-struct QuantumValueMeterWithLabel : HorizontalLayout
-{
-    QuantumValueMeter meter;
-    QuantumLabel label;
-
-    explicit QuantumValueMeterWithLabel(TopLevelWidget* parent, const QuantumTheme& theme);
-};
-
-// fixed slider, expanding label
-struct QuantumValueSliderWithLabel : HorizontalLayout
-{
-    QuantumValueSlider slider;
-    QuantumLabel label;
-
-    explicit QuantumValueSliderWithLabel(TopLevelWidget* parent, const QuantumTheme& theme);
-};
-
-// sliders on both sides, center expanding label
-struct QuantumDualValueSliderWithCenterLabel : HorizontalLayout
-{
-    QuantumValueSlider sliderL;
-    QuantumLabel label;
-    QuantumValueSlider sliderR;
-
-    explicit QuantumDualValueSliderWithCenterLabel(TopLevelWidget* parent, const QuantumTheme& theme);
-};
-
-// single expanding switch
-struct QuantumSwitchWithLayout : HorizontalLayout
-{
-    QuantumSwitch switch_;
-
-    explicit QuantumSwitchWithLayout(TopLevelWidget* parent, const QuantumTheme& theme);
-};
-
-// --------------------------------------------------------------------------------------------------------------------
-
+/*
 template<class tMainWidget>
 class QuantumGroupWithVerticallyStackedLayout : public NanoSubWidget
 {
@@ -477,6 +491,7 @@ protected:
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumGroupWithVerticallyStackedLayout)
 };
+*/
 
 // --------------------------------------------------------------------------------------------------------------------
 

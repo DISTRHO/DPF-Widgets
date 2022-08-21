@@ -16,6 +16,8 @@
 
 #include "Quantum.hpp"
 #include "DistrhoUtils.hpp"
+#include "NanoVG.hpp"
+#include "SubWidget.hpp"
 
 #include <cmath>
 
@@ -32,33 +34,49 @@ QuantumButton::QuantumButton(TopLevelWidget* const parent, const QuantumTheme& t
     setSize(QuantumMetrics(t).button);
 }
 
+QuantumButton::QuantumButton(NanoSubWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      ButtonEventHandler(this),
+      theme(t)
+{
+    loadSharedResources();
+    setSize(QuantumMetrics(t).button);
+}
+
 QuantumButton::~QuantumButton()
 {
     std::free(label);
 }
 
-void QuantumButton::setLabel(const char* const label2, const bool adjustWidth)
+void QuantumButton::adjustSize()
 {
-    std::free(label);
-    label = label2 != nullptr ? strdup(label2) : nullptr;
+    uint width = theme.textHeight + theme.borderSize * 2;
+    uint height = theme.borderSize * 2;
 
-    if (!adjustWidth)
-        return;
-
-    uint width = theme.textHeight + theme.borderSize * 2 + theme.padding;
-
-    if (label != nullptr)
+    if (label != nullptr && label[0] != '\0')
     {
-        width += theme.padding;
-
         Rectangle<float> bounds;
         fontSize(theme.fontSize);
 
         textBounds(0, 0, label, nullptr, bounds);
-        width += bounds.getWidth();
+        width += theme.padding * 2 + static_cast<uint>(bounds.getWidth() + 0.5f);
+        height += std::max(static_cast<uint>(bounds.getHeight() + 0.5f), theme.textHeight);
+    }
+    else
+    {
+        height += theme.textHeight;
     }
 
-    setWidth(width);
+    setSize(width, height);
+}
+
+void QuantumButton::setLabel(const char* const label2, const bool adjustSizeNow)
+{
+    std::free(label);
+    label = label2 != nullptr ? strdup(label2) : nullptr;
+
+    if (adjustSizeNow)
+        adjustSize();
 }
 
 void QuantumButton::onNanoDisplay()
@@ -97,7 +115,7 @@ void QuantumButton::onNanoDisplay()
 
     fill();
 
-    if (label != nullptr)
+    if (label != nullptr && label[0] != '\0')
     {
         fillColor(theme.textLightColor);
         fontSize(theme.fontSize);
@@ -126,9 +144,39 @@ QuantumLabel::QuantumLabel(TopLevelWidget* const parent, const QuantumTheme& t)
     setSize(QuantumMetrics(t).label);
 }
 
+QuantumLabel::QuantumLabel(NanoSubWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      theme(t)
+{
+    loadSharedResources();
+    setSize(QuantumMetrics(t).label);
+}
+
 QuantumLabel::~QuantumLabel()
 {
     std::free(label);
+}
+
+void QuantumLabel::adjustSize()
+{
+    uint width, height;
+
+    if (label != nullptr && label[0] != '\0')
+    {
+        Rectangle<float> bounds;
+        fontSize(theme.fontSize);
+
+        textBounds(0, 0, label, nullptr, bounds);
+        width = static_cast<uint>(bounds.getWidth() + 0.5f);
+        height = std::max(static_cast<uint>(bounds.getHeight() + 0.5f), theme.textHeight);
+    }
+    else
+    {
+        width = 0;
+        height = theme.textHeight;
+    }
+
+    setSize(width, height);
 }
 
 void QuantumLabel::setAlignment(const uint alignment2)
@@ -140,31 +188,18 @@ void QuantumLabel::setAlignment(const uint alignment2)
     repaint();
 }
 
-void QuantumLabel::setLabel(const char* const label2, const bool adjustWidth)
+void QuantumLabel::setLabel(const char* const label2, const bool adjustSizeNow)
 {
     std::free(label);
     label = label2 != nullptr ? strdup(label2) : nullptr;
 
-    if (!adjustWidth)
-        return;
-
-    uint width = theme.textHeight;
-
-    if (label != nullptr)
-    {
-        Rectangle<float> bounds;
-        fontSize(theme.fontSize);
-
-        textBounds(0, 0, label, nullptr, bounds);
-        width += bounds.getWidth();
-    }
-
-    setWidth(width);
+    if (adjustSizeNow)
+        adjustSize();
 }
 
 void QuantumLabel::onNanoDisplay()
 {
-    if (label == nullptr)
+    if (label == nullptr || label[0] == '\0')
         return;
 
     fillColor(theme.textLightColor);
@@ -184,7 +219,29 @@ void QuantumLabel::onNanoDisplay()
 
 // --------------------------------------------------------------------------------------------------------------------
 
+QuantumSpacer::QuantumSpacer(TopLevelWidget* const parent)
+    : SubWidget(parent) {}
+
+QuantumSpacer::QuantumSpacer(SubWidget* const parent)
+    : SubWidget(parent) {}
+
+void QuantumSpacer::onDisplay()
+{
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 QuantumSwitch::QuantumSwitch(TopLevelWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      ButtonEventHandler(this),
+      theme(t)
+{
+    loadSharedResources();
+    setCheckable(true);
+    setSize(QuantumMetrics(t).switch_);
+}
+
+QuantumSwitch::QuantumSwitch(NanoSubWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       ButtonEventHandler(this),
       theme(t)
@@ -199,45 +256,62 @@ QuantumSwitch::~QuantumSwitch()
     std::free(label);
 }
 
-void QuantumSwitch::setLabel(const char* const label2)
+void QuantumSwitch::adjustSize()
+{
+    uint width = theme.textHeight + theme.borderSize * 2;
+    uint height = theme.borderSize * 2;
+
+    if (label != nullptr && label[0] != '\0')
+    {
+        Rectangle<float> bounds;
+        fontSize(theme.fontSize);
+
+        textBounds(0, 0, label, nullptr, bounds);
+        width += theme.padding * 3 + static_cast<uint>(bounds.getWidth() + 0.5f);
+        height += std::max(static_cast<uint>(bounds.getHeight() + 0.5f), theme.textHeight / 2);
+    }
+    else
+    {
+        height += theme.textHeight / 2;
+    }
+
+    setSize(width, height);
+}
+
+void QuantumSwitch::setLabel(const char* const label2, const bool adjustSizeNow)
 {
     std::free(label);
-    label = strdup(label2);
+    label = label2 != nullptr ? strdup(label2) : nullptr;
 
-    Rectangle<float> bounds;
-    fontSize(16);
-
-    uint width = theme.textHeight + theme.borderSize * 2 + theme.padding * 3;
-
-    textBounds(0, 0, label2, nullptr, bounds);
-    width += bounds.getWidth();
-
-    setWidth(width);
+    if (adjustSizeNow)
+        adjustSize();
 }
 
 void QuantumSwitch::onNanoDisplay()
 {
     const bool checked = isChecked();
 
+    const int yOffset = (getHeight() - theme.textHeight / 2 - theme.borderSize * 2) / 2;
+
     beginPath();
-    rect(0, 0, theme.textHeight + theme.borderSize * 2, getHeight());
+    rect(0, yOffset, theme.textHeight + theme.borderSize * 2, theme.textHeight / 2 + theme.borderSize * 2);
     fillColor(theme.widgetBackgroundColor);
     fill();
 
     beginPath();
     if (checked)
     {
-        rect(theme.borderSize, theme.borderSize, theme.textHeight / 2, theme.textHeight / 2);
+        rect(theme.borderSize, yOffset + theme.borderSize, theme.textHeight / 2, theme.textHeight / 2);
         fillColor(Color::fromHTML("#3f535a"));
     }
     else
     {
-        rect(theme.borderSize + theme.textHeight / 2 , theme.borderSize, theme.textHeight / 2, theme.textHeight / 2);
+        rect(theme.borderSize + theme.textHeight / 2 , yOffset + theme.borderSize, theme.textHeight / 2, theme.textHeight / 2);
         fillColor(theme.textDarkColor);
     }
     fill();
 
-    if (label != nullptr)
+    if (label != nullptr && label[0] != '\0')
     {
         fillColor(checked ? Color(255, 255, 255) : theme.textMidColor);
         fontSize(theme.fontSize);
@@ -258,6 +332,7 @@ bool QuantumSwitch::onMotion(const MotionEvent& ev)
 
 // --------------------------------------------------------------------------------------------------------------------
 
+/*
 QuantumDualSidedSwitch::QuantumDualSidedSwitch(TopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       ButtonEventHandler(this),
@@ -345,10 +420,19 @@ bool QuantumDualSidedSwitch::onMotion(const MotionEvent& ev)
 {
     return motionEvent(ev);
 }
+*/
 
 // --------------------------------------------------------------------------------------------------------------------
 
 QuantumKnob::QuantumKnob(TopLevelWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      KnobEventHandler(this),
+      theme(t)
+{
+    setSize(QuantumMetrics(t).knob);
+}
+
+QuantumKnob::QuantumKnob(NanoSubWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       KnobEventHandler(this),
       theme(t)
@@ -411,6 +495,14 @@ bool QuantumKnob::onScroll(const ScrollEvent& ev)
 // --------------------------------------------------------------------------------------------------------------------
 
 QuantumMixerSlider::QuantumMixerSlider(TopLevelWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      KnobEventHandler(this),
+      theme(t)
+{
+    setSize(30, 128);
+}
+
+QuantumMixerSlider::QuantumMixerSlider(NanoSubWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       KnobEventHandler(this),
       theme(t)
@@ -567,6 +659,14 @@ QuantumValueMeter::QuantumValueMeter(TopLevelWidget* const parent, const Quantum
     setSize(QuantumMetrics(t).valueMeterHorizontal);
 }
 
+QuantumValueMeter::QuantumValueMeter(NanoSubWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      theme(t)
+{
+    loadSharedResources();
+    setSize(QuantumMetrics(t).valueMeterHorizontal);
+}
+
 void QuantumValueMeter::setBackgroundColor(Color color)
 {
     backgroundColor = color;
@@ -676,6 +776,16 @@ QuantumValueSlider::QuantumValueSlider(TopLevelWidget* const parent, const Quant
     setSize(QuantumMetrics(t).valueSlider);
 }
 
+QuantumValueSlider::QuantumValueSlider(NanoSubWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      KnobEventHandler(this),
+      theme(t)
+{
+    loadSharedResources();
+    setOrientation(Horizontal);
+    setSize(QuantumMetrics(t).valueSlider);
+}
+
 void QuantumValueSlider::setBackgroundColor(Color color)
 {
     backgroundColor = color;
@@ -753,6 +863,14 @@ bool QuantumValueSlider::onScroll(const ScrollEvent& ev)
 // --------------------------------------------------------------------------------------------------------------------
 
 QuantumLevelMeter::QuantumLevelMeter(TopLevelWidget* const parent, const QuantumTheme& t)
+    : QuantumValueMeter(parent, t)
+{
+    loadSharedResources();
+    setBackgroundColor(Color(93, 231, 61));
+    setOrientation(BottomToTop);
+}
+
+QuantumLevelMeter::QuantumLevelMeter(NanoSubWidget* const parent, const QuantumTheme& t)
     : QuantumValueMeter(parent, t)
 {
     loadSharedResources();
@@ -896,79 +1014,131 @@ void QuantumValueMeter17::onNanoDisplay()
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumFrameGroup::QuantumFrameGroup(TopLevelWidget* const parent, const QuantumTheme& t)
+template<class tMainWidget>
+AbstractQuantumFrame<tMainWidget>::AbstractQuantumFrame(TopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       theme(t)
 {
     setSize(32, 32);
 }
 
-void QuantumFrameGroup::onNanoDisplay()
+template<class tMainWidget>
+AbstractQuantumFrame<tMainWidget>::AbstractQuantumFrame(NanoSubWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      theme(t)
+{
+    setSize(32, 32);
+}
+
+template<class tMainWidget>
+void AbstractQuantumFrame<tMainWidget>::adjustMainWidgetSize()
+{
+}
+
+template<class tMainWidget>
+void AbstractQuantumFrame<tMainWidget>::onNanoDisplay()
 {
     beginPath();
-    rect(0, 0, getWidth(), getHeight());
+    rect(0, offset, getWidth(), getHeight());
     fillColor(theme.widgetBackgroundColor);
     fill();
 
     beginPath();
-    rect(theme.borderSize, theme.borderSize, getWidth() - theme.borderSize * 2, getHeight() - theme.borderSize * 2);
-    fillColor(Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f));
+    rect(theme.borderSize, offset + theme.borderSize, getWidth() - theme.borderSize * 2, getHeight() - theme.borderSize * 2 - offset);
+    fillColor(offset != 0 ? theme.windowBackgroundColor : Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f));
     fill();
 }
 
-void QuantumFrameGroup::onPositionChanged(const PositionChangedEvent& ev)
+template<class tMainWidget>
+void AbstractQuantumFrame<tMainWidget>::onPositionChanged(const PositionChangedEvent&)
 {
-    const int diffX = ev.pos.getX() - ev.oldPos.getX();
-    const int diffY = ev.pos.getY() - ev.oldPos.getY();
-
-    for (SubWidget* w : getChildren())
-        w->setAbsolutePos(w->getAbsoluteX() + diffX, w->getAbsoluteY() + diffY);
 }
+
+template class AbstractQuantumFrame<char>;
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumValueMeterWithLabel::QuantumValueMeterWithLabel(TopLevelWidget* parent, const QuantumTheme& theme)
-    : meter(parent, theme),
-      label(parent, theme)
+template<>
+AbstractQuantumFrame<QuantumLabel>::AbstractQuantumFrame(TopLevelWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      theme(t),
+      mainWidget(this, t)
 {
-    widgets.push_back({ &meter, Fixed });
-    widgets.push_back({ &label, Expanding });
+    mainWidget.setAbsolutePos(theme.borderSize, 0);
+    mainWidget.setName("+ label");
+    setSize(QuantumMetrics(t).frame);
 }
+
+template<>
+AbstractQuantumFrame<QuantumLabel>::AbstractQuantumFrame(NanoSubWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      theme(t),
+      mainWidget(this, t)
+{
+    mainWidget.setAbsolutePos(theme.borderSize, 0);
+    mainWidget.setName("+ label");
+    setSize(QuantumMetrics(t).frame);
+}
+
+template<>
+void AbstractQuantumFrame<QuantumLabel>::adjustMainWidgetSize()
+{
+    mainWidget.adjustSize();
+
+    // keep switch vs label height consistent
+    offset = QuantumMetrics(theme).switch_.getHeight() + theme.padding + theme.borderSize;
+}
+
+template<>
+void AbstractQuantumFrame<QuantumLabel>::onPositionChanged(const PositionChangedEvent& ev)
+{
+    mainWidget.setAbsolutePos(ev.pos.getX() + theme.borderSize, ev.pos.getY());
+}
+
+template class AbstractQuantumFrame<QuantumLabel>;
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumValueSliderWithLabel::QuantumValueSliderWithLabel(TopLevelWidget* const parent, const QuantumTheme& theme)
-    : slider(parent, theme),
-      label(parent, theme)
+template<>
+AbstractQuantumFrame<QuantumSwitch>::AbstractQuantumFrame(TopLevelWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      theme(t),
+      mainWidget(this, t)
 {
-    widgets.push_back({ &slider, Fixed });
-    widgets.push_back({ &label, Expanding });
+    mainWidget.setAbsolutePos(theme.borderSize, 0);
+    mainWidget.setName("+ switch");
+    setSize(QuantumMetrics(t).frame);
 }
+
+template<>
+AbstractQuantumFrame<QuantumSwitch>::AbstractQuantumFrame(NanoSubWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      theme(t),
+      mainWidget(this, t)
+{
+    mainWidget.setAbsolutePos(theme.borderSize, 0);
+    mainWidget.setName("+ switch");
+    setSize(QuantumMetrics(t).frame);
+}
+
+template<>
+void AbstractQuantumFrame<QuantumSwitch>::adjustMainWidgetSize()
+{
+    mainWidget.adjustSize();
+    offset = QuantumMetrics(theme).switch_.getHeight() + theme.padding + theme.borderSize;
+}
+
+template<>
+void AbstractQuantumFrame<QuantumSwitch>::onPositionChanged(const PositionChangedEvent& ev)
+{
+    mainWidget.setAbsolutePos(ev.pos.getX() + theme.borderSize, ev.pos.getY());
+}
+
+template class AbstractQuantumFrame<QuantumSwitch>;
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumDualValueSliderWithCenterLabel::QuantumDualValueSliderWithCenterLabel(TopLevelWidget* parent, const QuantumTheme& theme)
-    : sliderL(parent, theme),
-      label(parent, theme),
-      sliderR(parent, theme)
-{
-    label.setAlignment(NanoVG::ALIGN_MIDDLE|NanoVG::ALIGN_CENTER);
-
-    widgets.push_back({ &sliderL, Fixed });
-    widgets.push_back({ &label, Expanding });
-    widgets.push_back({ &sliderR, Fixed });
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-
-QuantumSwitchWithLayout::QuantumSwitchWithLayout(TopLevelWidget* parent, const QuantumTheme& theme)
-    : switch_(parent, theme)
-{
-    widgets.push_back({ &switch_, Expanding });
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-
+/*
 template<class tMainWidget>
 QuantumGroupWithVerticallyStackedLayout<tMainWidget>::QuantumGroupWithVerticallyStackedLayout(TopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
@@ -1102,6 +1272,7 @@ void QuantumGroupWithVerticallyStackedLayout<tMainWidget>::onResize(const Resize
 
 template class QuantumGroupWithVerticallyStackedLayout<QuantumLabel>;
 template class QuantumGroupWithVerticallyStackedLayout<QuantumSwitch>;
+*/
 
 // --------------------------------------------------------------------------------------------------------------------
 
