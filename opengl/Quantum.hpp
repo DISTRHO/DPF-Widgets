@@ -63,6 +63,7 @@ struct QuantumMetrics
     Size<uint> button;
     Size<uint> frame;
     Size<uint> label;
+    Size<uint> separator;
     Size<uint> switch_;
     Size<uint> knob;
     Size<uint> valueMeterHorizontal;
@@ -74,8 +75,10 @@ struct QuantumMetrics
                  theme.textHeight + theme.borderSize * 2),
           frame(theme.borderSize * 2 + theme.padding * 2,
                 theme.borderSize * 2 + theme.padding * 2),
-          label(0,
+          label(theme.padding,
                 theme.textHeight),
+          separator(theme.textHeight,
+                    theme.borderSize),
           switch_(theme.textHeight * 2 + theme.borderSize * 2,
                  theme.textHeight / 2 + theme.borderSize * 2),
           knob(theme.textHeight * 3 / 2,
@@ -158,6 +161,22 @@ protected:
     void onNanoDisplay() override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumLabel)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+class QuantumSeparatorLine : public NanoSubWidget
+{
+    const QuantumTheme& theme;
+
+public:
+    explicit QuantumSeparatorLine(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumSeparatorLine(NanoSubWidget* parent, const QuantumTheme& theme);
+
+protected:
+    void onNanoDisplay() override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumSeparatorLine)
 };
 
 // --------------------------------------------------------------------------------------------------------------------

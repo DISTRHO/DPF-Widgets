@@ -167,12 +167,12 @@ void QuantumLabel::adjustSize()
         fontSize(theme.fontSize);
 
         textBounds(0, 0, label, nullptr, bounds);
-        width = static_cast<uint>(bounds.getWidth() + 0.5f);
+        width = std::max(static_cast<uint>(bounds.getWidth() + 0.5f), theme.padding);
         height = std::max(static_cast<uint>(bounds.getHeight() + 0.5f), theme.textHeight);
     }
     else
     {
-        width = 0;
+        width = theme.padding;
         height = theme.textHeight;
     }
 
@@ -215,6 +215,30 @@ void QuantumLabel::onNanoDisplay()
         y = 0;
 
     textBox(0, y, getWidth(), label);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+QuantumSeparatorLine::QuantumSeparatorLine(TopLevelWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      theme(t)
+{
+    setSize(QuantumMetrics(t).separator);
+}
+
+QuantumSeparatorLine::QuantumSeparatorLine(NanoSubWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      theme(t)
+{
+    setSize(QuantumMetrics(t).separator);
+}
+
+void QuantumSeparatorLine::onNanoDisplay()
+{
+    beginPath();
+    rect(0, static_cast<int>(getHeight()/2), getWidth(), theme.borderSize);
+    fillColor(theme.widgetBackgroundColor);
+    fill();
 }
 
 // --------------------------------------------------------------------------------------------------------------------
