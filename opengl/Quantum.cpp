@@ -953,22 +953,10 @@ void QuantumStereoLevelMeterWithLUFS::setValueLufs(const float value)
 
 void QuantumStereoLevelMeterWithLUFS::setValues(const float l, const float r, const float lufs)
 {
-    valueL = l;
-    valueR = r;
+    falloffL = valueL = l;
+    falloffR = valueR = r;
     valueLufs = lufs;
-
-    if (l >= falloffL)
-    {
-        falloffL = l;
-        timeL = 0.0;
-    }
-
-    if (r >= falloffR)
-    {
-        falloffR = r;
-        timeR = 0.0;
-    }
-
+    timeL = timeR = 0.0;
     repaint();
 }
 
@@ -990,7 +978,8 @@ float normalizedLevelMeterValue(const float db)
 void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
 {
     const float verticalReservedHeight = theme.textHeight;
-    const float usableMeterHeight = getHeight() - verticalReservedHeight * 2;
+    const float usableMeterHeight = getHeight() - verticalReservedHeight * 3;
+    const float centerX = static_cast<float>(getWidth()) / 2;
 
     beginPath();
     rect(0, verticalReservedHeight, getWidth(), usableMeterHeight);
@@ -1000,7 +989,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     float value;
     char valuestr[32] = {};
 
-    const float meterChannelWidth = (getWidth() - theme.borderSize * 4 - theme.widgetLineSize) / 2;
+    const float meterChannelWidth = static_cast<float>(getWidth() - theme.borderSize * 4 - theme.widgetLineSize) / 2;
     const float meterChannelHeight = usableMeterHeight - theme.borderSize * 2;
 
     // alternate background
@@ -1087,7 +1076,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         fillColor(theme.levelMeterAlternativeColor.withAlpha(0.5f));
         fill();
 
-        std::snprintf(valuestr, sizeof(valuestr)-1, "%.0f", valueR);
+        std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", valueLufs);
     }
     else
     {
@@ -1097,8 +1086,8 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     fillColor(theme.textLightColor);
     fontSize(theme.fontSize);
     textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
-    text(getWidth() / 2,
-         getHeight() - theme.borderSize, valuestr, nullptr);
+    text(centerX, getHeight() - theme.borderSize - theme.textHeight, valuestr, nullptr);
+    text(centerX, getHeight() - theme.borderSize, "LUFS", nullptr);
 
     // falloff
     if (d_isNotEqual(valueL, falloffL))
@@ -1109,7 +1098,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         beginPath();
         moveTo(theme.borderSize, y);
         lineTo(meterChannelWidth, y);
-        strokeColor(theme.levelMeterColor);
+        strokeColor(theme.levelMeterColor.withAlpha(0.5f));
         strokeWidth(theme.widgetLineSize);
         stroke();
     }
@@ -1122,7 +1111,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         beginPath();
         moveTo(meterChannelWidth + theme.borderSize * 3 + theme.widgetLineSize, y);
         lineTo(meterChannelWidth * 2 + theme.borderSize * 3 + theme.widgetLineSize, y);
-        strokeColor(theme.levelMeterColor);
+        strokeColor(theme.levelMeterColor.withAlpha(0.5f));
         strokeWidth(theme.widgetLineSize);
         stroke();
     }
@@ -1133,15 +1122,15 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     constexpr const float db20 = 1.f - normalizedLevelMeterValue(-20);
     constexpr const float db30 = 1.f - normalizedLevelMeterValue(-30);
     constexpr const float db40 = 1.f - normalizedLevelMeterValue(-40);
-    const float centerX = getWidth() / 2;
     fillColor(theme.textLightColor);
     fontSize(theme.fontSize);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
-    text(centerX, theme.borderSize + usableMeterHeight * db5, "- 5 -", nullptr);
-    text(centerX, theme.borderSize + usableMeterHeight * db10, "- 10 -", nullptr);
-    text(centerX, theme.borderSize + usableMeterHeight * db20, "- 20 -", nullptr);
-    text(centerX, theme.borderSize + usableMeterHeight * db30, "- 30 -", nullptr);
-    text(centerX, theme.borderSize + usableMeterHeight * db40, "- 40 -", nullptr);
+    const float yOffset = theme.borderSize + verticalReservedHeight;
+    text(centerX, yOffset + usableMeterHeight * db5, "- 5 -", nullptr);
+    text(centerX, yOffset + usableMeterHeight * db10, "- 10 -", nullptr);
+    text(centerX, yOffset + usableMeterHeight * db20, "- 20 -", nullptr);
+    text(centerX, yOffset + usableMeterHeight * db30, "- 30 -", nullptr);
+    text(centerX, yOffset + usableMeterHeight * db40, "- 40 -", nullptr);
 }
 
 void QuantumStereoLevelMeterWithLUFS::idleCallback()
@@ -1151,7 +1140,11 @@ void QuantumStereoLevelMeterWithLUFS::idleCallback()
     lastTime = time;
 
     if (d_isZero(lastTime))
+    {
+        falloffL = valueL;
+        falloffR = valueR;
         return;
+    }
 
     // TESTING
     DISTRHO_SAFE_ASSERT_RETURN(falloffL >= valueL,);
