@@ -978,7 +978,7 @@ float normalizedLevelMeterValue(const float db)
 void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
 {
     const float verticalReservedHeight = theme.textHeight;
-    const float usableMeterHeight = getHeight() - verticalReservedHeight * 3;
+    const float usableMeterHeight = getHeight() - verticalReservedHeight * 2;
     const float centerX = static_cast<float>(getWidth()) / 2;
 
     beginPath();
@@ -989,29 +989,45 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     float value;
     char valuestr[32] = {};
 
-    const float meterChannelWidth = static_cast<float>(getWidth() - theme.borderSize * 4 - theme.widgetLineSize) / 2;
+    const float meterChannelWidth = theme.textHeight - theme.borderSize * 2;
     const float meterChannelHeight = usableMeterHeight - theme.borderSize * 2;
+
+    const float pxl = theme.borderSize;
+    const float pxlufs = theme.borderSize * 5 + meterChannelWidth;
+    const float pxr = theme.borderSize * 11 + meterChannelWidth * 3;
 
     // alternate background
     fillColor(Color(theme.windowBackgroundColor, theme.widgetBackgroundColor, 0.75f));
 
     beginPath();
-    rect(theme.borderSize,
+    rect(pxl,
          theme.borderSize + verticalReservedHeight,
          meterChannelWidth, meterChannelHeight);
     fill();
 
     beginPath();
-    rect(theme.borderSize + meterChannelWidth + theme.borderSize,
-            theme.borderSize + verticalReservedHeight,
-            theme.widgetLineSize,
-            meterChannelHeight);
+    rect(pxlufs,
+         theme.borderSize + verticalReservedHeight,
+         meterChannelWidth * 2 + theme.borderSize * 2, meterChannelHeight);
     fill();
 
     beginPath();
-    rect(theme.borderSize + meterChannelWidth + theme.borderSize * 2 + theme.widgetLineSize,
+    rect(pxr,
          theme.borderSize + verticalReservedHeight,
          meterChannelWidth, meterChannelHeight);
+    fill();
+
+    // fake spacer
+    fillColor(Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f));
+
+    beginPath();
+    rect(pxlufs - theme.borderSize * 3, verticalReservedHeight,
+         theme.borderSize * 2, meterChannelHeight + theme.borderSize * 2);
+    fill();
+
+    beginPath();
+    rect(pxr - theme.borderSize * 3, verticalReservedHeight,
+         theme.borderSize * 2, meterChannelHeight + theme.borderSize * 2);
     fill();
 
     // left channel
@@ -1020,7 +1036,8 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     if (d_isNotZero(value))
     {
         beginPath();
-        rect(theme.borderSize, theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
+        rect(pxl,
+             theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
              meterChannelWidth, meterChannelHeight * value);
         fillColor(theme.levelMeterColor.withAlpha(0.5f));
         fill();
@@ -1033,10 +1050,23 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     }
 
     fillColor(theme.textLightColor);
-    fontSize(10);
+    fontSize(theme.fontSize * 2 / 3);
     textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
-    text(theme.borderSize + meterChannelWidth / 2,
+    text(pxl + meterChannelWidth / 2,
          verticalReservedHeight, valuestr, nullptr);
+
+    if (d_isNotEqual(valueL, falloffL))
+    {
+        value = normalizedLevelMeterValue(falloffL);
+        const float y = theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value);
+
+        beginPath();
+        moveTo(pxl, y);
+        lineTo(pxl + meterChannelWidth, y);
+        strokeColor(theme.levelMeterColor.withAlpha(0.5f));
+        strokeWidth(theme.borderSize);
+        stroke();
+    }
 
     // right channel
     value = normalizedLevelMeterValue(valueR);
@@ -1044,7 +1074,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     if (d_isNotZero(value))
     {
         beginPath();
-        rect(theme.borderSize + meterChannelWidth + theme.borderSize * 2 + theme.widgetLineSize,
+        rect(pxr,
              theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
              meterChannelWidth, meterChannelHeight * value);
         fillColor(theme.levelMeterColor.withAlpha(0.5f));
@@ -1060,48 +1090,8 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     fillColor(theme.textLightColor);
     fontSize(theme.fontSize * 2 / 3);
     textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
-    text(theme.borderSize + meterChannelWidth + theme.borderSize * 3 + meterChannelWidth / 2,
+    text(pxr + meterChannelWidth / 2,
          verticalReservedHeight, valuestr, nullptr);
-
-    // lufs
-    value = normalizedLevelMeterValue(valueLufs);
-
-    if (d_isNotZero(value))
-    {
-        beginPath();
-        rect(theme.borderSize + meterChannelWidth + theme.borderSize,
-             theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
-             theme.widgetLineSize,
-             meterChannelHeight * value);
-        fillColor(theme.levelMeterAlternativeColor.withAlpha(0.5f));
-        fill();
-
-        std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", valueLufs);
-    }
-    else
-    {
-        std::strncpy(valuestr, "-inf", sizeof(valuestr)-1);
-    }
-
-    fillColor(theme.textLightColor);
-    fontSize(theme.fontSize);
-    textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
-    text(centerX, getHeight() - theme.borderSize - theme.textHeight, valuestr, nullptr);
-    text(centerX, getHeight() - theme.borderSize, "LUFS", nullptr);
-
-    // falloff
-    if (d_isNotEqual(valueL, falloffL))
-    {
-        value = normalizedLevelMeterValue(falloffL);
-        const float y = theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value);
-
-        beginPath();
-        moveTo(theme.borderSize, y);
-        lineTo(meterChannelWidth, y);
-        strokeColor(theme.levelMeterColor.withAlpha(0.5f));
-        strokeWidth(theme.widgetLineSize);
-        stroke();
-    }
 
     if (d_isNotEqual(valueR, falloffR))
     {
@@ -1109,12 +1099,38 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         const float y = theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value);
 
         beginPath();
-        moveTo(meterChannelWidth + theme.borderSize * 3 + theme.widgetLineSize, y);
-        lineTo(meterChannelWidth * 2 + theme.borderSize * 3 + theme.widgetLineSize, y);
+        moveTo(pxr, y);
+        lineTo(pxr + meterChannelWidth, y);
         strokeColor(theme.levelMeterColor.withAlpha(0.5f));
-        strokeWidth(theme.widgetLineSize);
+        strokeWidth(theme.borderSize);
         stroke();
     }
+
+    // lufs
+    value = normalizedLevelMeterValue(valueLufs);
+    // value = normalizedLevelMeterValue(-15.5);
+
+    if (d_isNotZero(value))
+    {
+        beginPath();
+        rect(pxlufs,
+             theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
+             meterChannelWidth * 2 + theme.borderSize * 2,
+             meterChannelHeight * value);
+        fillColor(Color(theme.levelMeterAlternativeColor, Color(), 0.5f));
+        fill();
+
+        std::snprintf(valuestr, sizeof(valuestr)-1, "LUFS: %.1f", valueLufs);
+    }
+    else
+    {
+        std::strncpy(valuestr, "LUFS: -inf", sizeof(valuestr)-1);
+    }
+
+    fillColor(theme.textLightColor);
+    fontSize(theme.fontSize);
+    textAlign(ALIGN_LEFT|ALIGN_BOTTOM);
+    text(theme.borderSize + theme.padding, getHeight() - theme.borderSize, valuestr, nullptr);
 
     // helper lines with labels
     constexpr const float db5 = 1.f - normalizedLevelMeterValue(-5);
