@@ -15,9 +15,9 @@
  */
 
 #include "Quantum.hpp"
-#include "DistrhoUtils.hpp"
 #include "NanoVG.hpp"
-#include "SubWidget.hpp"
+#include "Application.hpp"
+#include "DistrhoUtils.hpp"
 
 #include <cmath>
 
@@ -529,7 +529,7 @@ QuantumMixerSlider::QuantumMixerSlider(TopLevelWidget* const parent, const Quant
       KnobEventHandler(this),
       theme(t)
 {
-    setSize(30, 128);
+    setSize(QuantumMetrics(t).mixerSlider);
 }
 
 QuantumMixerSlider::QuantumMixerSlider(NanoSubWidget* const parent, const QuantumTheme& t)
@@ -537,7 +537,7 @@ QuantumMixerSlider::QuantumMixerSlider(NanoSubWidget* const parent, const Quantu
       KnobEventHandler(this),
       theme(t)
 {
-    setSize(30, 128);
+    setSize(QuantumMetrics(t).mixerSlider);
 }
 
 void QuantumMixerSlider::onNanoDisplay()
@@ -618,67 +618,6 @@ bool QuantumMixerSlider::onMotion(const MotionEvent& ev)
 bool QuantumMixerSlider::onScroll(const ScrollEvent& ev)
 {
     return scrollEvent(ev);
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-
-QuantumMixerSliderWithLevelMeter::QuantumMixerSliderWithLevelMeter(TopLevelWidget* const parent, const QuantumTheme& t)
-    : NanoSubWidget(parent),
-      theme(t),
-      meter(parent, t),
-      slider(parent, t)
-{
-    loadSharedResources();
-
-    meter.setName("+ Level Meter");
-    slider.setName("+ Mixer Slider");
-
-    const uint meteringHeight = 300;
-
-    meter.setAbsoluteX(theme.borderSize);
-    meter.setHeight(meteringHeight);
-
-    slider.setAbsoluteX(getWidth() - slider.getWidth() - theme.borderSize);
-    slider.setHeight(meteringHeight);
-
-    setSize(meter.getWidth() + slider.getWidth() + theme.borderSize * 3,
-            meteringHeight + theme.textHeight + theme.borderSize);
-}
-
-void QuantumMixerSliderWithLevelMeter::onNanoDisplay()
-{
-    /*
-    beginPath();
-    rect(0, getHeight() - theme.textHeight, getWidth(), theme.textHeight);
-    fillColor(theme.widgetBackgroundColor);
-    fill();
-
-    char valuestr[32] = {};
-    std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f dB", slider.getValue());
-
-    fontSize(16);
-    fillColor(theme.textLightColor);
-    textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
-    text(getWidth()/2, getHeight() - theme.textHeight/2, valuestr, nullptr);
-    */
-}
-
-void QuantumMixerSliderWithLevelMeter::onPositionChanged(const PositionChangedEvent& ev)
-{
-    const int x = getAbsoluteX();
-    const int y = getAbsoluteY();
-    meter.setAbsolutePos(x + theme.borderSize, y);
-    slider.setAbsolutePos(x + getWidth() - slider.getWidth() - theme.borderSize, y);
-}
-
-void QuantumMixerSliderWithLevelMeter::onResize(const ResizeEvent& ev)
-{
-    // const uint width  = ev.size.getWidth();
-    // const uint height = ev.size.getHeight();
-}
-
-void QuantumMixerSliderWithLevelMeter::idleCallback()
-{
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -940,73 +879,316 @@ void QuantumLevelMeter::onNanoDisplay()
         fillColor(backgroundColor);
         fill();
     }
+}
 
-#if 0
-    const float usableWidth = getWidth() - theme.borderSize * 2;
-    const float usableHeight = getHeight() - theme.borderSize * 2;
+// --------------------------------------------------------------------------------------------------------------------
 
-    // FIXME have linear value and do log scale on UI side
-    const float valuableHeight = usableHeight * std::min(1.f, std::max(0.f, value > -90.f ? std::pow(10.f, value * 0.05f) : 0.f));
+QuantumStereoLevelMeterWithLUFS::QuantumStereoLevelMeterWithLUFS(TopLevelWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      app(parent->getApp()),
+      theme(t)
+{
+    loadSharedResources();
+    setSize(QuantumMetrics(t).stereoLevelMeterWithLufs);
+    app.addIdleCallback(this);
+}
+
+QuantumStereoLevelMeterWithLUFS::QuantumStereoLevelMeterWithLUFS(NanoSubWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      app(parent->getApp()),
+      theme(t)
+{
+    loadSharedResources();
+    setSize(QuantumMetrics(t).stereoLevelMeterWithLufs);
+    app.addIdleCallback(this);
+}
+
+void QuantumStereoLevelMeterWithLUFS::setRange(const float min, const float max)
+{
+    minimum = min;
+    maximum = max;
+    repaint();
+}
+
+void QuantumStereoLevelMeterWithLUFS::setValueL(const float value)
+{
+    if (value >= falloffL)
+    {
+        falloffL = value;
+        timeL = 0.0;
+    }
+
+    if (d_isEqual(valueL, value))
+        return;
+
+    valueL = value;
+
+    repaint();
+}
+
+void QuantumStereoLevelMeterWithLUFS::setValueR(const float value)
+{
+    if (value >= falloffR)
+    {
+        falloffR = value;
+        timeR = 0.0;
+    }
+
+    if (d_isEqual(valueR, value))
+        return;
+
+    valueR = value;
+
+    repaint();
+}
+
+void QuantumStereoLevelMeterWithLUFS::setValueLufs(const float value)
+{
+    if (d_isEqual(valueLufs, value))
+        return;
+
+    valueLufs = value;
+    repaint();
+}
+
+void QuantumStereoLevelMeterWithLUFS::setValues(const float l, const float r, const float lufs)
+{
+    valueL = l;
+    valueR = r;
+    valueLufs = lufs;
+
+    if (l >= falloffL)
+    {
+        falloffL = l;
+        timeL = 0.0;
+    }
+
+    if (r >= falloffR)
+    {
+        falloffR = r;
+        timeR = 0.0;
+    }
+
+    repaint();
+}
+
+static inline constexpr
+float normalizedLevelMeterValue(const float db)
+{
+	return (
+        db < -70.f  ? 0.f :
+        db < -60.f ? (db + 70.f) * 0.25f :
+        db < -50.f ? (db + 60.f) * 0.50f +  2.5f :
+        db < -40.f ? (db + 50.f) * 0.75f +  7.5f :
+        db < -30.f ? (db + 40.f) * 1.50f + 15.0f :
+        db < -20.f ? (db + 30.f) * 2.00f + 30.0f :
+        db <   0.f ? (db + 20.f) * 2.50f + 50.0f :
+        100.f
+    ) / 100.f;
+}
+
+void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
+{
+    const float verticalReservedHeight = theme.textHeight;
+    const float usableMeterHeight = getHeight() - verticalReservedHeight * 2;
 
     beginPath();
-    rect(theme.borderSize, theme.borderSize + usableHeight - valuableHeight, usableWidth, valuableHeight);
-    fillColor(Color(93, 231, 61));
+    rect(0, verticalReservedHeight, getWidth(), usableMeterHeight);
+    fillColor(theme.widgetBackgroundColor);
     fill();
 
-    const float centerX = getWidth() / 2;
+    float value;
     char valuestr[32] = {};
 
-    fontSize(theme.fontSize);
-    textAlign(ALIGN_CENTER|ALIGN_TOP);
+    const float meterChannelWidth = (getWidth() - theme.borderSize * 4 - theme.widgetLineSize) / 2;
+    const float meterChannelHeight = usableMeterHeight - theme.borderSize * 2;
 
-    // clipping
-    if (value > 0.f)
+    // alternate background
+    fillColor(Color(theme.windowBackgroundColor, theme.widgetBackgroundColor, 0.75f));
+
+    beginPath();
+    rect(theme.borderSize,
+         theme.borderSize + verticalReservedHeight,
+         meterChannelWidth, meterChannelHeight);
+    fill();
+
+    beginPath();
+    rect(theme.borderSize + meterChannelWidth + theme.borderSize,
+            theme.borderSize + verticalReservedHeight,
+            theme.widgetLineSize,
+            meterChannelHeight);
+    fill();
+
+    beginPath();
+    rect(theme.borderSize + meterChannelWidth + theme.borderSize * 2 + theme.widgetLineSize,
+         theme.borderSize + verticalReservedHeight,
+         meterChannelWidth, meterChannelHeight);
+    fill();
+
+    // left channel
+    value = normalizedLevelMeterValue(valueL);
+
+    if (d_isNotZero(value))
     {
         beginPath();
-        rect(theme.borderSize, theme.borderSize, usableWidth, theme.textHeight);
-        fillColor(Color(200, 0, 0));
+        rect(theme.borderSize, theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
+             meterChannelWidth, meterChannelHeight * value);
+        fillColor(theme.levelMeterColor.withAlpha(0.5f));
         fill();
 
-        fillColor(theme.textLightColor);
-
-         // level value
-        std::snprintf(valuestr, sizeof(valuestr)-1, "+%.1f", value);
+        std::snprintf(valuestr, sizeof(valuestr)-1, "%.0f", valueL);
     }
     else
     {
-        fillColor(theme.textMidColor);
-
-        if (value < 120.f)
-            std::strncpy(valuestr, "-inf", sizeof(valuestr)-1);
-        else
-            std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", value);
+        std::strncpy(valuestr, "-inf", sizeof(valuestr)-1);
     }
 
-    text(centerX, theme.borderSize * 2, valuestr, nullptr);
+    fillColor(theme.textLightColor);
+    fontSize(10);
+    textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
+    text(theme.borderSize + meterChannelWidth / 2,
+         verticalReservedHeight, valuestr, nullptr);
 
-    fillColor(theme.textDarkColor);
+    // right channel
+    value = normalizedLevelMeterValue(valueR);
+
+    if (d_isNotZero(value))
+    {
+        beginPath();
+        rect(theme.borderSize + meterChannelWidth + theme.borderSize * 2 + theme.widgetLineSize,
+             theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
+             meterChannelWidth, meterChannelHeight * value);
+        fillColor(theme.levelMeterColor.withAlpha(0.5f));
+        fill();
+
+        std::snprintf(valuestr, sizeof(valuestr)-1, "%.0f", valueR);
+    }
+    else
+    {
+        std::strncpy(valuestr, "-inf", sizeof(valuestr)-1);
+    }
+
+    fillColor(theme.textLightColor);
+    fontSize(theme.fontSize * 2 / 3);
+    textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
+    text(theme.borderSize + meterChannelWidth + theme.borderSize * 3 + meterChannelWidth / 2,
+         verticalReservedHeight, valuestr, nullptr);
+
+    // lufs
+    value = normalizedLevelMeterValue(valueLufs);
+
+    if (d_isNotZero(value))
+    {
+        beginPath();
+        rect(theme.borderSize + meterChannelWidth + theme.borderSize,
+             theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
+             theme.widgetLineSize,
+             meterChannelHeight * value);
+        fillColor(theme.levelMeterAlternativeColor.withAlpha(0.5f));
+        fill();
+
+        std::snprintf(valuestr, sizeof(valuestr)-1, "%.0f", valueR);
+    }
+    else
+    {
+        std::strncpy(valuestr, "-inf", sizeof(valuestr)-1);
+    }
+
+    fillColor(theme.textLightColor);
+    fontSize(theme.fontSize);
+    textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
+    text(getWidth() / 2,
+         getHeight() - theme.borderSize, valuestr, nullptr);
+
+    // falloff
+    if (d_isNotEqual(valueL, falloffL))
+    {
+        value = normalizedLevelMeterValue(falloffL);
+        const float y = theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value);
+
+        beginPath();
+        moveTo(theme.borderSize, y);
+        lineTo(meterChannelWidth, y);
+        strokeColor(theme.levelMeterColor);
+        strokeWidth(theme.widgetLineSize);
+        stroke();
+    }
+
+    if (d_isNotEqual(valueR, falloffR))
+    {
+        value = normalizedLevelMeterValue(falloffR);
+        const float y = theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value);
+
+        beginPath();
+        moveTo(meterChannelWidth + theme.borderSize * 3 + theme.widgetLineSize, y);
+        lineTo(meterChannelWidth * 2 + theme.borderSize * 3 + theme.widgetLineSize, y);
+        strokeColor(theme.levelMeterColor);
+        strokeWidth(theme.widgetLineSize);
+        stroke();
+    }
+
+    // helper lines with labels
+    constexpr const float db5 = 1.f - normalizedLevelMeterValue(-5);
+    constexpr const float db10 = 1.f - normalizedLevelMeterValue(-10);
+    constexpr const float db20 = 1.f - normalizedLevelMeterValue(-20);
+    constexpr const float db30 = 1.f - normalizedLevelMeterValue(-30);
+    constexpr const float db40 = 1.f - normalizedLevelMeterValue(-40);
+    const float centerX = getWidth() / 2;
+    fillColor(theme.textLightColor);
+    fontSize(theme.fontSize);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
-    text(centerX, theme.borderSize + usableHeight * 1/6, "-6-", nullptr);
-    text(centerX, theme.borderSize + usableHeight * 2/6, "-18-", nullptr);
-    text(centerX, theme.borderSize + usableHeight * 3/6, "-30-", nullptr);
-    text(centerX, theme.borderSize + usableHeight * 4/6, "-42-", nullptr);
-    text(centerX, theme.borderSize + usableHeight * 5/6, "-54-", nullptr);
-#endif
+    text(centerX, theme.borderSize + usableMeterHeight * db5, "- 5 -", nullptr);
+    text(centerX, theme.borderSize + usableMeterHeight * db10, "- 10 -", nullptr);
+    text(centerX, theme.borderSize + usableMeterHeight * db20, "- 20 -", nullptr);
+    text(centerX, theme.borderSize + usableMeterHeight * db30, "- 30 -", nullptr);
+    text(centerX, theme.borderSize + usableMeterHeight * db40, "- 40 -", nullptr);
 }
 
-void QuantumLevelMeter::idleCallback()
+void QuantumStereoLevelMeterWithLUFS::idleCallback()
 {
-#if 0
-    if (d_isEqual(value, falloff))
+    const double time = app.getTime(); // in seconds
+    const double diff = time - lastTime;
+    lastTime = time;
+
+    if (d_isZero(lastTime))
         return;
 
-    // should not typically happen
-    if (value > falloff)
+    // TESTING
+    DISTRHO_SAFE_ASSERT_RETURN(falloffL >= valueL,);
+    DISTRHO_SAFE_ASSERT_RETURN(falloffR >= valueR,);
+
+    constexpr const double secondsToWaitForFalloffStart = 2;
+    constexpr const double falloffDbPerSecond = 8.6;
+
+    if (d_isEqual(valueL, falloffL))
     {
-        falloff = value;
-        return;
+        timeL = 0.0;
     }
-#endif
+    else
+    {
+        timeL += diff;
+
+        if (timeL > secondsToWaitForFalloffStart)
+        {
+            falloffL = std::max(valueL, static_cast<float>(falloffL - falloffDbPerSecond * diff));
+            repaint();
+        }
+    }
+
+    if (d_isEqual(valueR, falloffR))
+    {
+        timeR = 0.0;
+    }
+    else
+    {
+        timeR += diff;
+
+        if (timeR > secondsToWaitForFalloffStart)
+        {
+            falloffR = std::max(valueR, static_cast<float>(falloffR - falloffDbPerSecond * diff));
+            repaint();
+        }
+    }
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -1033,7 +1215,7 @@ void QuantumValueMeter18::onNanoDisplay()
 {
     const uint wpb = getWidth() / (ARRAY_SIZE(values) / 2);
 
-    fillColor(Color(93, 231, 61, 0.1f));
+    fillColor(theme.levelMeterColor.withAlpha(0.1f));
     strokeColor(theme.widgetBackgroundColor.withAlpha(0.25f));
     strokeWidth(std::max(1u, theme.borderSize / 2));
 

@@ -72,6 +72,8 @@ struct QuantumMetrics
     Size<uint> separator;
     Size<uint> switch_;
     Size<uint> knob;
+    Size<uint> mixerSlider;
+    Size<uint> stereoLevelMeterWithLufs;
     Size<uint> valueMeterHorizontal;
     Size<uint> valueMeterVertical;
     Size<uint> valueSlider;
@@ -89,6 +91,10 @@ struct QuantumMetrics
                  theme.textHeight / 2 + theme.borderSize * 2),
           knob(theme.textHeight * 3 / 2,
                  theme.textHeight * 3 / 2),
+          mixerSlider(theme.textHeight,
+                      theme.textHeight * 4),
+          stereoLevelMeterWithLufs(theme.textHeight * 2 + theme.borderSize * 4 + theme.widgetLineSize,
+                                   theme.textHeight * 4),
           valueMeterHorizontal(theme.textHeight * 4,
                                theme.textHeight),
           valueMeterVertical(theme.textHeight,
@@ -414,43 +420,51 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class QuantumLevelMeter : public QuantumValueMeter,
-                          public IdleCallback
+class QuantumLevelMeter : public QuantumValueMeter
 {
-    float falloff = 0.f;
-
 public:
     explicit QuantumLevelMeter(TopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumLevelMeter(NanoSubWidget* parent, const QuantumTheme& theme);
 
 protected:
     void onNanoDisplay() override;
-    void idleCallback() override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumLevelMeter)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class QuantumMixerSliderWithLevelMeter : public NanoSubWidget,
-                                         public IdleCallback
+class QuantumStereoLevelMeterWithLUFS : public NanoSubWidget,
+                                        public IdleCallback
 {
+    Application& app;
     const QuantumTheme& theme;
+    float valueL = 0.f;
+    float valueR = 0.f;
+    float valueLufs = 0.f;
+    float minimum = 0.f;
+    float maximum = 1.f;
+    float falloffL = 0.f;
+    float falloffR = 0.f;
+    double timeL = 0.0;
+    double timeR = 0.0;
+    double lastTime = 0.0;
 
 public:
-    explicit QuantumMixerSliderWithLevelMeter(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumStereoLevelMeterWithLUFS(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumStereoLevelMeterWithLUFS(NanoSubWidget* parent, const QuantumTheme& theme);
 
-    // publicly exposed for convenience, please do not resize or reposition these
-    QuantumLevelMeter meter;
-    QuantumMixerSlider slider;
+    void setRange(float min, float max);
+    void setValueL(float value);
+    void setValueR(float value);
+    void setValueLufs(float value);
+    void setValues(float l, float r, float lufs);
 
 protected:
     void onNanoDisplay() override;
-    void onPositionChanged(const PositionChangedEvent& ev) override;
-    void onResize(const ResizeEvent& ev) override;
     void idleCallback() override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumMixerSliderWithLevelMeter)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumStereoLevelMeterWithLUFS)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
