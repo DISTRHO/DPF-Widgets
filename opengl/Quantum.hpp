@@ -97,7 +97,7 @@ struct QuantumMetrics
                        theme.fontSize + theme.borderSize * 2),
           knob(theme.textHeight * 3 / 2,
                  theme.textHeight * 3 / 2),
-          mixerSlider(theme.textHeight,
+          mixerSlider(theme.textHeight * 2,
                       theme.textHeight * 4),
           stereoLevelMeterWithLufs(theme.textHeight * 4 + theme.borderSize * 4,
                                    theme.textHeight * 4),

@@ -25,6 +25,23 @@ START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
 
+static inline constexpr
+float normalizedLevelMeterValue(const float db)
+{
+	return (
+        db < -70.f  ? 0.f :
+        db < -60.f ? (db + 70.f) * 0.25f :
+        db < -50.f ? (db + 60.f) * 0.50f +  2.5f :
+        db < -40.f ? (db + 50.f) * 0.75f +  7.5f :
+        db < -30.f ? (db + 40.f) * 1.50f + 15.0f :
+        db < -20.f ? (db + 30.f) * 2.00f + 30.0f :
+        db <   0.f ? (db + 20.f) * 2.50f + 50.0f :
+        100.f
+    ) / 100.f;
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 QuantumButton::QuantumButton(TopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       ButtonEventHandler(this),
@@ -360,7 +377,7 @@ void AbstractQuantumSwitch<small>::onNanoDisplay()
 
     if (label != nullptr && label[0] != '\0')
     {
-        fillColor(checked ? Color(255, 255, 255) : theme.textMidColor);
+        fillColor(checked ? theme.textLightColor : theme.textMidColor);
         fontSize(theme.fontSize);
         textAlign(ALIGN_LEFT|ALIGN_MIDDLE);
         text(blockSize * 2 + theme.borderSize * 2 + theme.padding * 2, getHeight() / 2, label, nullptr);
@@ -551,6 +568,7 @@ QuantumMixerSlider::QuantumMixerSlider(TopLevelWidget* const parent, const Quant
       KnobEventHandler(this),
       theme(t)
 {
+    loadSharedResources();
     setSize(QuantumMetrics(t).mixerSlider);
 }
 
@@ -559,68 +577,103 @@ QuantumMixerSlider::QuantumMixerSlider(NanoSubWidget* const parent, const Quantu
       KnobEventHandler(this),
       theme(t)
 {
+    loadSharedResources();
     setSize(QuantumMetrics(t).mixerSlider);
 }
 
 void QuantumMixerSlider::onNanoDisplay()
 {
     const uint width = getWidth();
+    const uint height = getHeight();
 
     // everything is relative to slider line
-    const float sliderHandleHeight = width * 3 / 2;
-    const float sliderLineHeight = getHeight() - sliderHandleHeight / 2;
-    const float sliderLineX = width / 2;
-    const float sliderLineY = sliderHandleHeight / 2;
+    const float sliderHandleWidth = theme.textHeight;
+    const float sliderHandleHeight = theme.textHeight * 2;
+    const float sliderLineHeightFor70dB = height - sliderHandleHeight;
+    const float sliderLineHeightFor50dB = sliderLineHeightFor70dB * (1.f - normalizedLevelMeterValue(-50.f));
+    const float sliderLineStartX = static_cast<float>(width - theme.widgetLineSize) / 2;
+    const float sliderLineStartY = sliderHandleHeight / 2;
+    const float valueBoxStartY = sliderLineStartY + sliderLineHeightFor50dB + sliderHandleHeight / 2 + theme.borderSize * 2;
+
+    // bottom box and value
+    beginPath();
+    rect(0, valueBoxStartY, width, height - valueBoxStartY);
+    fillColor(theme.widgetBackgroundColor);
+    fill();
+
+    beginPath();
+    rect(theme.borderSize, valueBoxStartY + theme.borderSize, width - theme.borderSize * 2, height - valueBoxStartY - theme.borderSize * 2);
+    fillColor(Color(theme.windowBackgroundColor, theme.widgetBackgroundColor, 0.75f));
+    fill();
+
+    char valuestr[32] = {};
+    const float roundedValue = std::round(getValue() * 10.f)/10.f;
+    std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
+
+    fillColor(theme.textLightColor);
+    textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
+    fontSize(theme.fontSize);
+    text(width * 0.5f, height - theme.textHeight / 2 + theme.borderSize, valuestr, nullptr);
 
     // slider line
-    beginPath();
-    // FIXME full size line??
-    // moveTo(sliderLineX, sliderLineY);
-    // lineTo(sliderLineX, sliderLineHeight);
-    moveTo(sliderLineX, 0);
-    lineTo(sliderLineX, getHeight());
     strokeColor(theme.widgetBackgroundColor);
     strokeWidth(theme.widgetLineSize);
+
+    beginPath();
+    moveTo(sliderLineStartX, sliderLineStartY);
+    lineTo(sliderLineStartX, sliderLineStartY + sliderLineHeightFor50dB);
     stroke();
 
-    /*
     beginPath();
-    moveTo(0, sliderLineY + sliderLineHeight * 0.15);
-    lineTo(width, sliderLineY + sliderLineHeight * 0.15);
-    strokeColor(theme.widgetBackgroundColor);
-    strokeWidth(std::max(1, theme.widgetBorderAndLineSize / 2));
+    moveTo((width - sliderHandleWidth) / 2, sliderLineStartY);
+    lineTo((width + sliderHandleWidth) / 2, sliderLineStartY);
     stroke();
-    */
+
+    beginPath();
+    moveTo((width - sliderHandleWidth) / 2, sliderLineStartY + sliderLineHeightFor50dB);
+    lineTo((width + sliderHandleWidth) / 2, sliderLineStartY + sliderLineHeightFor50dB);
+    stroke();
+
+    strokeWidth(theme.borderSize);
+
+    for (int i=1; i<32; ++i)
+    {
+        const float tracesY = sliderLineStartY + (i * sliderLineHeightFor50dB / 32);
+        beginPath();
+        moveTo((width - sliderHandleWidth / 2) / 2, tracesY);
+        lineTo((width + sliderHandleWidth / 2) / 2, tracesY);
+        stroke();
+    }
 
     // slider handle
     save();
-    translate(0, (1.0f - getNormalizedValue()) * (sliderLineHeight - sliderLineY));
+    translate((width - sliderHandleWidth) / 2, (1.f - normalizedLevelMeterValue(getValue())) * sliderLineHeightFor70dB);
 
     const float round = std::max(1.f, static_cast<float>(theme.widgetLineSize) * 3/2);
 
     beginPath();
-    roundedRect(0, 0, width, sliderHandleHeight, round);
+    roundedRect(0, 0, sliderHandleWidth, sliderHandleHeight, round);
     fillColor(theme.widgetBackgroundColor);
     fill();
 
     beginPath();
     roundedRect(theme.borderSize, theme.borderSize,
-                width - theme.borderSize * 2,
+                sliderHandleWidth - theme.borderSize * 2,
                 sliderHandleHeight - theme.borderSize * 2,
                 round);
     fillColor(theme.widgetForegroundColor);
     fill();
 
-    lineCap(ROUND);
+    // lineCap(ROUND);
     strokeColor(theme.widgetBackgroundColor);
-    strokeWidth(std::max(1u, theme.widgetLineSize / 4));
+    strokeWidth(theme.borderSize);
 
     for (int i=0; i<4; ++i)
     {
         const float tracesY = sliderHandleHeight / 3 + (i * sliderHandleHeight / 8);
         beginPath();
-        moveTo(width * 5 / 16, tracesY);
-        lineTo(width * 11 / 16, tracesY);
+        moveTo(sliderHandleWidth * 5 / 16, tracesY);
+        lineTo(sliderHandleWidth * 11 / 16, tracesY);
         stroke();
     }
 
@@ -993,21 +1046,6 @@ void QuantumStereoLevelMeterWithLUFS::setValues(const float l, const float r, co
     repaint();
 }
 
-static inline constexpr
-float normalizedLevelMeterValue(const float db)
-{
-	return (
-        db < -70.f  ? 0.f :
-        db < -60.f ? (db + 70.f) * 0.25f :
-        db < -50.f ? (db + 60.f) * 0.50f +  2.5f :
-        db < -40.f ? (db + 50.f) * 0.75f +  7.5f :
-        db < -30.f ? (db + 40.f) * 1.50f + 15.0f :
-        db < -20.f ? (db + 30.f) * 2.00f + 30.0f :
-        db <   0.f ? (db + 20.f) * 2.50f + 50.0f :
-        100.f
-    ) / 100.f;
-}
-
 void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
 {
     const float verticalReservedHeight = theme.textHeight;
@@ -1141,7 +1179,6 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
 
     // lufs
     value = normalizedLevelMeterValue(valueLufs);
-    // value = normalizedLevelMeterValue(-15.5);
 
     if (d_isNotZero(value))
     {
@@ -1171,6 +1208,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     constexpr const float db20 = 1.f - normalizedLevelMeterValue(-20);
     constexpr const float db30 = 1.f - normalizedLevelMeterValue(-30);
     constexpr const float db40 = 1.f - normalizedLevelMeterValue(-40);
+    constexpr const float db50 = 1.f - normalizedLevelMeterValue(-50);
     fillColor(theme.textLightColor);
     fontSize(theme.fontSize);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
@@ -1180,6 +1218,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     text(centerX, yOffset + usableMeterHeight * db20, "- 20 -", nullptr);
     text(centerX, yOffset + usableMeterHeight * db30, "- 30 -", nullptr);
     text(centerX, yOffset + usableMeterHeight * db40, "- 40 -", nullptr);
+    text(centerX, yOffset + usableMeterHeight * db50, "- 50 -", nullptr);
 }
 
 void QuantumStereoLevelMeterWithLUFS::idleCallback()
