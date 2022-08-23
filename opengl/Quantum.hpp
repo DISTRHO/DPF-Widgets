@@ -69,8 +69,10 @@ struct QuantumMetrics
     Size<uint> button;
     Size<uint> frame;
     Size<uint> label;
-    Size<uint> separator;
-    Size<uint> switch_;
+    Size<uint> separatorHorizontal;
+    Size<uint> separatorVertical;
+    Size<uint> smallSwitch;
+    Size<uint> normalSwitch;
     Size<uint> knob;
     Size<uint> mixerSlider;
     Size<uint> stereoLevelMeterWithLufs;
@@ -85,10 +87,14 @@ struct QuantumMetrics
                 theme.borderSize * 2 + theme.padding * 2),
           label(theme.padding,
                 theme.textHeight),
-          separator(theme.textHeight,
-                    theme.borderSize),
-          switch_(theme.textHeight * 2 + theme.borderSize * 2,
-                 theme.textHeight / 2 + theme.borderSize * 2),
+          separatorHorizontal(theme.textHeight,
+                              theme.borderSize),
+          separatorVertical(theme.borderSize,
+                            theme.textHeight),
+          smallSwitch(theme.textHeight * 2 + theme.borderSize * 2,
+                      theme.textHeight / 2 + theme.borderSize * 2),
+          normalSwitch(theme.fontSize * 2 + theme.borderSize * 2,
+                       theme.fontSize + theme.borderSize * 2),
           knob(theme.textHeight * 3 / 2,
                  theme.textHeight * 3 / 2),
           mixerSlider(theme.textHeight,
@@ -184,19 +190,23 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class QuantumSeparatorLine : public NanoSubWidget
+template<bool horizontal>
+class AbstractQuantumSeparatorLine : public NanoSubWidget
 {
     const QuantumTheme& theme;
 
 public:
-    explicit QuantumSeparatorLine(TopLevelWidget* parent, const QuantumTheme& theme);
-    explicit QuantumSeparatorLine(NanoSubWidget* parent, const QuantumTheme& theme);
+    explicit AbstractQuantumSeparatorLine(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit AbstractQuantumSeparatorLine(NanoSubWidget* parent, const QuantumTheme& theme);
 
 protected:
     void onNanoDisplay() override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumSeparatorLine)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AbstractQuantumSeparatorLine)
 };
+
+typedef AbstractQuantumSeparatorLine<true> QuantumHorizontalSeparatorLine;
+typedef AbstractQuantumSeparatorLine<false> QuantumVerticalSeparatorLine;
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -214,16 +224,17 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class QuantumSwitch : public NanoSubWidget,
-                      public ButtonEventHandler
+template<bool small>
+class AbstractQuantumSwitch : public NanoSubWidget,
+                              public ButtonEventHandler
 {
     const QuantumTheme& theme;
     char* label = nullptr;
 
 public:
-    explicit QuantumSwitch(TopLevelWidget* parent, const QuantumTheme& theme);
-    explicit QuantumSwitch(NanoSubWidget* parent, const QuantumTheme& theme);
-    ~QuantumSwitch() override;
+    explicit AbstractQuantumSwitch(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit AbstractQuantumSwitch(NanoSubWidget* parent, const QuantumTheme& theme);
+    ~AbstractQuantumSwitch() override;
 
     inline const char* getLabel() const noexcept
     {
@@ -240,8 +251,11 @@ protected:
     bool onMouse(const MouseEvent& ev) override;
     bool onMotion(const MotionEvent& ev) override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumSwitch)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AbstractQuantumSwitch)
 };
+
+typedef AbstractQuantumSwitch<false> QuantumSwitch;
+typedef AbstractQuantumSwitch<true> QuantumSmallSwitch;
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -326,7 +340,8 @@ public:
         LeftToRight,
         RightToLeft,
         TopToBottom,
-        BottomToTop
+        BottomToTop,
+        CenterToSides
     };
 
     explicit QuantumValueMeter(TopLevelWidget* parent, const QuantumTheme& theme);
@@ -518,7 +533,7 @@ private:
 
 typedef AbstractQuantumFrame<char> QuantumFrame;
 typedef AbstractQuantumFrame<QuantumLabel> QuantumFrameWithLabel;
-typedef AbstractQuantumFrame<QuantumSwitch> QuantumFrameWithSwitch;
+typedef AbstractQuantumFrame<QuantumSmallSwitch> QuantumFrameWithSwitch;
 
 // --------------------------------------------------------------------------------------------------------------------
 
