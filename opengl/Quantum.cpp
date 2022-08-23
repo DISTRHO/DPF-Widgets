@@ -565,7 +565,6 @@ bool QuantumKnob::onScroll(const ScrollEvent& ev)
 
 QuantumMixerSlider::QuantumMixerSlider(TopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
-      KnobEventHandler(this),
       theme(t)
 {
     loadSharedResources();
@@ -574,11 +573,30 @@ QuantumMixerSlider::QuantumMixerSlider(TopLevelWidget* const parent, const Quant
 
 QuantumMixerSlider::QuantumMixerSlider(NanoSubWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
-      KnobEventHandler(this),
       theme(t)
 {
     loadSharedResources();
     setSize(QuantumMetrics(t).mixerSlider);
+}
+
+void QuantumMixerSlider::setCallback(KnobEventHandler::Callback* const cb)
+{
+    callback = cb;
+}
+
+void QuantumMixerSlider::setValue(const float v, const bool sendCallback)
+{
+    if (d_isEqual(value, v))
+        return;
+
+    DISTRHO_SAFE_ASSERT_RETURN(v >= -50.f,);
+    DISTRHO_SAFE_ASSERT_RETURN(v <= 0.f,);
+
+    value = v;
+    repaint();
+
+    if (sendCallback && callback != nullptr)
+        callback->knobValueChanged(this, v);
 }
 
 void QuantumMixerSlider::onNanoDisplay()
@@ -607,13 +625,13 @@ void QuantumMixerSlider::onNanoDisplay()
     fill();
 
     char valuestr[32] = {};
-    const float roundedValue = std::round(getValue() * 10.f)/10.f;
+    const float roundedValue = std::round(value * 10.f)/10.f;
     std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
 
     fillColor(theme.textLightColor);
     textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
     fontSize(theme.fontSize);
-    text(width * 0.5f, height - theme.textHeight / 2 + theme.borderSize, valuestr, nullptr);
+    text(width * 0.5f, height - theme.textHeight * 0.5f + theme.borderSize, valuestr, nullptr);
 
     // slider line
     strokeColor(theme.widgetBackgroundColor);
@@ -647,7 +665,7 @@ void QuantumMixerSlider::onNanoDisplay()
 
     // slider handle
     save();
-    translate((width - sliderHandleWidth) / 2, (1.f - normalizedLevelMeterValue(getValue())) * sliderLineHeightFor70dB);
+    translate((width - sliderHandleWidth) / 2, (1.f - normalizedLevelMeterValue(value)) * sliderLineHeightFor70dB);
 
     const float round = std::max(1.f, static_cast<float>(theme.widgetLineSize) * 3/2);
 
@@ -680,19 +698,112 @@ void QuantumMixerSlider::onNanoDisplay()
     restore();
 }
 
+static inline
+float mixerSliderPercentageToDb(const double vper)
+{
+    // TODO proper invert log scale
+    return std::max(-50.0, std::min(0.0, vper * -50));
+}
+
 bool QuantumMixerSlider::onMouse(const MouseEvent& ev)
 {
-    return mouseEvent(ev);
+    if (ev.button != 1)
+        return false;
+
+    if (ev.press)
+    {
+        if (! sliderArea.contains(ev.pos))
+            return false;
+
+        if (ev.mod & kModifierShift)
+        {
+            setValue(-18.f, true);
+            return true;
+        }
+
+        const double x = ev.pos.getX();
+        const double y = ev.pos.getY();
+        const float v = mixerSliderPercentageToDb((y - sliderArea.getY()) / sliderArea.getHeight());
+
+        dragging = true;
+        startedX = x;
+        startedY = y;
+
+        if (callback != nullptr)
+            callback->knobDragStarted(this);
+
+        setValue(v, true);
+
+        return true;
+    }
+    else if (dragging)
+    {
+        if (callback != nullptr)
+            callback->knobDragFinished(this);
+
+        dragging = false;
+        return true;
+    }
+
+    return false;
 }
 
 bool QuantumMixerSlider::onMotion(const MotionEvent& ev)
 {
-    return motionEvent(ev);
+    if (! dragging)
+        return false;
+
+    const double y = ev.pos.getY();
+
+    if (sliderArea.containsY(y))
+    {
+        const float v = mixerSliderPercentageToDb((y - sliderArea.getY()) / sliderArea.getHeight());
+        setValue(v, true);
+    }
+    else
+    {
+        if (y < sliderArea.getY())
+            setValue(0.f, true);
+        else
+            setValue(-50.f, true);
+    }
+
+    return true;
 }
 
 bool QuantumMixerSlider::onScroll(const ScrollEvent& ev)
 {
-    return scrollEvent(ev);
+    // if (! contains(ev.pos))
+        return false;
+
+    const bool up = ev.delta.getY() > 0.f;
+    const bool x5 = ev.mod & kModifierControl;
+
+    float v = value;
+
+    if (up)
+        v += x5 ? 5.f : 1.f;
+    else
+        v -= x5 ? 5.f : 1.f;
+
+    if (v < -50.f)
+        v = -50;
+    else if (v > 0.f)
+        v = 0.f;
+
+    setValue(v, true);
+    return true;
+}
+
+void QuantumMixerSlider::onResize(const ResizeEvent& ev)
+{
+    const float sliderHandleHeight = theme.textHeight * 2;
+    const float sliderLineHeightFor70dB = ev.size.getHeight() - sliderHandleHeight;
+    const float sliderLineHeightFor50dB = sliderLineHeightFor70dB * (1.f - normalizedLevelMeterValue(-50.f));
+    const float sliderLineStartY = sliderHandleHeight / 2;
+
+    sliderArea.setPos(0, sliderLineStartY);
+    sliderArea.setSize(getWidth(), sliderLineHeightFor50dB);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
