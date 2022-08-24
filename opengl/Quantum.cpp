@@ -836,6 +836,7 @@ void QuantumGainReductionMeter::onNanoDisplay()
 
     const float verticalReservedHeight = theme.textHeight;
     const float usableMeterHeight = height - verticalReservedHeight * 3;
+    const float usableInnerMeterHeight = usableMeterHeight - theme.borderSize * 2;
     const float valueBoxStartY = height - verticalReservedHeight * 2 + theme.borderSize + theme.padding;
 
     // normal widget background
@@ -846,8 +847,8 @@ void QuantumGainReductionMeter::onNanoDisplay()
 
     // alternate background
     beginPath();
-    rect(theme.borderSize, verticalReservedHeight + theme.borderSize, 
-         width - theme.borderSize * 2, usableMeterHeight - theme.borderSize * 2);
+    rect(theme.borderSize, theme.borderSize + verticalReservedHeight,
+         width - theme.borderSize * 2, usableInnerMeterHeight);
     fillColor(Color(theme.windowBackgroundColor, theme.widgetBackgroundColor, 0.75f));
     fill();
 
@@ -857,19 +858,43 @@ void QuantumGainReductionMeter::onNanoDisplay()
         beginPath();
         if (value < 0.f)
         {
-            const float normalizedValue = normalizedLevelMeterValue(value);
-            rect(theme.borderSize, verticalReservedHeight + theme.borderSize + (usableMeterHeight - theme.borderSize * 2) * (1.f - normalizedValue),
-                 (width - theme.borderSize * 2), (usableMeterHeight - theme.borderSize * 2) * (normalizedValue - 0.5f));
+            // const float normalizedValue = std::max(0.f, std::min(1.f, value / -50.f));
+            const float normalizedValue = (1.f - normalizedLevelMeterValue(value)) * 1.08f;
+            rect(theme.borderSize, theme.borderSize + verticalReservedHeight + usableInnerMeterHeight / 2,
+                 width - theme.borderSize * 2, usableInnerMeterHeight / 2 * normalizedValue);
         }
         else
         {
-            const float normalizedValue = (1.f - normalizedLevelMeterValue(-value));
-            rect(theme.borderSize, usableMeterHeight / 2,
-                 (width - theme.borderSize * 2), (usableMeterHeight - theme.borderSize * 2) * (0.5f - normalizedValue));
+            // const float normalizedValue = std::max(0.f, std::min(1.f, value / 50.f));
+            const float normalizedValue = (1.f - normalizedLevelMeterValue(-value)) * 1.08f;
+            rect(theme.borderSize, theme.borderSize + verticalReservedHeight + usableInnerMeterHeight / 2 * (1.f - normalizedValue),
+                 width - theme.borderSize * 2, usableInnerMeterHeight / 2 * normalizedValue);
         }
         fillColor(theme.widgetDefaultAlternativeColor);
         fill();
     }
+
+    // helper lines with labels
+    constexpr const float db5 = (1.f - normalizedLevelMeterValue(-5)) * 1.08f;
+    constexpr const float db10 = (1.f - normalizedLevelMeterValue(-10)) * 1.08f;
+    constexpr const float db20 = (1.f - normalizedLevelMeterValue(-20)) * 1.08f;
+    constexpr const float db30 = (1.f - normalizedLevelMeterValue(-30)) * 1.08f;
+    constexpr const float db40 = (1.f - normalizedLevelMeterValue(-40)) * 1.08f;
+    fillColor(theme.textLightColor);
+    fontSize(theme.fontSize);
+    textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
+    const float centerX = width * 0.5f;
+    const float yOffset = theme.borderSize + verticalReservedHeight + usableInnerMeterHeight / 2;
+    text(centerX, yOffset + usableInnerMeterHeight / 2 * db5, "- 5 -", nullptr);
+    text(centerX, yOffset + usableInnerMeterHeight / 2 * db10, "- 10 -", nullptr);
+    text(centerX, yOffset + usableInnerMeterHeight / 2 * db20, "- 20 -", nullptr);
+    text(centerX, yOffset + usableInnerMeterHeight / 2 * db30, "- 30 -", nullptr);
+    text(centerX, yOffset + usableInnerMeterHeight / 2 * db40, "- 40 -", nullptr);
+    text(centerX, yOffset - usableInnerMeterHeight / 2 * db5, "- 5 -", nullptr);
+    text(centerX, yOffset - usableInnerMeterHeight / 2 * db10, "- 10 -", nullptr);
+    text(centerX, yOffset - usableInnerMeterHeight / 2 * db20, "- 20 -", nullptr);
+    text(centerX, yOffset - usableInnerMeterHeight / 2 * db30, "- 30 -", nullptr);
+    text(centerX, yOffset - usableInnerMeterHeight / 2 * db40, "- 40 -", nullptr);
 
     // bottom box and value
     beginPath();
