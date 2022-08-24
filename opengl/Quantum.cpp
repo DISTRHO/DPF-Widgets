@@ -610,8 +610,8 @@ void QuantumMixerSlider::onNanoDisplay()
     const float sliderLineHeightFor70dB = height - sliderHandleHeight;
     const float sliderLineHeightFor50dB = sliderLineHeightFor70dB * (1.f - normalizedLevelMeterValue(-50.f));
     const float sliderLineStartX = static_cast<float>(width - theme.widgetLineSize) / 2;
-    const float sliderLineStartY = sliderHandleHeight / 2;
-    const float valueBoxStartY = sliderLineStartY + sliderLineHeightFor50dB + sliderHandleHeight / 2 + theme.borderSize * 2;
+    const float sliderLineStartY = sliderHandleHeight / 2 + theme.borderSize * 2; // FIXME this offset shouldnt be needed
+    const float valueBoxStartY = height - sliderHandleHeight + theme.borderSize + theme.padding;
 
     // bottom box and value
     beginPath();
@@ -632,6 +632,10 @@ void QuantumMixerSlider::onNanoDisplay()
     textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
     fontSize(theme.fontSize);
     text(width * 0.5f, height - theme.textHeight * 0.5f + theme.borderSize, valuestr, nullptr);
+
+    // top label
+    fontSize(theme.fontSize * 2 /3);
+    text(width * 0.5f, sliderLineStartY - theme.borderSize * 2, "Target", nullptr);
 
     // slider line
     strokeColor(theme.widgetBackgroundColor);
@@ -808,6 +812,92 @@ void QuantumMixerSlider::onResize(const ResizeEvent& ev)
 
 // --------------------------------------------------------------------------------------------------------------------
 
+QuantumGainReductionMeter::QuantumGainReductionMeter(NanoSubWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      theme(t)
+{
+    loadSharedResources();
+    setSize(QuantumMetrics(t).gainReductionMeter);
+}
+
+void QuantumGainReductionMeter::setValue(const float value2)
+{
+    if (d_isEqual(value, value2))
+        return;
+
+    value = value2;
+    repaint();
+}
+
+void QuantumGainReductionMeter::onNanoDisplay()
+{
+    const uint width = getWidth();
+    const uint height = getHeight();
+
+    const float verticalReservedHeight = theme.textHeight;
+    const float usableMeterHeight = height - verticalReservedHeight * 3;
+    const float valueBoxStartY = height - verticalReservedHeight * 2 + theme.borderSize + theme.padding;
+
+    // normal widget background
+    beginPath();
+    rect(0, verticalReservedHeight, width, usableMeterHeight);
+    fillColor(theme.widgetBackgroundColor);
+    fill();
+
+    // alternate background
+    beginPath();
+    rect(theme.borderSize, verticalReservedHeight + theme.borderSize, 
+         width - theme.borderSize * 2, usableMeterHeight - theme.borderSize * 2);
+    fillColor(Color(theme.windowBackgroundColor, theme.widgetBackgroundColor, 0.75f));
+    fill();
+
+    // meter
+    if (d_isNotZero(value))
+    {
+        beginPath();
+        if (value < 0.f)
+        {
+            const float normalizedValue = normalizedLevelMeterValue(value);
+            rect(theme.borderSize, verticalReservedHeight + theme.borderSize + (usableMeterHeight - theme.borderSize * 2) * (1.f - normalizedValue),
+                 (width - theme.borderSize * 2), (usableMeterHeight - theme.borderSize * 2) * (normalizedValue - 0.5f));
+        }
+        else
+        {
+            const float normalizedValue = (1.f - normalizedLevelMeterValue(-value));
+            rect(theme.borderSize, usableMeterHeight / 2,
+                 (width - theme.borderSize * 2), (usableMeterHeight - theme.borderSize * 2) * (0.5f - normalizedValue));
+        }
+        fillColor(theme.widgetDefaultAlternativeColor);
+        fill();
+    }
+
+    // bottom box and value
+    beginPath();
+    rect(0, valueBoxStartY, width, height - valueBoxStartY);
+    fillColor(theme.widgetBackgroundColor);
+    fill();
+
+    beginPath();
+    rect(theme.borderSize, valueBoxStartY + theme.borderSize, width - theme.borderSize * 2, height - valueBoxStartY - theme.borderSize * 2);
+    fillColor(Color(theme.windowBackgroundColor, theme.widgetBackgroundColor, 0.75f));
+    fill();
+
+    char valuestr[32] = {};
+    const float roundedValue = std::round(value * 10.f)/10.f;
+    std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
+
+    fillColor(theme.textLightColor);
+    textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
+    fontSize(theme.fontSize);
+    text(width * 0.5f, height - theme.textHeight * 0.5f + theme.borderSize, valuestr, nullptr);
+
+    // top label
+    fontSize(theme.fontSize * 2 /3);
+    text(width * 0.5f, verticalReservedHeight, "Lvl Gain", nullptr);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 QuantumValueMeter::QuantumValueMeter(TopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       theme(t)
@@ -906,6 +996,14 @@ void QuantumValueMeter::onNanoDisplay()
                 rect(getWidth() / 2, theme.borderSize,
                      (getWidth() - theme.borderSize * 2) * (normalizedValue - 0.5f), getHeight() - theme.borderSize * 2);
 
+            break;
+        case MiddleToEdges:
+            if (normalizedValue < 0.5f)
+                rect(theme.borderSize, theme.borderSize + (getHeight() - theme.borderSize * 2) * (1.f - normalizedValue),
+                     (getWidth() - theme.borderSize * 2), (getHeight() - theme.borderSize * 2) * (normalizedValue - 0.5f));
+            else
+                rect(theme.borderSize, getHeight() / 2,
+                     (getWidth() - theme.borderSize * 2), (getHeight() - theme.borderSize * 2) * (0.5f - normalizedValue));
             break;
         }
         fillColor(backgroundColor);
@@ -1150,10 +1248,21 @@ void QuantumStereoLevelMeterWithLUFS::setValueLufs(const float value)
 
 void QuantumStereoLevelMeterWithLUFS::setValues(const float l, const float r, const float lufs)
 {
-    falloffL = valueL = l;
-    falloffR = valueR = r;
+    if (l >= falloffL)
+    {
+        falloffL = l;
+        lastTimeL = timeL = app.getTime();
+    }
+
+    if (r >= falloffR)
+    {
+        falloffR = r;
+        lastTimeR = timeR = app.getTime();
+    }
+
+    valueL = l;
+    valueR = r;
     valueLufs = lufs;
-    lastTimeL = lastTimeR = timeL = timeR = app.getTime();
     repaint();
 }
 

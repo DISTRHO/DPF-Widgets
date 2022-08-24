@@ -74,6 +74,7 @@ struct QuantumMetrics
     Size<uint> separatorVertical;
     Size<uint> smallSwitch;
     Size<uint> normalSwitch;
+    Size<uint> gainReductionMeter;
     Size<uint> knob;
     Size<uint> mixerSlider;
     Size<uint> stereoLevelMeterWithLufs;
@@ -96,6 +97,8 @@ struct QuantumMetrics
                       theme.textHeight / 2 + theme.borderSize * 2),
           normalSwitch(theme.fontSize * 2 + theme.borderSize * 2,
                        theme.fontSize + theme.borderSize * 2),
+          gainReductionMeter(theme.textHeight * 2,
+                             theme.textHeight * 4),
           knob(theme.textHeight * 3 / 2,
                  theme.textHeight * 3 / 2),
           mixerSlider(theme.textHeight * 2,
@@ -344,6 +347,25 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
+// assumes -50 to 50 dB range
+class QuantumGainReductionMeter : public NanoSubWidget
+{
+    const QuantumTheme& theme;
+    float value = 0.f;
+
+public:
+    explicit QuantumGainReductionMeter(NanoSubWidget* parent, const QuantumTheme& theme);
+
+    void setValue(float value);
+
+protected:
+    void onNanoDisplay() override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumGainReductionMeter)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
 class QuantumValueMeter : public NanoSubWidget
 {
 public:
@@ -352,7 +374,8 @@ public:
         RightToLeft,
         TopToBottom,
         BottomToTop,
-        CenterToSides
+        CenterToSides,
+        MiddleToEdges // FIXME this needs a better name..
     };
 
     explicit QuantumValueMeter(TopLevelWidget* parent, const QuantumTheme& theme);
