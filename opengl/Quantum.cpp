@@ -643,13 +643,13 @@ void QuantumMixerSlider::onNanoDisplay()
     stroke();
 
     beginPath();
-    moveTo((width - sliderHandleWidth) / 2, sliderLineStartY);
-    lineTo((width + sliderHandleWidth) / 2, sliderLineStartY);
+    moveTo(sliderLineStartX - sliderHandleWidth / 2, sliderLineStartY);
+    lineTo(sliderLineStartX + sliderHandleWidth / 2, sliderLineStartY);
     stroke();
 
     beginPath();
-    moveTo((width - sliderHandleWidth) / 2, sliderLineStartY + sliderLineHeightFor50dB);
-    lineTo((width + sliderHandleWidth) / 2, sliderLineStartY + sliderLineHeightFor50dB);
+    moveTo(sliderLineStartX - sliderHandleWidth / 2, sliderLineStartY + sliderLineHeightFor50dB);
+    lineTo(sliderLineStartX + sliderHandleWidth / 2, sliderLineStartY + sliderLineHeightFor50dB);
     stroke();
 
     strokeWidth(theme.borderSize);
@@ -658,14 +658,14 @@ void QuantumMixerSlider::onNanoDisplay()
     {
         const float tracesY = sliderLineStartY + (i * sliderLineHeightFor50dB / 32);
         beginPath();
-        moveTo((width - sliderHandleWidth / 2) / 2, tracesY);
-        lineTo((width + sliderHandleWidth / 2) / 2, tracesY);
+        moveTo(sliderLineStartX - sliderHandleWidth / 4, tracesY);
+        lineTo(sliderLineStartX + sliderHandleWidth / 4, tracesY);
         stroke();
     }
 
     // slider handle
     save();
-    translate((width - sliderHandleWidth) / 2, (1.f - normalizedLevelMeterValue(value)) * sliderLineHeightFor70dB);
+    translate(sliderLineStartX - sliderHandleWidth / 2, (1.f - normalizedLevelMeterValue(value)) * sliderLineHeightFor70dB);
 
     const float round = std::max(1.f, static_cast<float>(theme.widgetLineSize) * 3/2);
 
