@@ -777,7 +777,7 @@ bool QuantumMixerSlider::onMotion(const MotionEvent& ev)
 
 bool QuantumMixerSlider::onScroll(const ScrollEvent& ev)
 {
-    // if (! contains(ev.pos))
+    if (! contains(ev.pos))
         return false;
 
     const bool up = ev.delta.getY() > 0.f;
