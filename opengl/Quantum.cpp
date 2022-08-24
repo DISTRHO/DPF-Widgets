@@ -1345,7 +1345,7 @@ void QuantumStereoLevelMeterWithLUFS::idleCallback()
 
     if (d_isEqual(valueL, falloffL))
     {
-        lastTimeR = timeR = time;
+        lastTimeL = timeL = time;
     }
     else
     {
