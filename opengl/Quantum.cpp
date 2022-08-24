@@ -1112,7 +1112,7 @@ void QuantumStereoLevelMeterWithLUFS::setValueL(const float value)
     if (value >= falloffL)
     {
         falloffL = value;
-        timeL = 0.0;
+        lastTimeL = timeL = app.getTime();
     }
 
     if (d_isEqual(valueL, value))
@@ -1128,7 +1128,7 @@ void QuantumStereoLevelMeterWithLUFS::setValueR(const float value)
     if (value >= falloffR)
     {
         falloffR = value;
-        timeR = 0.0;
+        lastTimeR = timeR = app.getTime();
     }
 
     if (d_isEqual(valueR, value))
@@ -1153,7 +1153,7 @@ void QuantumStereoLevelMeterWithLUFS::setValues(const float l, const float r, co
     falloffL = valueL = l;
     falloffR = valueR = r;
     valueLufs = lufs;
-    timeL = timeR = 0.0;
+    lastTimeL = lastTimeR = timeL = timeR = app.getTime();
     repaint();
 }
 
@@ -1335,15 +1335,6 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
 void QuantumStereoLevelMeterWithLUFS::idleCallback()
 {
     const double time = app.getTime(); // in seconds
-    const double diff = time - lastTime;
-    lastTime = time;
-
-    if (d_isZero(lastTime))
-    {
-        falloffL = valueL;
-        falloffR = valueR;
-        return;
-    }
 
     // TESTING
     DISTRHO_SAFE_ASSERT_RETURN(falloffL >= valueL,);
@@ -1354,30 +1345,34 @@ void QuantumStereoLevelMeterWithLUFS::idleCallback()
 
     if (d_isEqual(valueL, falloffL))
     {
-        timeL = 0.0;
+        lastTimeR = timeR = time;
     }
     else
     {
-        timeL += diff;
+        const double diffSinceValueSet = time - timeL;
+        const double diffSinceLastIdle = time - lastTimeL;
+        lastTimeL = time;
 
-        if (timeL > secondsToWaitForFalloffStart)
+        if (diffSinceValueSet >= secondsToWaitForFalloffStart)
         {
-            falloffL = std::max(valueL, static_cast<float>(falloffL - falloffDbPerSecond * diff));
+            falloffL = std::max(valueL, static_cast<float>(falloffL - falloffDbPerSecond * diffSinceLastIdle));
             repaint();
         }
     }
 
     if (d_isEqual(valueR, falloffR))
     {
-        timeR = 0.0;
+        lastTimeR = timeR = time;
     }
     else
     {
-        timeR += diff;
+        const double diffSinceValueSet = time - timeR;
+        const double diffSinceLastIdle = time - lastTimeR;
+        lastTimeR = time;
 
-        if (timeR > secondsToWaitForFalloffStart)
+        if (diffSinceValueSet >= secondsToWaitForFalloffStart)
         {
-            falloffR = std::max(valueR, static_cast<float>(falloffR - falloffDbPerSecond * diff));
+            falloffR = std::max(valueR, static_cast<float>(falloffR - falloffDbPerSecond * diffSinceLastIdle));
             repaint();
         }
     }

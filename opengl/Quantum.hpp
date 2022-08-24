@@ -474,7 +474,8 @@ class QuantumStereoLevelMeterWithLUFS : public NanoSubWidget,
     float falloffR = 0.f;
     double timeL = 0.0;
     double timeR = 0.0;
-    double lastTime = 0.0;
+    double lastTimeL = 0.0;
+    double lastTimeR = 0.0;
 
 public:
     explicit QuantumStereoLevelMeterWithLUFS(TopLevelWidget* parent, const QuantumTheme& theme);
