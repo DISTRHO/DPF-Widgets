@@ -570,6 +570,7 @@ QuantumMixerSlider::QuantumMixerSlider(TopLevelWidget* const parent, const Quant
       theme(t)
 {
     loadSharedResources();
+    setMouseDeceleration(500.f);
     setSize(QuantumMetrics(t).mixerSlider);
 }
 
@@ -579,6 +580,7 @@ QuantumMixerSlider::QuantumMixerSlider(NanoSubWidget* const parent, const Quantu
       theme(t)
 {
     loadSharedResources();
+    setMouseDeceleration(500.f);
     setSize(QuantumMetrics(t).mixerSlider);
 }
 
