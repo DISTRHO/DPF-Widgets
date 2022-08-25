@@ -313,7 +313,6 @@ protected:
     void onNanoDisplay() override;
     bool onMouse(const MouseEvent& ev) override;
     bool onMotion(const MotionEvent& ev) override;
-    bool onScroll(const ScrollEvent& ev) override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumKnob)
 };
@@ -321,29 +320,19 @@ protected:
 // --------------------------------------------------------------------------------------------------------------------
 
 // assumes -50 to 0 dB range
-class QuantumMixerSlider : public NanoSubWidget
+class QuantumMixerSlider : public NanoSubWidget,
+                           public KnobEventHandler
 {
     const QuantumTheme& theme;
-    KnobEventHandler::Callback* callback = nullptr;
-    bool dragging = false;
-    Rectangle<double> sliderArea;
-    double startedX = 0.0;
-    double startedY = 0.0;
-    float value = 0.f;
 
 public:
     explicit QuantumMixerSlider(TopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumMixerSlider(NanoSubWidget* parent, const QuantumTheme& theme);
 
-    void setCallback(KnobEventHandler::Callback* callback);
-    void setValue(float value, bool sendCallback);
-
 protected:
     void onNanoDisplay() override;
     bool onMouse(const MouseEvent& ev) override;
     bool onMotion(const MotionEvent& ev) override;
-    bool onScroll(const ScrollEvent& ev) override;
-    void onResize(const ResizeEvent& ev) override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumMixerSlider)
 };
@@ -465,7 +454,6 @@ protected:
     void onNanoDisplay() override;
     bool onMouse(const MouseEvent& ev) override;
     bool onMotion(const MotionEvent& ev) override;
-    bool onScroll(const ScrollEvent& ev) override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumValueSlider)
 };
