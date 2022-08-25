@@ -1021,12 +1021,25 @@ void QuantumValueSlider::onNanoDisplay()
     }
 
     char valuestr[32] = {};
-    const float roundedValue = std::round(getValue() * 10.0f)/10.0f;
 
-    if (unitLabel != nullptr)
-        std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f %s", roundedValue, unitLabel);
+    if (isInteger())
+    {
+        const int value = static_cast<int>(getValue());
+
+        if (unitLabel != nullptr)
+            std::snprintf(valuestr, sizeof(valuestr)-1, "%d %s", value, unitLabel);
+        else
+            std::snprintf(valuestr, sizeof(valuestr)-1, "%d", value);
+    }
     else
-        std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
+    {
+        const float roundedValue = std::round(getValue() * 10.0f)/10.0f;
+
+        if (unitLabel != nullptr)
+            std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f %s", roundedValue, unitLabel);
+        else
+            std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
+    }
 
     beginPath();
     fontSize(theme.fontSize);
