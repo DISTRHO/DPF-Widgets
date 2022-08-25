@@ -115,7 +115,7 @@ struct QuantumMetrics
 
 struct QuantumThemeCallback {
     virtual ~QuantumThemeCallback() {}
-    virtual void quantumThemeChanged() = 0;
+    virtual void quantumThemeChanged(bool size, bool colors) = 0;
 };
 
 // --------------------------------------------------------------------------------------------------------------------

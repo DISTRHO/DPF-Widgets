@@ -87,6 +87,12 @@ void QuantumButton::adjustSize()
     setSize(width, height);
 }
 
+void QuantumButton::setBackgroundColor(const Color color)
+{
+    backgroundColor = color;
+    repaint();
+}
+
 void QuantumButton::setLabel(const char* const label2, const bool adjustSizeNow)
 {
     std::free(label);
