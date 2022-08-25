@@ -891,6 +891,7 @@ void QuantumGainReductionMeter::onNanoDisplay()
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     const float centerX = width * 0.5f;
     const float yOffset = theme.borderSize + verticalReservedHeight + usableInnerMeterHeight / 2;
+    text(centerX, yOffset, "- 0 -", nullptr);
     text(centerX, yOffset + usableInnerMeterHeight / 2 * db5, "- 5 -", nullptr);
     text(centerX, yOffset + usableInnerMeterHeight / 2 * db10, "- 10 -", nullptr);
     text(centerX, yOffset + usableInnerMeterHeight / 2 * db20, "- 20 -", nullptr);
