@@ -61,8 +61,6 @@ struct QuantumTheme {
     Color textMidColor = Color::fromHTML("#b3b3b3");
     // text color, dark tone
     Color textDarkColor = Color::fromHTML("#8c8c8c");
-    // text color, very dark tone
-    Color textVeryDarkColor = Color::fromHTML("#383838");
 };
 
 struct QuantumMetrics
@@ -113,6 +111,11 @@ struct QuantumMetrics
                       theme.textHeight)
     {
     }
+};
+
+struct QuantumThemeCallback {
+    virtual ~QuantumThemeCallback() {}
+    virtual void quantumThemeChanged() = 0;
 };
 
 // --------------------------------------------------------------------------------------------------------------------
