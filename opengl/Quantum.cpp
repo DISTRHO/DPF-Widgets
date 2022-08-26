@@ -898,8 +898,8 @@ void QuantumValueMeter::onNanoDisplay()
                  getWidth() - theme.borderSize * 2, (getHeight() - theme.borderSize * 2) * (1.f - normalizedValue));
             break;
         case BottomToTop:
-            rect(theme.borderSize, theme.borderSize + (getHeight() - theme.borderSize * 2) * (1.f - normalizedValue),
-                 getWidth() - theme.borderSize * 2, (getHeight() - theme.borderSize * 2) * normalizedValue);
+            rect(theme.borderSize, theme.borderSize + (getHeight() - theme.borderSize * 2) * normalizedValue,
+                 getWidth() - theme.borderSize * 2, (getHeight() - theme.borderSize * 2) * (1.f - normalizedValue));
             break;
         case CenterToSides:
             if (normalizedValue < 0.5f)
