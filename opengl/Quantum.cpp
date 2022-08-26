@@ -1461,6 +1461,16 @@ void QuantumValueMeter18::onNanoDisplay()
 
 // --------------------------------------------------------------------------------------------------------------------
 
+static inline
+void respositionChildren(const Widget::PositionChangedEvent& ev, std::list<SubWidget*> children)
+{
+    const int deltaX = ev.pos.getX() - ev.oldPos.getX();
+    const int deltaY = ev.pos.getY() - ev.oldPos.getY();
+
+    for (SubWidget* w : children)
+        w->setAbsolutePos(w->getAbsoluteX() + deltaX, w->getAbsoluteY() + deltaY);
+}
+
 template<class tMainWidget>
 AbstractQuantumFrame<tMainWidget>::AbstractQuantumFrame(TopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
@@ -1497,8 +1507,9 @@ void AbstractQuantumFrame<tMainWidget>::onNanoDisplay()
 }
 
 template<class tMainWidget>
-void AbstractQuantumFrame<tMainWidget>::onPositionChanged(const PositionChangedEvent&)
+void AbstractQuantumFrame<tMainWidget>::onPositionChanged(const PositionChangedEvent& ev)
 {
+    respositionChildren(ev, getChildren());
 }
 
 template class AbstractQuantumFrame<char>;
@@ -1539,6 +1550,7 @@ void AbstractQuantumFrame<QuantumLabel>::adjustMainWidgetSize()
 template<>
 void AbstractQuantumFrame<QuantumLabel>::onPositionChanged(const PositionChangedEvent& ev)
 {
+    respositionChildren(ev, getChildren());
     mainWidget.setAbsolutePos(ev.pos.getX() + theme.borderSize, ev.pos.getY());
 }
 
@@ -1578,6 +1590,7 @@ void AbstractQuantumFrame<QuantumSmallSwitch>::adjustMainWidgetSize()
 template<>
 void AbstractQuantumFrame<QuantumSmallSwitch>::onPositionChanged(const PositionChangedEvent& ev)
 {
+    respositionChildren(ev, getChildren());
     mainWidget.setAbsolutePos(ev.pos.getX() + theme.borderSize, ev.pos.getY());
 }
 
