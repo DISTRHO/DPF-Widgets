@@ -81,7 +81,6 @@ protected:
     */
     virtual void onImGuiDisplay() = 0;
 
-private:
     void idleCallback() override;
     void onDisplay() override;
     bool onKeyboard(const Widget::KeyboardEvent& event) override;
@@ -89,8 +88,6 @@ private:
     bool onMouse(const Widget::MouseEvent& event) override;
     bool onMotion(const Widget::MotionEvent& event) override;
     bool onScroll(const Widget::ScrollEvent& event) override;
-
-protected:
     void onResize(const Widget::ResizeEvent& event) override;
 
     struct PrivateData;
