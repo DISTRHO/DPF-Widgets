@@ -772,13 +772,13 @@ void QuantumGainReductionMeter::onNanoDisplay()
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     const float centerX = width * 0.5f;
     const float yOffset = theme.borderSize + verticalReservedHeight + usableInnerMeterHeight / 2;
-    text(centerX, yOffset, "- 0 -", nullptr);
-    text(centerX, yOffset + usableInnerMeterHeight / 2 * db5, "- 5 -", nullptr);
+    text(centerX, yOffset, "-  0  -", nullptr);
+    text(centerX, yOffset + usableInnerMeterHeight / 2 * db5, "-  5  -", nullptr);
     text(centerX, yOffset + usableInnerMeterHeight / 2 * db10, "- 10 -", nullptr);
     text(centerX, yOffset + usableInnerMeterHeight / 2 * db20, "- 20 -", nullptr);
     text(centerX, yOffset + usableInnerMeterHeight / 2 * db30, "- 30 -", nullptr);
     text(centerX, yOffset + usableInnerMeterHeight / 2 * db40, "- 40 -", nullptr);
-    text(centerX, yOffset - usableInnerMeterHeight / 2 * db5, "- 5 -", nullptr);
+    text(centerX, yOffset - usableInnerMeterHeight / 2 * db5, "-  5  -", nullptr);
     text(centerX, yOffset - usableInnerMeterHeight / 2 * db10, "- 10 -", nullptr);
     text(centerX, yOffset - usableInnerMeterHeight / 2 * db20, "- 20 -", nullptr);
     text(centerX, yOffset - usableInnerMeterHeight / 2 * db30, "- 30 -", nullptr);
@@ -878,7 +878,23 @@ void QuantumValueMeter::onNanoDisplay()
     fill();
 
     const float normalizedValue = (value - minimum) / (maximum - minimum);
-    const float nullValue = orientation == CenterToSides ? 0.5f : 0.f;
+    float nullValue = 0.f;
+
+    switch (orientation)
+    {
+    case LeftToRight:
+        // 0.f
+        break;
+    case RightToLeft:
+    case BottomToTop:
+    case TopToBottom:
+        nullValue = 1.0f;
+        break;
+    case CenterToSides:
+    case MiddleToEdges:
+        nullValue = 0.5f;
+        break;
+    }
 
     if (d_isNotEqual(normalizedValue, nullValue))
     {
@@ -906,16 +922,15 @@ void QuantumValueMeter::onNanoDisplay()
                 rect(theme.borderSize + (getWidth() - theme.borderSize * 2) * normalizedValue, theme.borderSize,
                      (getWidth() - theme.borderSize * 2) * (0.5f - normalizedValue), getHeight() - theme.borderSize * 2);
             else
-                rect(getWidth() / 2, theme.borderSize,
+                rect(getWidth() * 0.5f, theme.borderSize,
                      (getWidth() - theme.borderSize * 2) * (normalizedValue - 0.5f), getHeight() - theme.borderSize * 2);
-
             break;
         case MiddleToEdges:
             if (normalizedValue < 0.5f)
                 rect(theme.borderSize, theme.borderSize + (getHeight() - theme.borderSize * 2) * (1.f - normalizedValue),
                      (getWidth() - theme.borderSize * 2), (getHeight() - theme.borderSize * 2) * (normalizedValue - 0.5f));
             else
-                rect(theme.borderSize, getHeight() / 2,
+                rect(theme.borderSize, getHeight() * 0.5f,
                      (getWidth() - theme.borderSize * 2), (getHeight() - theme.borderSize * 2) * (0.5f - normalizedValue));
             break;
         }
@@ -1344,6 +1359,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     text(theme.borderSize + theme.padding, getHeight() - theme.borderSize, valuestr, nullptr);
 
     // helper lines with labels
+    constexpr const float db2 = 1.f - normalizedLevelMeterValue(-2);
     constexpr const float db5 = 1.f - normalizedLevelMeterValue(-5);
     constexpr const float db10 = 1.f - normalizedLevelMeterValue(-10);
     constexpr const float db20 = 1.f - normalizedLevelMeterValue(-20);
@@ -1354,7 +1370,8 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     fontSize(theme.fontSize);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     const float yOffset = theme.borderSize + verticalReservedHeight;
-    text(centerX, yOffset + usableMeterHeight * db5, "- 5 -", nullptr);
+    text(centerX, yOffset + usableMeterHeight * db2, "-  2  -", nullptr);
+    text(centerX, yOffset + usableMeterHeight * db5, "-  5  -", nullptr);
     text(centerX, yOffset + usableMeterHeight * db10, "- 10 -", nullptr);
     text(centerX, yOffset + usableMeterHeight * db20, "- 20 -", nullptr);
     text(centerX, yOffset + usableMeterHeight * db30, "- 30 -", nullptr);
