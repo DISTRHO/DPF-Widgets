@@ -974,6 +974,7 @@ QuantumValueSlider::QuantumValueSlider(TopLevelWidget* const parent, const Quant
       theme(t)
 {
     loadSharedResources();
+    setMouseDeceleration(500.f);
     setOrientation(Both);
     setSize(QuantumMetrics(t).valueSlider);
 }
@@ -984,6 +985,7 @@ QuantumValueSlider::QuantumValueSlider(NanoSubWidget* const parent, const Quantu
       theme(t)
 {
     loadSharedResources();
+    setMouseDeceleration(500.f);
     setOrientation(Both);
     setSize(QuantumMetrics(t).valueSlider);
 }
