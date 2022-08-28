@@ -625,7 +625,7 @@ void QuantumMixerSlider::onNanoDisplay()
     text(width * 0.5f, theme.textHeight, "Target", nullptr);
 
     // slider line
-    strokeColor(theme.widgetBackgroundColor);
+    strokeColor(Color(Color(), theme.widgetBackgroundColor, 0.5f));
     strokeWidth(theme.widgetLineSize);
 
     beginPath();
