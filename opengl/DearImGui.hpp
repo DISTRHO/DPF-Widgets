@@ -72,7 +72,7 @@ public:
    /**
       Destructor.
     */
-    virtual ~ImGuiWidget();
+    ~ImGuiWidget() override;
 
 protected:
    /**
