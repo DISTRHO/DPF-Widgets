@@ -829,6 +829,11 @@ QuantumValueMeter::QuantumValueMeter(NanoSubWidget* const parent, const QuantumT
     setSize(QuantumMetrics(t).valueMeterHorizontal);
 }
 
+QuantumValueMeter::~QuantumValueMeter()
+{
+    std::free(unitLabel);
+}
+
 void QuantumValueMeter::setBackgroundColor(Color color)
 {
     backgroundColor = color;
@@ -988,6 +993,11 @@ QuantumValueSlider::QuantumValueSlider(NanoSubWidget* const parent, const Quantu
     setMouseDeceleration(500.f);
     setOrientation(Both);
     setSize(QuantumMetrics(t).valueSlider);
+}
+
+QuantumValueSlider::~QuantumValueSlider()
+{
+    std::free(unitLabel);
 }
 
 void QuantumValueSlider::setBackgroundColor(Color color)

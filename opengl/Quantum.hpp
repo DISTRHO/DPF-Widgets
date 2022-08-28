@@ -372,6 +372,7 @@ public:
 
     explicit QuantumValueMeter(TopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumValueMeter(NanoSubWidget* parent, const QuantumTheme& theme);
+    ~QuantumValueMeter() override;
 
     inline Color getBackgroundColor() const noexcept
     {
@@ -428,6 +429,7 @@ class QuantumValueSlider : public NanoSubWidget,
 public:
     explicit QuantumValueSlider(TopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumValueSlider(NanoSubWidget* parent, const QuantumTheme& theme);
+    ~QuantumValueSlider() override;
 
     inline Color getBackgroundColor() const noexcept
     {
