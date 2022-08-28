@@ -593,9 +593,11 @@ void QuantumMixerSlider::onNanoDisplay()
     const float sliderHandleWidth = theme.textHeight;
     const float sliderHandleHeight = theme.textHeight * 2;
     const float sliderLineHeightFor70dB = height - sliderHandleHeight;
-    const float sliderLineHeightFor50dB = sliderLineHeightFor70dB * (1.f - normalizedLevelMeterValue(-50.f));
-    const float sliderLineStartX = static_cast<float>(width - theme.widgetLineSize) / 2;
-    const float sliderLineStartY = sliderHandleHeight / 2 + theme.borderSize * 2; // FIXME this offset shouldnt be needed
+    const float sliderLineHeightFor2dB = sliderLineHeightFor70dB * (1.f - normalizedLevelMeterValue(-2.f));
+    const float sliderLineHeightFor48dB = sliderLineHeightFor70dB * (1.f - normalizedLevelMeterValue(-50.f)) - sliderLineHeightFor2dB;
+    const float sliderLineStartX = width * 0.5f;
+    const float sliderLineStartY0dB = theme.borderSize + sliderHandleHeight * 0.5f;
+    const float sliderLineStartY2dB = sliderLineStartY0dB + sliderLineHeightFor2dB;
     const float valueBoxStartY = height - sliderHandleHeight + theme.borderSize + theme.padding;
 
     // bottom box and value
@@ -619,33 +621,33 @@ void QuantumMixerSlider::onNanoDisplay()
     text(width * 0.5f, height - theme.textHeight * 0.5f + theme.borderSize, valuestr, nullptr);
 
     // top label
-    fontSize(theme.fontSize * 2 /3);
-    text(width * 0.5f, sliderLineStartY - theme.borderSize * 2, "Target", nullptr);
+    fontSize(theme.fontSize * 2 / 3);
+    text(width * 0.5f, theme.textHeight, "Target", nullptr);
 
     // slider line
     strokeColor(theme.widgetBackgroundColor);
     strokeWidth(theme.widgetLineSize);
 
     beginPath();
-    moveTo(sliderLineStartX, sliderLineStartY);
-    lineTo(sliderLineStartX, sliderLineStartY + sliderLineHeightFor50dB);
+    moveTo(sliderLineStartX, sliderLineStartY2dB);
+    lineTo(sliderLineStartX, sliderLineStartY2dB + sliderLineHeightFor48dB);
     stroke();
 
     beginPath();
-    moveTo(sliderLineStartX - sliderHandleWidth / 2, sliderLineStartY);
-    lineTo(sliderLineStartX + sliderHandleWidth / 2, sliderLineStartY);
+    moveTo(sliderLineStartX - sliderHandleWidth / 2, sliderLineStartY2dB);
+    lineTo(sliderLineStartX + sliderHandleWidth / 2, sliderLineStartY2dB);
     stroke();
 
     beginPath();
-    moveTo(sliderLineStartX - sliderHandleWidth / 2, sliderLineStartY + sliderLineHeightFor50dB);
-    lineTo(sliderLineStartX + sliderHandleWidth / 2, sliderLineStartY + sliderLineHeightFor50dB);
+    moveTo(sliderLineStartX - sliderHandleWidth / 2, sliderLineStartY2dB + sliderLineHeightFor48dB);
+    lineTo(sliderLineStartX + sliderHandleWidth / 2, sliderLineStartY2dB + sliderLineHeightFor48dB);
     stroke();
 
-    strokeWidth(theme.borderSize);
+    strokeWidth(std::max(1.f, theme.widgetLineSize * 0.5f));
 
     for (int i=1; i<25; ++i)
     {
-        const float tracesY = sliderLineStartY + (i * sliderLineHeightFor50dB / 25);
+        const float tracesY = sliderLineStartY2dB + (i * sliderLineHeightFor48dB / 25);
         beginPath();
         moveTo(sliderLineStartX - sliderHandleWidth / 4, tracesY);
         lineTo(sliderLineStartX + sliderHandleWidth / 4, tracesY);
