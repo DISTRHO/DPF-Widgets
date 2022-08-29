@@ -29,7 +29,7 @@ static inline constexpr
 float normalizedLevelMeterValue(const float db)
 {
 	return (
-        db < -70.f  ? 0.f :
+        db < -70.f ? 0.f :
         db < -60.f ? (db + 70.f) * 0.25f :
         db < -50.f ? (db + 60.f) * 0.50f +  2.5f :
         db < -40.f ? (db + 50.f) * 0.75f +  7.5f :
