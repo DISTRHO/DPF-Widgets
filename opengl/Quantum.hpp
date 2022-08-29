@@ -329,6 +329,8 @@ public:
     explicit QuantumMixerSlider(TopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumMixerSlider(NanoSubWidget* parent, const QuantumTheme& theme);
 
+    Rectangle<int> getValueFieldAbsoluteArea() const noexcept;
+
 protected:
     void onNanoDisplay() override;
     bool onMouse(const MouseEvent& ev) override;

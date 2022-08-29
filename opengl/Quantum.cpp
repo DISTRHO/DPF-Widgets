@@ -584,6 +584,17 @@ QuantumMixerSlider::QuantumMixerSlider(NanoSubWidget* const parent, const Quantu
     setSize(QuantumMetrics(t).mixerSlider);
 }
 
+Rectangle<int> QuantumMixerSlider::getValueFieldAbsoluteArea() const noexcept
+{
+    const uint width = getWidth();
+    const uint height = getHeight();
+
+    const float sliderHandleHeight = theme.textHeight * 2;
+    const float valueBoxStartY = height - sliderHandleHeight + theme.borderSize + theme.padding;
+
+    return Rectangle<int>(getAbsoluteX(), getAbsoluteY() + valueBoxStartY, width, height - valueBoxStartY);
+}
+
 void QuantumMixerSlider::onNanoDisplay()
 {
     const uint width = getWidth();
