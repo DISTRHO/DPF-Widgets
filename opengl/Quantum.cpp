@@ -97,6 +97,7 @@ void QuantumButton::setLabel(const char* const label2, const bool adjustSizeNow)
 {
     std::free(label);
     label = label2 != nullptr ? strdup(label2) : nullptr;
+    labelHasNewLine = label != nullptr && std::strchr(label, '\n') != nullptr;
 
     if (adjustSizeNow)
         adjustSize();
@@ -143,7 +144,10 @@ void QuantumButton::onNanoDisplay()
         fillColor(theme.textLightColor);
         fontSize(theme.fontSize);
         textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
-        text(getWidth() / 2, getHeight() / 2, label, nullptr);
+        if (labelHasNewLine)
+            textBox(0, (getHeight() - theme.fontSize) * 0.5f, getWidth(), label, nullptr);
+        else
+            text(getWidth() / 2, getHeight() / 2, label, nullptr);
     }
 }
 

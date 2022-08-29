@@ -126,6 +126,7 @@ class QuantumButton : public NanoSubWidget,
     const QuantumTheme& theme;
     Color backgroundColor = theme.widgetDefaultActiveColor;
     char* label = nullptr;
+    bool labelHasNewLine = false;
 
 public:
     explicit QuantumButton(TopLevelWidget* parent, const QuantumTheme& theme);
