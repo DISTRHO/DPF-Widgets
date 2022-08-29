@@ -554,12 +554,12 @@ void QuantumKnob::onNanoDisplay()
 
 bool QuantumKnob::onMouse(const MouseEvent& ev)
 {
-    return mouseEvent(ev);
+    return mouseEvent(ev, getTopLevelWidget()->getScaleFactor());
 }
 
 bool QuantumKnob::onMotion(const MotionEvent& ev)
 {
-    return motionEvent(ev);
+    return motionEvent(ev, getTopLevelWidget()->getScaleFactor());
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -691,12 +691,12 @@ void QuantumMixerSlider::onNanoDisplay()
 
 bool QuantumMixerSlider::onMouse(const MouseEvent& ev)
 {
-    return mouseEvent(ev);
+    return mouseEvent(ev, getTopLevelWidget()->getScaleFactor());
 }
 
 bool QuantumMixerSlider::onMotion(const MotionEvent& ev)
 {
-    return motionEvent(ev);
+    return motionEvent(ev, getTopLevelWidget()->getScaleFactor());
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -1081,12 +1081,12 @@ void QuantumValueSlider::onNanoDisplay()
 
 bool QuantumValueSlider::onMouse(const MouseEvent& ev)
 {
-    return mouseEvent(ev);
+    return mouseEvent(ev, getTopLevelWidget()->getScaleFactor());
 }
 
 bool QuantumValueSlider::onMotion(const MotionEvent& ev)
 {
-    return motionEvent(ev);
+    return motionEvent(ev, getTopLevelWidget()->getScaleFactor());
 }
 
 // --------------------------------------------------------------------------------------------------------------------
