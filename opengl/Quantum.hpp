@@ -42,15 +42,15 @@ struct QuantumTheme {
     // how much extra width to give to text labels to compensate for rounding with >= 2x scaling factor
     uint textPixelRatioWidthCompensation = 0;
     // background color for level meter widgets
-    Color levelMeterColor = Color::fromHTML("#5c9187");
+    Color levelMeterColor = Color::fromHTML("#4a8179");
     // alternative background color for level meter widgets
-    Color levelMeterAlternativeColor = Color::fromHTML("#764b83");
+    Color levelMeterAlternativeColor = Color::fromHTML("#ad68b9");
     // background color for widgets, e.g. slider line and knob padding, typically dark
     Color widgetBackgroundColor = Color::fromHTML("#141414");
     // default active color for widgets, e.g. pressed button and knob body
     Color widgetDefaultActiveColor = Color::fromHTML("#578079");
     // default alternative color for widgets, similar to the active just an alternative color
-    Color widgetDefaultAlternativeColor = Color::fromHTML("#6064ed");
+    Color widgetDefaultAlternativeColor = Color::fromHTML("#5f64f6");
     // foreground color for widgets, e.g. slider handle and knob indicator, typically light
     Color widgetForegroundColor = Color::fromHTML("#dcdcdc");
     // window background, typically lighter than widget background
