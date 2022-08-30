@@ -42,17 +42,17 @@ struct QuantumTheme {
     // how much extra width to give to text labels to compensate for rounding with >= 2x scaling factor
     uint textPixelRatioWidthCompensation = 0;
     // background color for level meter widgets
-    Color levelMeterColor = Color::fromHTML("#4ca947");
+    Color levelMeterColor = Color::fromHTML("#5c9187");
     // alternative background color for level meter widgets
-    Color levelMeterAlternativeColor = Color::fromHTML("#ffc400");
+    Color levelMeterAlternativeColor = Color::fromHTML("#764b83");
     // background color for widgets, e.g. slider line and knob padding, typically dark
     Color widgetBackgroundColor = Color::fromHTML("#141414");
     // default active color for widgets, e.g. pressed button and knob body
-    Color widgetDefaultActiveColor = Color::fromHTML("#3f535a");
+    Color widgetDefaultActiveColor = Color::fromHTML("#578079");
     // default alternative color for widgets, similar to the active just an alternative color
-    Color widgetDefaultAlternativeColor = Color::fromHTML("#585338");
+    Color widgetDefaultAlternativeColor = Color::fromHTML("#6064ed");
     // foreground color for widgets, e.g. slider handle and knob indicator, typically light
-    Color widgetForegroundColor = Color::fromHTML("#8c8c8c");
+    Color widgetForegroundColor = Color::fromHTML("#dcdcdc");
     // window background, typically lighter than widget background
     Color windowBackgroundColor = Color::fromHTML("#3d3d3d");
     // text color, main / brightest tone
@@ -511,24 +511,6 @@ protected:
     void idleCallback() override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumStereoLevelMeterWithLUFS)
-};
-
-// --------------------------------------------------------------------------------------------------------------------
-
-class QuantumValueMeter18 : public NanoSubWidget
-{
-    const QuantumTheme& theme;
-    float values[18] = {};
-
-public:
-    explicit QuantumValueMeter18(TopLevelWidget* parent, const QuantumTheme& theme);
-
-    void setValue(uint index, float value);
-
-protected:
-    void onNanoDisplay() override;
-
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumValueMeter18)
 };
 
 // --------------------------------------------------------------------------------------------------------------------

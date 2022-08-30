@@ -1295,7 +1295,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         rect(pxl,
              theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
              meterChannelWidth, meterChannelHeight * value);
-        fillColor(theme.levelMeterColor.withAlpha(0.5f));
+        fillColor(theme.levelMeterColor);
         fill();
 
         std::snprintf(valuestr, sizeof(valuestr)-1, "%.0f", valueL);
@@ -1319,7 +1319,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         beginPath();
         moveTo(pxl, y);
         lineTo(pxl + meterChannelWidth, y);
-        strokeColor(theme.levelMeterColor.withAlpha(0.5f));
+        strokeColor(theme.levelMeterColor);
         strokeWidth(theme.borderSize);
         stroke();
     }
@@ -1333,7 +1333,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         rect(pxr,
              theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
              meterChannelWidth, meterChannelHeight * value);
-        fillColor(theme.levelMeterColor.withAlpha(0.5f));
+        fillColor(theme.levelMeterColor);
         fill();
 
         std::snprintf(valuestr, sizeof(valuestr)-1, "%.0f", valueR);
@@ -1357,7 +1357,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         beginPath();
         moveTo(pxr, y);
         lineTo(pxr + meterChannelWidth, y);
-        strokeColor(theme.levelMeterColor.withAlpha(0.5f));
+        strokeColor(theme.levelMeterColor);
         strokeWidth(theme.borderSize);
         stroke();
     }
@@ -1372,7 +1372,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
              theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
              meterChannelWidth * 2 + theme.borderSize * 2,
              meterChannelHeight * value);
-        fillColor(Color(theme.levelMeterAlternativeColor, Color(), 0.5f));
+        fillColor(theme.levelMeterAlternativeColor);
         fill();
 
         std::snprintf(valuestr, sizeof(valuestr)-1, "LUFS: %.1f", valueLufs);
@@ -1451,57 +1451,6 @@ void QuantumStereoLevelMeterWithLUFS::idleCallback()
             falloffR = std::max(valueR, static_cast<float>(falloffR - falloffDbPerSecond * diffSinceLastIdle));
             repaint();
         }
-    }
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-
-QuantumValueMeter18::QuantumValueMeter18(TopLevelWidget* const parent, const QuantumTheme& t)
-    : NanoSubWidget(parent),
-      theme(t)
-{
-    setSize(32, 32);
-}
-
-void QuantumValueMeter18::setValue(const uint index, const float value)
-{
-    DISTRHO_SAFE_ASSERT_INT_RETURN(index < ARRAY_SIZE(values), index,);
-
-    if (d_isEqual(values[index], value))
-        return;
-
-    values[index] = value;
-    repaint();
-}
-
-void QuantumValueMeter18::onNanoDisplay()
-{
-    const uint wpb = getWidth() / (ARRAY_SIZE(values) / 2);
-
-    fillColor(theme.levelMeterColor.withAlpha(0.1f));
-    strokeColor(theme.widgetBackgroundColor.withAlpha(0.25f));
-    strokeWidth(std::max(1u, theme.borderSize / 2));
-
-    const float usableHeight = getHeight() / 2 - theme.padding;
-
-    for (size_t i=0; i<ARRAY_SIZE(values)/2; ++i)
-    {
-        const float valuableHeight = usableHeight * ((values[i] + 3) / 3);
-
-        beginPath();
-        rect(wpb * i, usableHeight - valuableHeight, wpb, valuableHeight);
-        fill();
-        stroke();
-    }
-
-    for (size_t i=0; i<ARRAY_SIZE(values)/2; ++i)
-    {
-        const float valuableHeight = usableHeight * ((values[ARRAY_SIZE(values)/2 + i] + 3) / 3);
-
-        beginPath();
-        rect(wpb * i, usableHeight * 2 + theme.padding - valuableHeight, wpb, valuableHeight);
-        fill();
-        stroke();
     }
 }
 
