@@ -1,7 +1,7 @@
 /*
  * Dear ImGui for DPF
- * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
  * Copyright (C) 2021 Jean Pierre Cimalando <jp-dev@inbox.ru>
+ * Copyright (C) 2021-2022 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -52,22 +52,22 @@ public:
    /**
       Constructor for a ImGuiSubWidget.
     */
-    explicit ImGuiWidget(Widget* parentGroupWidget);
+    explicit ImGuiWidget(Widget* parentGroupWidget, float fontSize = 13.f);
 
    /**
       Constructor for a ImGuiTopLevelWidget.
     */
-    explicit ImGuiWidget(Window& windowToMapTo);
+    explicit ImGuiWidget(Window& windowToMapTo, float fontSize = 13.f);
 
    /**
       Constructor for a ImGuiStandaloneWindow without transient parent window.
     */
-    explicit ImGuiWidget(Application& app);
+    explicit ImGuiWidget(Application& app, float fontSize = 13.f);
 
    /**
       Constructor for a ImGuiStandaloneWindow with transient parent window.
     */
-    explicit ImGuiWidget(Application& app, Window& transientParentWindow);
+    explicit ImGuiWidget(Application& app, Window& transientParentWindow, float fontSize = 13.f);
 
    /**
       Destructor.

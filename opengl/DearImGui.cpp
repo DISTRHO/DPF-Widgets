@@ -1,7 +1,7 @@
 /*
  * Dear ImGui for DPF
- * Copyright (C) 2021-2022 Filipe Coelho <falktx@falktx.com>
  * Copyright (C) 2021 Jean Pierre Cimalando <jp-dev@inbox.ru>
+ * Copyright (C) 2021-2022 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -78,7 +78,7 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
     double scaleFactor;
     double lastFrameTime;
 
-    explicit PrivateData(ImGuiWidget<BaseWidget>* const s)
+    explicit PrivateData(ImGuiWidget<BaseWidget>* const s, const float fontSize)
         : self(s),
           context(nullptr),
           scaleFactor(s->getTopLevelWidget()->getScaleFactor()),
@@ -100,16 +100,16 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         ImGuiStyle& style(ImGui::GetStyle());
         style.ScaleAllSizes(scaleFactor);
 
-#ifndef DGL_NO_SHARED_RESOURCES
+       #ifndef DGL_NO_SHARED_RESOURCES
         using namespace dpf_resources;
         ImFontConfig fc;
         fc.FontDataOwnedByAtlas = false;
         fc.OversampleH = 1;
         fc.OversampleV = 1;
         fc.PixelSnapH = true;
-        io.Fonts->AddFontFromMemoryTTF((void*)dejavusans_ttf, dejavusans_ttf_size, 13.0f * scaleFactor, &fc);
+        io.Fonts->AddFontFromMemoryTTF((void*)dejavusans_ttf, dejavusans_ttf_size, fontSize * scaleFactor, &fc);
         io.Fonts->Build();
-#endif
+       #endif
 
         io.KeyMap[ImGuiKey_Tab] = '\t';
         io.KeyMap[ImGuiKey_LeftArrow] = 0xff + kKeyLeft - kKeyF1;
@@ -138,21 +138,21 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         io.SetClipboardTextFn = SetClipboardTextFn;
         io.ClipboardUserData = s->getTopLevelWidget();
 
-#if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
+       #if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
         ImGui_ImplOpenGL3_Init();
-#else
+       #else
         ImGui_ImplOpenGL2_Init();
-#endif
+       #endif
     }
 
     ~PrivateData()
     {
         ImGui::SetCurrentContext(context);
-#if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
+       #if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
         ImGui_ImplOpenGL3_Shutdown();
-#else
+       #else
         ImGui_ImplOpenGL2_Shutdown();
-#endif
+       #endif
         ImGui::DestroyContext(context);
     }
 
@@ -188,11 +188,11 @@ void ImGuiWidget<BaseWidget>::onDisplay()
 
     io.DeltaTime = imData->getTimeDelta();
 
-#if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
+   #if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
     ImGui_ImplOpenGL3_NewFrame();
-#else
+   #else
     ImGui_ImplOpenGL2_NewFrame();
-#endif
+   #endif
 
     ImGui::NewFrame();
     onImGuiDisplay();
@@ -209,11 +209,11 @@ void ImGuiWidget<BaseWidget>::onDisplay()
     {
         data->DisplayPos.x = -imData->getDisplayX();
         data->DisplayPos.y = imData->getDisplayY();
-#if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
+       #if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
         ImGui_ImplOpenGL3_RenderDrawData(data);
-#else
+       #else
         ImGui_ImplOpenGL2_RenderDrawData(data);
-#endif
+       #endif
     }
 }
 
@@ -282,14 +282,14 @@ bool ImGuiWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
 
     switch (event.button)
     {
-    case 1:
+    case kMouseButtonLeft:
         io.MouseDown[0] = event.press;
         break;
-    case 2:
-        io.MouseDown[2] = event.press;
-        break;
-    case 3:
+    case kMouseButtonRight:
         io.MouseDown[1] = event.press;
+        break;
+    case kMouseButtonMiddle:
+        io.MouseDown[2] = event.press;
         break;
     }
 
@@ -358,9 +358,9 @@ double ImGuiWidget<SubWidget>::PrivateData::getTime() const noexcept
 }
 
 template <>
-ImGuiWidget<SubWidget>::ImGuiWidget(Widget* const parent)
+ImGuiWidget<SubWidget>::ImGuiWidget(Widget* const parent, const float fontSize)
     : SubWidget(parent),
-      imData(new PrivateData(this))
+      imData(new PrivateData(this, fontSize))
 {
     getWindow().addIdleCallback(this, 1000 / 60); // 60 fps
 }
@@ -396,9 +396,9 @@ double ImGuiWidget<TopLevelWidget>::PrivateData::getTime() const noexcept
 }
 
 template <>
-ImGuiWidget<TopLevelWidget>::ImGuiWidget(Window& windowToMapTo)
+ImGuiWidget<TopLevelWidget>::ImGuiWidget(Window& windowToMapTo, const float fontSize)
     : TopLevelWidget(windowToMapTo),
-      imData(new PrivateData(this))
+      imData(new PrivateData(this, fontSize))
 {
     addIdleCallback(this, 1000 / 60); // 60 fps
 }
@@ -434,17 +434,17 @@ double ImGuiWidget<StandaloneWindow>::PrivateData::getTime() const noexcept
 }
 
 template <>
-ImGuiWidget<StandaloneWindow>::ImGuiWidget(Application& app)
+ImGuiWidget<StandaloneWindow>::ImGuiWidget(Application& app, const float fontSize)
     : StandaloneWindow(app),
-      imData(new PrivateData(this))
+      imData(new PrivateData(this, fontSize))
 {
     Window::addIdleCallback(this, 1000 / 60); // 60 fps
 }
 
 template <>
-ImGuiWidget<StandaloneWindow>::ImGuiWidget(Application& app, Window& transientParentWindow)
+ImGuiWidget<StandaloneWindow>::ImGuiWidget(Application& app, Window& transientParentWindow, const float fontSize)
     : StandaloneWindow(app, transientParentWindow),
-      imData(new PrivateData(this))
+      imData(new PrivateData(this, fontSize))
 {
     Window::addIdleCallback(this, 1000 / 60); // 60 fps
 }
