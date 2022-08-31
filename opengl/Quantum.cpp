@@ -1213,21 +1213,10 @@ void QuantumStereoLevelMeterWithLUFS::setValueLufs(const float value)
 
 void QuantumStereoLevelMeterWithLUFS::setValues(const float l, const float r, const float lufs)
 {
-    if (l >= falloffL)
-    {
-        falloffL = l;
-        lastTimeL = timeL = app.getTime();
-    }
-
-    if (r >= falloffR)
-    {
-        falloffR = r;
-        lastTimeR = timeR = app.getTime();
-    }
-
-    valueL = l;
-    valueR = r;
+    falloffL = valueL = l;
+    falloffR = valueR = r;
     valueLufs = lufs;
+    lastTimeL = timeL = lastTimeR = timeR = 0;
     repaint();
 }
 
