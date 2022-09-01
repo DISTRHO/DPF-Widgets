@@ -329,6 +329,7 @@ class QuantumMixerSlider : public NanoSubWidget,
 public:
     explicit QuantumMixerSlider(TopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumMixerSlider(NanoSubWidget* parent, const QuantumTheme& theme);
+    ~QuantumMixerSlider() override;
 
     Rectangle<int> getValueFieldAbsoluteArea() const noexcept;
 

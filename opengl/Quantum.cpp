@@ -588,6 +588,10 @@ QuantumMixerSlider::QuantumMixerSlider(NanoSubWidget* const parent, const Quantu
     setSize(QuantumMetrics(t).mixerSlider);
 }
 
+QuantumMixerSlider::~QuantumMixerSlider()
+{
+}
+
 Rectangle<int> QuantumMixerSlider::getValueFieldAbsoluteArea() const noexcept
 {
     const uint width = getWidth();
