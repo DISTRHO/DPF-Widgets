@@ -129,7 +129,7 @@ class QuantumButton : public NanoSubWidget,
     bool labelHasNewLine = false;
 
 public:
-    explicit QuantumButton(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumButton(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumButton(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumButton() override;
 
@@ -166,7 +166,7 @@ class QuantumLabel : public NanoSubWidget
     Color labelColor = theme.textLightColor;
 
 public:
-    explicit QuantumLabel(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumLabel(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumLabel(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumLabel() override;
 
@@ -204,7 +204,7 @@ class AbstractQuantumSeparatorLine : public NanoSubWidget
     const QuantumTheme& theme;
 
 public:
-    explicit AbstractQuantumSeparatorLine(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit AbstractQuantumSeparatorLine(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit AbstractQuantumSeparatorLine(NanoSubWidget* parent, const QuantumTheme& theme);
 
 protected:
@@ -240,7 +240,7 @@ class AbstractQuantumSwitch : public NanoSubWidget,
     char* label = nullptr;
 
 public:
-    explicit AbstractQuantumSwitch(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit AbstractQuantumSwitch(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit AbstractQuantumSwitch(NanoSubWidget* parent, const QuantumTheme& theme);
     ~AbstractQuantumSwitch() override;
 
@@ -300,7 +300,7 @@ class QuantumKnob : public NanoSubWidget,
     Color backgroundColor = theme.widgetDefaultActiveColor;
 
 public:
-    explicit QuantumKnob(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumKnob(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumKnob(NanoSubWidget* parent, const QuantumTheme& theme);
 
     inline Color getBackgroundColor() const noexcept
@@ -327,7 +327,7 @@ class QuantumMixerSlider : public NanoSubWidget,
     const QuantumTheme& theme;
 
 public:
-    explicit QuantumMixerSlider(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumMixerSlider(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumMixerSlider(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumMixerSlider() override;
 
@@ -374,7 +374,7 @@ public:
         MiddleToEdges // FIXME this needs a better name..
     };
 
-    explicit QuantumValueMeter(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumValueMeter(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumValueMeter(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumValueMeter() override;
 
@@ -431,7 +431,7 @@ class QuantumValueSlider : public NanoSubWidget,
     char* unitLabel = nullptr;
 
 public:
-    explicit QuantumValueSlider(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumValueSlider(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumValueSlider(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumValueSlider() override;
 
@@ -469,7 +469,7 @@ protected:
 class QuantumLevelMeter : public QuantumValueMeter
 {
 public:
-    explicit QuantumLevelMeter(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumLevelMeter(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumLevelMeter(NanoSubWidget* parent, const QuantumTheme& theme);
 
 protected:
@@ -498,7 +498,7 @@ class QuantumStereoLevelMeterWithLUFS : public NanoSubWidget,
     double lastTimeR = 0.0;
 
 public:
-    explicit QuantumStereoLevelMeterWithLUFS(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumStereoLevelMeterWithLUFS(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumStereoLevelMeterWithLUFS(NanoSubWidget* parent, const QuantumTheme& theme);
 
     void setRange(float min, float max);
@@ -522,7 +522,7 @@ class AbstractQuantumFrame : public NanoSubWidget
     const QuantumTheme& theme;
 
 public:
-    explicit AbstractQuantumFrame(TopLevelWidget* parent, const QuantumTheme& theme);
+    explicit AbstractQuantumFrame(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit AbstractQuantumFrame(NanoSubWidget* parent, const QuantumTheme& theme);
 
     // publicly exposed for convenience, do not resize or reposition

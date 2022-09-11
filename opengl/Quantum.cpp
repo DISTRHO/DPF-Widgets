@@ -42,7 +42,7 @@ float normalizedLevelMeterValue(const float db)
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumButton::QuantumButton(TopLevelWidget* const parent, const QuantumTheme& t)
+QuantumButton::QuantumButton(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       ButtonEventHandler(this),
       theme(t)
@@ -163,7 +163,7 @@ bool QuantumButton::onMotion(const MotionEvent& ev)
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumLabel::QuantumLabel(TopLevelWidget* const parent, const QuantumTheme& t)
+QuantumLabel::QuantumLabel(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       theme(t)
 {
@@ -253,7 +253,7 @@ void QuantumLabel::onNanoDisplay()
 // --------------------------------------------------------------------------------------------------------------------
 
 template<bool horizontal>
-AbstractQuantumSeparatorLine<horizontal>::AbstractQuantumSeparatorLine(TopLevelWidget* const parent, const QuantumTheme& t)
+AbstractQuantumSeparatorLine<horizontal>::AbstractQuantumSeparatorLine(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       theme(t)
 {
@@ -286,10 +286,16 @@ template class AbstractQuantumSeparatorLine<true>;
 // --------------------------------------------------------------------------------------------------------------------
 
 QuantumSpacer::QuantumSpacer(TopLevelWidget* const parent)
-    : SubWidget(parent) {}
+    : SubWidget(parent)
+{
+    setSkipDrawing();
+}
 
 QuantumSpacer::QuantumSpacer(SubWidget* const parent)
-    : SubWidget(parent) {}
+    : SubWidget(parent)
+{
+    setSkipDrawing();
+}
 
 void QuantumSpacer::onDisplay()
 {
@@ -298,7 +304,7 @@ void QuantumSpacer::onDisplay()
 // --------------------------------------------------------------------------------------------------------------------
 
 template<bool small>
-AbstractQuantumSwitch<small>::AbstractQuantumSwitch(TopLevelWidget* const parent, const QuantumTheme& t)
+AbstractQuantumSwitch<small>::AbstractQuantumSwitch(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       ButtonEventHandler(this),
       theme(t)
@@ -412,7 +418,7 @@ template class AbstractQuantumSwitch<true>;
 // --------------------------------------------------------------------------------------------------------------------
 
 /*
-QuantumDualSidedSwitch::QuantumDualSidedSwitch(TopLevelWidget* const parent, const QuantumTheme& t)
+QuantumDualSidedSwitch::QuantumDualSidedSwitch(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       ButtonEventHandler(this),
       theme(t)
@@ -503,7 +509,7 @@ bool QuantumDualSidedSwitch::onMotion(const MotionEvent& ev)
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumKnob::QuantumKnob(TopLevelWidget* const parent, const QuantumTheme& t)
+QuantumKnob::QuantumKnob(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       KnobEventHandler(this),
       theme(t)
@@ -568,7 +574,7 @@ bool QuantumKnob::onMotion(const MotionEvent& ev)
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumMixerSlider::QuantumMixerSlider(TopLevelWidget* const parent, const QuantumTheme& t)
+QuantumMixerSlider::QuantumMixerSlider(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       KnobEventHandler(this),
       theme(t)
@@ -832,7 +838,7 @@ void QuantumGainReductionMeter::onNanoDisplay()
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumValueMeter::QuantumValueMeter(TopLevelWidget* const parent, const QuantumTheme& t)
+QuantumValueMeter::QuantumValueMeter(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       theme(t)
 {
@@ -992,7 +998,7 @@ void QuantumValueMeter::onNanoDisplay()
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumValueSlider::QuantumValueSlider(TopLevelWidget* const parent, const QuantumTheme& t)
+QuantumValueSlider::QuantumValueSlider(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       KnobEventHandler(this),
       theme(t)
@@ -1110,7 +1116,7 @@ bool QuantumValueSlider::onMotion(const MotionEvent& ev)
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumLevelMeter::QuantumLevelMeter(TopLevelWidget* const parent, const QuantumTheme& t)
+QuantumLevelMeter::QuantumLevelMeter(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : QuantumValueMeter(parent, t)
 {
     loadSharedResources();
@@ -1147,7 +1153,7 @@ void QuantumLevelMeter::onNanoDisplay()
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumStereoLevelMeterWithLUFS::QuantumStereoLevelMeterWithLUFS(TopLevelWidget* const parent, const QuantumTheme& t)
+QuantumStereoLevelMeterWithLUFS::QuantumStereoLevelMeterWithLUFS(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       app(parent->getApp()),
       theme(t)
@@ -1460,7 +1466,7 @@ void respositionChildren(const Widget::PositionChangedEvent& ev, std::list<SubWi
 }
 
 template<class tMainWidget>
-AbstractQuantumFrame<tMainWidget>::AbstractQuantumFrame(TopLevelWidget* const parent, const QuantumTheme& t)
+AbstractQuantumFrame<tMainWidget>::AbstractQuantumFrame(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       theme(t)
 {
@@ -1484,7 +1490,7 @@ template<class tMainWidget>
 void AbstractQuantumFrame<tMainWidget>::onNanoDisplay()
 {
     beginPath();
-    rect(0, offset, getWidth(), getHeight());
+    rect(0, offset, getWidth(), getHeight() - offset);
     fillColor(theme.widgetBackgroundColor);
     fill();
 
@@ -1505,7 +1511,7 @@ template class AbstractQuantumFrame<char>;
 // --------------------------------------------------------------------------------------------------------------------
 
 template<>
-AbstractQuantumFrame<QuantumLabel>::AbstractQuantumFrame(TopLevelWidget* const parent, const QuantumTheme& t)
+AbstractQuantumFrame<QuantumLabel>::AbstractQuantumFrame(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       theme(t),
       mainWidget(this, t)
@@ -1547,7 +1553,7 @@ template class AbstractQuantumFrame<QuantumLabel>;
 // --------------------------------------------------------------------------------------------------------------------
 
 template<>
-AbstractQuantumFrame<QuantumSmallSwitch>::AbstractQuantumFrame(TopLevelWidget* const parent, const QuantumTheme& t)
+AbstractQuantumFrame<QuantumSmallSwitch>::AbstractQuantumFrame(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       theme(t),
       mainWidget(this, t)
