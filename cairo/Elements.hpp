@@ -22,6 +22,9 @@
 
 #define ELEMENTS_HOST_UI_LIBRARY_DPF 1
 
+// fix possible macro pollution from outside
+#undef index
+
 #include "Elements/elements.hpp"
 
 #include "Cairo.hpp"
