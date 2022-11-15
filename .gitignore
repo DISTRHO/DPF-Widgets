@@ -2,7 +2,11 @@
 *.exe
 *.js
 *.html
+*.mem
 *.o
 *.wasm
+.DS_Store
+/tests/elements
+/tests/imgui
 /tests/opengl
 /tests/textedit
