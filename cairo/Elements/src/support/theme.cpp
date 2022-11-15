@@ -3,9 +3,9 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/support/theme.hpp>
-#include <elements/element/dial.hpp>
-#include <elements/view.hpp>
+#include <Elements/elements/support/theme.hpp>
+#include <Elements/elements/element/dial.hpp>
+#include <Elements/elements/view.hpp>
 
 namespace cycfi { namespace elements
 {

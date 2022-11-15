@@ -6,10 +6,10 @@
 #if !defined(ELEMENTS_GLYPHS_SEPTEMBER_26_2016)
 #define ELEMENTS_GLYPHS_SEPTEMBER_26_2016
 
-#include <infra/assert.hpp>
-#include <infra/string_view.hpp>
-#include <elements/support/canvas.hpp>
-#include <elements/support/text_utils.hpp>
+#include <Elements/infra/assert.hpp>
+#include <Elements/infra/string_view.hpp>
+#include <Elements/elements/support/canvas.hpp>
+#include <Elements/elements/support/text_utils.hpp>
 #include <cairo.h>
 #include <vector>
 #include <stdexcept>

@@ -6,7 +6,7 @@
 #if !defined(ELEMENTS_GALLERY_TAB_MAY_02_2020)
 #define ELEMENTS_GALLERY_TAB_MAY_02_2020
 
-#include <elements/element/gallery/button.hpp>
+#include <Elements/elements/element/gallery/button.hpp>
 
 namespace cycfi { namespace elements
 {

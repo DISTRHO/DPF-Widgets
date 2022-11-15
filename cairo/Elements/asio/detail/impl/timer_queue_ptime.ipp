@@ -15,13 +15,13 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_HAS_BOOST_DATE_TIME)
 
-#include "asio/detail/timer_queue_ptime.hpp"
+#include "Elements/asio/detail/timer_queue_ptime.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -84,7 +84,7 @@ void timer_queue<time_traits<boost::posix_time::ptime> >::move_timer(
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // defined(ASIO_HAS_BOOST_DATE_TIME)
 

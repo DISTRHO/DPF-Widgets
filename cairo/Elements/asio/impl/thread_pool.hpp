@@ -15,13 +15,13 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/executor_op.hpp"
-#include "asio/detail/fenced_block.hpp"
-#include "asio/detail/recycling_allocator.hpp"
-#include "asio/detail/type_traits.hpp"
-#include "asio/execution_context.hpp"
+#include "Elements/asio/detail/executor_op.hpp"
+#include "Elements/asio/detail/fenced_block.hpp"
+#include "Elements/asio/detail/recycling_allocator.hpp"
+#include "Elements/asio/detail/type_traits.hpp"
+#include "Elements/asio/execution_context.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 
@@ -122,6 +122,6 @@ thread_pool::executor_type::running_in_this_thread() const ASIO_NOEXCEPT
 
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_IMPL_THREAD_POOL_HPP

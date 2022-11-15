@@ -3,8 +3,8 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/gallery/tab.hpp>
-#include <elements/support/draw_utils.hpp>
+#include <Elements/elements/element/gallery/tab.hpp>
+#include <Elements/elements/support/draw_utils.hpp>
 
 namespace cycfi { namespace elements
 {

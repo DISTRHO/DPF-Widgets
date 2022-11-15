@@ -3,7 +3,7 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/support/resource_paths.hpp>
+#include <Elements/elements/support/resource_paths.hpp>
 #include <mutex>
 #include <vector>
 

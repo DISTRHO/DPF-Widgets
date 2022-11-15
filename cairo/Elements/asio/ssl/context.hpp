@@ -15,19 +15,19 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #include <string>
-#include "asio/buffer.hpp"
-#include "asio/io_context.hpp"
-#include "asio/ssl/context_base.hpp"
-#include "asio/ssl/detail/openssl_types.hpp"
-#include "asio/ssl/detail/openssl_init.hpp"
-#include "asio/ssl/detail/password_callback.hpp"
-#include "asio/ssl/detail/verify_callback.hpp"
-#include "asio/ssl/verify_mode.hpp"
+#include "Elements/asio/buffer.hpp"
+#include "Elements/asio/io_context.hpp"
+#include "Elements/asio/ssl/context_base.hpp"
+#include "Elements/asio/ssl/detail/openssl_types.hpp"
+#include "Elements/asio/ssl/detail/openssl_init.hpp"
+#include "Elements/asio/ssl/detail/password_callback.hpp"
+#include "Elements/asio/ssl/detail/verify_callback.hpp"
+#include "Elements/asio/ssl/verify_mode.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace ssl {
@@ -751,11 +751,11 @@ private:
 } // namespace ssl
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
-#include "asio/ssl/impl/context.hpp"
+#include "Elements/asio/ssl/impl/context.hpp"
 #if defined(ASIO_HEADER_ONLY)
-# include "asio/ssl/impl/context.ipp"
+# include "Elements/asio/ssl/impl/context.ipp"
 #endif // defined(ASIO_HEADER_ONLY)
 
 #endif // ASIO_SSL_CONTEXT_HPP

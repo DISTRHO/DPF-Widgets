@@ -47,9 +47,24 @@ class ElementsWidget : public BaseWidget,
 {
 public:
    /**
-      Constructor for a ImGuiStandaloneWindow without transient parent window.
+      Constructor for a ElementsSubWidget.
+    */
+    explicit ElementsWidget(Widget* parentGroupWidget);
+
+   /**
+      Constructor for a ElementsTopLevelWidget.
+    */
+    explicit ElementsWidget(Window& windowToMapTo);
+
+   /**
+      Constructor for a ElementsStandaloneWindow without transient parent window.
     */
     explicit ElementsWidget(Application& app);
+
+   /**
+      Constructor for a ElementsStandaloneWindow with transient parent window.
+    */
+    explicit ElementsWidget(Application& app, Window& transientParentWindow);
 
    /**
       Destructor.
@@ -71,6 +86,8 @@ private:
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ElementsWidget)
 };
 
+// --------------------------------------------------------------------------------------------------------------------
+
 class ElementsStandaloneWindow : public ElementsWidget<StandaloneWindow>
 {
 public:
@@ -83,9 +100,10 @@ private:
     void onFocus(bool focus, CrossingMode mode) override;
 };
 
-// typedef ElementsWidget<SubWidget> ElementsSubWidget;
-// typedef ElementsWidget<TopLevelWidget> ElementsTopLevelWidget;
-// // typedef ElementsWidget<StandaloneWindow> ElementsStandaloneWindow;
+// --------------------------------------------------------------------------------------------------------------------
+
+typedef ElementsWidget<SubWidget> ElementsSubWidget;
+typedef ElementsWidget<TopLevelWidget> ElementsTopLevelWidget;
 
 // --------------------------------------------------------------------------------------------------------------------
 

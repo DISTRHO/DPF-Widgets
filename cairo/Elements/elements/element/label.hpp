@@ -6,14 +6,14 @@
 #if !defined(ELEMENTS_LABELS_APRIL_11_2016)
 #define ELEMENTS_LABELS_APRIL_11_2016
 
-#include <elements/element/element.hpp>
-#include <elements/element/text.hpp>
-#include <elements/element/proxy.hpp>
-#include <elements/element/traversal.hpp>
-#include <elements/support/theme.hpp>
-#include <elements/support/font.hpp>
-#include <elements/support/receiver.hpp>
-#include <infra/string_view.hpp>
+#include <Elements/elements/element/element.hpp>
+#include <Elements/elements/element/text.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/elements/element/traversal.hpp>
+#include <Elements/elements/support/theme.hpp>
+#include <Elements/elements/support/font.hpp>
+#include <Elements/elements/support/receiver.hpp>
+#include <Elements/infra/string_view.hpp>
 #include <string>
 
 namespace cycfi { namespace elements

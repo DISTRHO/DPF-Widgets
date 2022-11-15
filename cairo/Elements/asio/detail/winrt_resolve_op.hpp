@@ -15,20 +15,20 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_WINDOWS_RUNTIME)
 
-#include "asio/detail/bind_handler.hpp"
-#include "asio/detail/fenced_block.hpp"
-#include "asio/detail/handler_alloc_helpers.hpp"
-#include "asio/detail/handler_invoke_helpers.hpp"
-#include "asio/detail/memory.hpp"
-#include "asio/detail/winrt_async_op.hpp"
-#include "asio/ip/basic_resolver_results.hpp"
-#include "asio/error.hpp"
+#include "Elements/asio/detail/bind_handler.hpp"
+#include "Elements/asio/detail/fenced_block.hpp"
+#include "Elements/asio/detail/handler_alloc_helpers.hpp"
+#include "Elements/asio/detail/handler_invoke_helpers.hpp"
+#include "Elements/asio/detail/memory.hpp"
+#include "Elements/asio/detail/winrt_async_op.hpp"
+#include "Elements/asio/ip/basic_resolver_results.hpp"
+#include "Elements/asio/error.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -114,7 +114,7 @@ private:
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // defined(ASIO_WINDOWS_RUNTIME)
 

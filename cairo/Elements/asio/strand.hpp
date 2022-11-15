@@ -15,11 +15,11 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
-#include "asio/detail/strand_executor_service.hpp"
-#include "asio/detail/type_traits.hpp"
+#include "Elements/asio/detail/config.hpp"
+#include "Elements/asio/detail/strand_executor_service.hpp"
+#include "Elements/asio/detail/type_traits.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 
@@ -301,13 +301,13 @@ make_strand(ExecutionContext& ctx,
 
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 // If both io_context.hpp and strand.hpp have been included, automatically
 // include the header file needed for the io_context::strand class.
 #if !defined(ASIO_NO_EXTENSIONS)
 # if defined(ASIO_IO_CONTEXT_HPP)
-#  include "asio/io_context_strand.hpp"
+#  include "Elements/asio/io_context_strand.hpp"
 # endif // defined(ASIO_IO_CONTEXT_HPP)
 #endif // !defined(ASIO_NO_EXTENSIONS)
 

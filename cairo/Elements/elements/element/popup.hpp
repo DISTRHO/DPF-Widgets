@@ -6,9 +6,9 @@
 #if !defined(ELEMENTS_POPUP_JUNE_4_2016)
 #define ELEMENTS_POPUP_JUNE_4_2016
 
-#include <elements/element/floating.hpp>
-#include <elements/view.hpp>
-#include <infra/support.hpp>
+#include <Elements/elements/element/floating.hpp>
+#include <Elements/elements/view.hpp>
+#include <Elements/infra/support.hpp>
 
 namespace cycfi { namespace elements
 {

@@ -9,7 +9,7 @@
 #include <vector>
 #include <memory>
 #include <cairo.h>
-#include <elements/support/point.hpp>
+#include <Elements/elements/support/point.hpp>
 #include <stdexcept>
 
 namespace cycfi { namespace elements

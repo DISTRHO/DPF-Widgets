@@ -15,16 +15,16 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
-#include "asio/detail/atomic_count.hpp"
-#include "asio/detail/executor_function.hpp"
-#include "asio/detail/global.hpp"
-#include "asio/detail/memory.hpp"
-#include "asio/detail/recycling_allocator.hpp"
-#include "asio/executor.hpp"
-#include "asio/system_executor.hpp"
+#include "Elements/asio/detail/config.hpp"
+#include "Elements/asio/detail/atomic_count.hpp"
+#include "Elements/asio/detail/executor_function.hpp"
+#include "Elements/asio/detail/global.hpp"
+#include "Elements/asio/detail/memory.hpp"
+#include "Elements/asio/detail/recycling_allocator.hpp"
+#include "Elements/asio/executor.hpp"
+#include "Elements/asio/system_executor.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 
@@ -384,6 +384,6 @@ const Executor* executor::target() const ASIO_NOEXCEPT
 
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_IMPL_EXECUTOR_HPP

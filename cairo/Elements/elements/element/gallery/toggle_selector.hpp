@@ -6,7 +6,7 @@
 #if !defined(ELEMENTS_GALLERY_TOGGLE_SELECTOR_JUNE_5_2016)
 #define ELEMENTS_GALLERY_TOGGLE_SELECTOR_JUNE_5_2016
 
-#include <elements/support/theme.hpp>
+#include <Elements/elements/support/theme.hpp>
 #include <string>
 #include <utility>
 

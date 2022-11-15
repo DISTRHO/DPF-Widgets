@@ -3,8 +3,8 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/support/receiver.hpp>
-#include <elements/element.hpp>
+#include <Elements/elements/support/receiver.hpp>
+#include <Elements/elements/element.hpp>
 
 namespace cycfi { namespace elements
 {

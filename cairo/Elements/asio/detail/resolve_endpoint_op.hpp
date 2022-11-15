@@ -15,24 +15,24 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
-#include "asio/error.hpp"
-#include "asio/ip/basic_resolver_results.hpp"
-#include "asio/detail/bind_handler.hpp"
-#include "asio/detail/fenced_block.hpp"
-#include "asio/detail/handler_alloc_helpers.hpp"
-#include "asio/detail/handler_invoke_helpers.hpp"
-#include "asio/detail/memory.hpp"
-#include "asio/detail/resolve_op.hpp"
-#include "asio/detail/socket_ops.hpp"
+#include "Elements/asio/detail/config.hpp"
+#include "Elements/asio/error.hpp"
+#include "Elements/asio/ip/basic_resolver_results.hpp"
+#include "Elements/asio/detail/bind_handler.hpp"
+#include "Elements/asio/detail/fenced_block.hpp"
+#include "Elements/asio/detail/handler_alloc_helpers.hpp"
+#include "Elements/asio/detail/handler_invoke_helpers.hpp"
+#include "Elements/asio/detail/memory.hpp"
+#include "Elements/asio/detail/resolve_op.hpp"
+#include "Elements/asio/detail/socket_ops.hpp"
 
 #if defined(ASIO_HAS_IOCP)
-# include "asio/detail/win_iocp_io_context.hpp"
+# include "Elements/asio/detail/win_iocp_io_context.hpp"
 #else // defined(ASIO_HAS_IOCP)
-# include "asio/detail/scheduler.hpp"
+# include "Elements/asio/detail/scheduler.hpp"
 #endif // defined(ASIO_HAS_IOCP)
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -133,6 +133,6 @@ private:
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_DETAIL_RESOLVER_ENDPOINT_OP_HPP

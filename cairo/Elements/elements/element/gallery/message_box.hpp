@@ -6,10 +6,10 @@
 #if !defined(ELEMENTS_GALLERY_MESSAGE_BOX_JUNE_5_2016)
 #define ELEMENTS_GALLERY_MESSAGE_BOX_JUNE_5_2016
 
-#include <elements/element/text.hpp>
-#include <elements/element/gallery/button.hpp>
-#include <elements/element/gallery/dialog.hpp>
-#include <infra/string_view.hpp>
+#include <Elements/elements/element/text.hpp>
+#include <Elements/elements/element/gallery/button.hpp>
+#include <Elements/elements/element/gallery/dialog.hpp>
+#include <Elements/infra/string_view.hpp>
 
 namespace cycfi { namespace elements
 {

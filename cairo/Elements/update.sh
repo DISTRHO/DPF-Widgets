@@ -27,3 +27,9 @@ sed -i -e '/#include <elements\/window.hpp>/d' src/view.cpp
 
 # custom patching needed for now
 patch -p1 -i dpf-changes.patch
+
+# adjust include paths
+sed -i -e 's|#include <elements|#include <Elements/elements|g' *.hpp elements/*.hpp elements/*/*.hpp elements/*/*/*.hpp src/*.cpp src/*/*.cpp src/*/*/*.cpp
+sed -i -e 's|#include <infra|#include <Elements/infra|g' *.hpp elements/*.hpp elements/*/*.hpp elements/*/*/*.hpp infra/*.hpp src/*.cpp src/*/*.cpp src/*/*/*.cpp
+sed -i -e 's|#include <asio|#include <Elements/asio|g' *.hpp elements/*.hpp elements/*/*.hpp infra/*.hpp src/*.cpp src/*/*.cpp src/*/*/*.cpp
+sed -i -e 's|include "asio|include "Elements/asio|g' asio.hpp asio/*.hpp asio/*/*.hpp asio/*/*.ipp asio/*/*/*.hpp asio/*/*/*.ipp asio/*/*/*/*.ipp

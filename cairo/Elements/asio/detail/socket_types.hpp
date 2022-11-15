@@ -15,7 +15,7 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_WINDOWS_RUNTIME)
 // Empty.
@@ -54,7 +54,7 @@
 #   endif // !defined(ASIO_WINDOWS_APP)
 #  endif // defined(_MSC_VER) || defined(__BORLANDC__)
 # endif // !defined(ASIO_NO_DEFAULT_LINKED_LIBS)
-# include "asio/detail/old_win_sdk_compat.hpp"
+# include "Elements/asio/detail/old_win_sdk_compat.hpp"
 #else
 # include <sys/ioctl.h>
 # if (defined(__MACH__) && defined(__APPLE__)) \
@@ -91,7 +91,7 @@
 # endif
 #endif
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -411,6 +411,6 @@ const int always_fail_option = 2;
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_DETAIL_SOCKET_TYPES_HPP

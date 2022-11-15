@@ -6,9 +6,9 @@
 #if !defined(ELEMENTS_ALIGN_APRIL_14_2016)
 #define ELEMENTS_ALIGN_APRIL_14_2016
 
-#include <elements/element/proxy.hpp>
-#include <elements/support/context.hpp>
-#include <infra/support.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/elements/support/context.hpp>
+#include <Elements/infra/support.hpp>
 #include <memory>
 
 namespace cycfi { namespace elements

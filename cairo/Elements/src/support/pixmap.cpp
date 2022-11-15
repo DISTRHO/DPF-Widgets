@@ -3,13 +3,13 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/support/pixmap.hpp>
-#include <elements/support/resource_paths.hpp>
+#include <Elements/elements/support/pixmap.hpp>
+#include <Elements/elements/support/resource_paths.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_NO_PNG 1
-#include <elements/support/detail/stb_image.h>
-#include <infra/assert.hpp>
-#include <infra/filesystem.hpp>
+#include <Elements/elements/support/detail/stb_image.h>
+#include <Elements/infra/assert.hpp>
+#include <Elements/infra/filesystem.hpp>
 #include <string>
 
 namespace cycfi { namespace elements

@@ -6,13 +6,13 @@
 #if !defined(ELEMENTS_BUTTON_APRIL_21_2016)
 #define ELEMENTS_BUTTON_APRIL_21_2016
 
-#include <elements/element/layer.hpp>
-#include <elements/element/proxy.hpp>
-#include <elements/element/selectable.hpp>
-#include <elements/element/traversal.hpp>
-#include <elements/support/context.hpp>
-#include <elements/support/sender.hpp>
-#include <elements/view.hpp>
+#include <Elements/elements/element/layer.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/elements/element/selectable.hpp>
+#include <Elements/elements/element/traversal.hpp>
+#include <Elements/elements/support/context.hpp>
+#include <Elements/elements/support/sender.hpp>
+#include <Elements/elements/view.hpp>
 #include <type_traits>
 
 namespace cycfi { namespace elements

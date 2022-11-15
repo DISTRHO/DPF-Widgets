@@ -15,10 +15,10 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
-#include "asio/async_result.hpp"
+#include "Elements/asio/detail/config.hpp"
+#include "Elements/asio/async_result.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 
@@ -129,8 +129,8 @@ async_compose(ASIO_MOVE_ARG(Implementation) implementation,
 
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
-#include "asio/impl/compose.hpp"
+#include "Elements/asio/impl/compose.hpp"
 
 #endif // ASIO_COMPOSE_HPP

@@ -15,18 +15,18 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if !defined(ASIO_WINDOWS) \
   && !defined(ASIO_WINDOWS_RUNTIME) \
   && !defined(__CYGWIN__)
 
 #include <cstddef>
-#include "asio/error.hpp"
-#include "asio/error_code.hpp"
-#include "asio/detail/socket_types.hpp"
+#include "Elements/asio/error.hpp"
+#include "Elements/asio/error_code.hpp"
+#include "Elements/asio/detail/socket_types.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -126,10 +126,10 @@ ASIO_DECL int poll_error(int d,
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #if defined(ASIO_HEADER_ONLY)
-# include "asio/detail/impl/descriptor_ops.ipp"
+# include "Elements/asio/detail/impl/descriptor_ops.ipp"
 #endif // defined(ASIO_HEADER_ONLY)
 
 #endif // !defined(ASIO_WINDOWS)

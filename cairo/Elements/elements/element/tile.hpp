@@ -6,7 +6,7 @@
 #if !defined(ELEMENTS_TILE_APRIL_13_2016)
 #define ELEMENTS_TILE_APRIL_13_2016
 
-#include <elements/element/composite.hpp>
+#include <Elements/elements/element/composite.hpp>
 #include <memory>
 
 namespace cycfi { namespace elements

@@ -6,12 +6,12 @@
 #if !defined(ELEMENTS_GALLERY_MENU_JUNE_5_2016)
 #define ELEMENTS_GALLERY_MENU_JUNE_5_2016
 
-#include <elements/element/indirect.hpp>
-#include <elements/element/menu.hpp>
-#include <elements/element/size.hpp>
-#include <elements/support/theme.hpp>
-#include <elements/element/gallery/button.hpp>
-#include <infra/string_view.hpp>
+#include <Elements/elements/element/indirect.hpp>
+#include <Elements/elements/element/menu.hpp>
+#include <Elements/elements/element/size.hpp>
+#include <Elements/elements/support/theme.hpp>
+#include <Elements/elements/element/gallery/button.hpp>
+#include <Elements/infra/string_view.hpp>
 #include <string>
 
 namespace cycfi { namespace elements

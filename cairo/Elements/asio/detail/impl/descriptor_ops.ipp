@@ -15,16 +15,16 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 #include <cerrno>
-#include "asio/detail/descriptor_ops.hpp"
-#include "asio/error.hpp"
+#include "Elements/asio/detail/descriptor_ops.hpp"
+#include "Elements/asio/error.hpp"
 
 #if !defined(ASIO_WINDOWS) \
   && !defined(ASIO_WINDOWS_RUNTIME) \
   && !defined(__CYGWIN__)
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -599,7 +599,7 @@ int poll_error(int d, state_type state, asio::error_code& ec)
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // !defined(ASIO_WINDOWS)
        //   && !defined(ASIO_WINDOWS_RUNTIME)

@@ -15,13 +15,13 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/call_stack.hpp"
-#include "asio/detail/fenced_block.hpp"
-#include "asio/detail/handler_invoke_helpers.hpp"
-#include "asio/detail/recycling_allocator.hpp"
-#include "asio/executor_work_guard.hpp"
+#include "Elements/asio/detail/call_stack.hpp"
+#include "Elements/asio/detail/fenced_block.hpp"
+#include "Elements/asio/detail/handler_invoke_helpers.hpp"
+#include "Elements/asio/detail/recycling_allocator.hpp"
+#include "Elements/asio/executor_work_guard.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -174,6 +174,6 @@ void strand_executor_service::defer(const implementation_type& impl,
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_DETAIL_IMPL_STRAND_EXECUTOR_SERVICE_HPP

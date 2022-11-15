@@ -6,9 +6,9 @@
 #if !defined(ELEMENTS_TOOLTIP_AUGUST_27_2020)
 #define ELEMENTS_TOOLTIP_AUGUST_27_2020
 
-#include <elements/element/proxy.hpp>
-#include <elements/element/popup.hpp>
-#include <infra/support.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/elements/element/popup.hpp>
+#include <Elements/infra/support.hpp>
 #include <functional>
 
 namespace cycfi { namespace elements

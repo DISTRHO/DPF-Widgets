@@ -15,18 +15,18 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_HAS_LOCAL_SOCKETS) \
   || defined(GENERATING_DOCUMENTATION)
 
-#include "asio/basic_socket.hpp"
-#include "asio/detail/socket_ops.hpp"
-#include "asio/detail/throw_error.hpp"
-#include "asio/error.hpp"
-#include "asio/local/basic_endpoint.hpp"
+#include "Elements/asio/basic_socket.hpp"
+#include "Elements/asio/detail/socket_ops.hpp"
+#include "Elements/asio/detail/throw_error.hpp"
+#include "Elements/asio/error.hpp"
+#include "Elements/asio/local/basic_endpoint.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace local {
@@ -93,7 +93,7 @@ inline ASIO_SYNC_OP_VOID connect_pair(
 } // namespace local
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // defined(ASIO_HAS_LOCAL_SOCKETS)
        //   || defined(GENERATING_DOCUMENTATION)

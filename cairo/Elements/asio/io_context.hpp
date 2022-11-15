@@ -15,27 +15,27 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 #include <cstddef>
 #include <stdexcept>
 #include <typeinfo>
-#include "asio/async_result.hpp"
-#include "asio/detail/wrapped_handler.hpp"
-#include "asio/error_code.hpp"
-#include "asio/execution_context.hpp"
+#include "Elements/asio/async_result.hpp"
+#include "Elements/asio/detail/wrapped_handler.hpp"
+#include "Elements/asio/error_code.hpp"
+#include "Elements/asio/execution_context.hpp"
 
 #if defined(ASIO_HAS_CHRONO)
-# include "asio/detail/chrono.hpp"
+# include "Elements/asio/detail/chrono.hpp"
 #endif // defined(ASIO_HAS_CHRONO)
 
 #if defined(ASIO_WINDOWS) || defined(__CYGWIN__)
-# include "asio/detail/winsock_init.hpp"
+# include "Elements/asio/detail/winsock_init.hpp"
 #elif defined(__sun) || defined(__QNX__) || defined(__hpux) || defined(_AIX) \
   || defined(__osf__)
-# include "asio/detail/signal_init.hpp"
+# include "Elements/asio/detail/signal_init.hpp"
 #endif
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 
@@ -856,18 +856,18 @@ asio::detail::service_id<Type> service_base<Type>::id;
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
-#include "asio/impl/io_context.hpp"
+#include "Elements/asio/impl/io_context.hpp"
 #if defined(ASIO_HEADER_ONLY)
-# include "asio/impl/io_context.ipp"
+# include "Elements/asio/impl/io_context.ipp"
 #endif // defined(ASIO_HEADER_ONLY)
 
 // If both io_context.hpp and strand.hpp have been included, automatically
 // include the header file needed for the io_context::strand class.
 #if !defined(ASIO_NO_EXTENSIONS)
 # if defined(ASIO_STRAND_HPP)
-#  include "asio/io_context_strand.hpp"
+#  include "Elements/asio/io_context_strand.hpp"
 # endif // defined(ASIO_STRAND_HPP)
 #endif // !defined(ASIO_NO_EXTENSIONS)
 

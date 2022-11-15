@@ -15,11 +15,11 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
-#include "asio/async_result.hpp"
-#include "asio/detail/variadic_templates.hpp"
+#include "Elements/asio/detail/config.hpp"
+#include "Elements/asio/async_result.hpp"
+#include "Elements/asio/detail/variadic_templates.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -125,6 +125,6 @@ struct async_result<detached_t, Signature>
 
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_IMPL_DETACHED_HPP

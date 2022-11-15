@@ -6,7 +6,7 @@
 #if !defined(ELEMENTS_THEME_APRIL_15_2016)
 #define ELEMENTS_THEME_APRIL_15_2016
 
-#include <elements/support.hpp>
+#include <Elements/elements/support.hpp>
 
 namespace cycfi { namespace elements
 {

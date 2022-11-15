@@ -15,8 +15,8 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
-#include "asio/posix/descriptor.hpp"
+#include "Elements/asio/detail/config.hpp"
+#include "Elements/asio/posix/descriptor.hpp"
 
 #if defined(ASIO_HAS_POSIX_STREAM_DESCRIPTOR) \
   || defined(GENERATING_DOCUMENTATION)

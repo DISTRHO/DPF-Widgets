@@ -6,9 +6,9 @@
 #if !defined(ELEMENTS_SIZE_APRIL_14_2016)
 #define ELEMENTS_SIZE_APRIL_14_2016
 
-#include <elements/element/element.hpp>
-#include <elements/element/proxy.hpp>
-#include <infra/support.hpp>
+#include <Elements/elements/element/element.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/infra/support.hpp>
 #include <memory>
 
 namespace cycfi { namespace elements

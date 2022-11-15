@@ -3,10 +3,10 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/progress_bar.hpp>
-#include <elements/support/draw_utils.hpp>
-#include <elements/support/theme.hpp>
-#include <elements/view.hpp>
+#include <Elements/elements/element/progress_bar.hpp>
+#include <Elements/elements/support/draw_utils.hpp>
+#include <Elements/elements/support/theme.hpp>
+#include <Elements/elements/view.hpp>
 #include <algorithm>
 
 namespace cycfi::elements

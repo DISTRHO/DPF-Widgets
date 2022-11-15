@@ -4,14 +4,14 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/support/font.hpp>
-#include <infra/assert.hpp>
+#include <Elements/elements/support/font.hpp>
+#include <Elements/infra/assert.hpp>
 
 #include <cairo.h>
 #include <cairo-ft.h>
 #include <fontconfig/fontconfig.h>
-#include <infra/filesystem.hpp>
-#include <infra/optional.hpp>
+#include <Elements/infra/filesystem.hpp>
+#include <Elements/infra/optional.hpp>
 
 #ifndef __APPLE__
 # include <ft2build.h>

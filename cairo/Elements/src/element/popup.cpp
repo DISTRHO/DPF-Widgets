@@ -3,8 +3,8 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/menu.hpp>
-#include <infra/support.hpp>
+#include <Elements/elements/element/menu.hpp>
+#include <Elements/infra/support.hpp>
 
 namespace cycfi { namespace elements
 {

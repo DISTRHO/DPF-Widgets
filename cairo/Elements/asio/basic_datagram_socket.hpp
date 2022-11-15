@@ -15,16 +15,16 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 #include <cstddef>
-#include "asio/basic_socket.hpp"
-#include "asio/detail/handler_type_requirements.hpp"
-#include "asio/detail/non_const_lvalue.hpp"
-#include "asio/detail/throw_error.hpp"
-#include "asio/detail/type_traits.hpp"
-#include "asio/error.hpp"
+#include "Elements/asio/basic_socket.hpp"
+#include "Elements/asio/detail/handler_type_requirements.hpp"
+#include "Elements/asio/detail/non_const_lvalue.hpp"
+#include "Elements/asio/detail/throw_error.hpp"
+#include "Elements/asio/detail/type_traits.hpp"
+#include "Elements/asio/error.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 
@@ -1205,6 +1205,6 @@ private:
 
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_BASIC_DATAGRAM_SOCKET_HPP

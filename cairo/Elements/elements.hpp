@@ -6,7 +6,7 @@
 #if !defined(ELEMENTS_FERBRUARY_17_2017)
 #define ELEMENTS_FERBRUARY_17_2017
 
-#include <elements/view.hpp>
-#include <elements/element.hpp>
+#include <Elements/elements/view.hpp>
+#include <Elements/elements/element.hpp>
 
 #endif

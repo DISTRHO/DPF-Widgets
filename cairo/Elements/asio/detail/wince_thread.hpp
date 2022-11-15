@@ -15,17 +15,17 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_WINDOWS) && defined(UNDER_CE)
 
-#include "asio/detail/noncopyable.hpp"
-#include "asio/detail/scoped_ptr.hpp"
-#include "asio/detail/socket_types.hpp"
-#include "asio/detail/throw_error.hpp"
-#include "asio/error.hpp"
+#include "Elements/asio/detail/noncopyable.hpp"
+#include "Elements/asio/detail/scoped_ptr.hpp"
+#include "Elements/asio/detail/socket_types.hpp"
+#include "Elements/asio/detail/throw_error.hpp"
+#include "Elements/asio/error.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -117,7 +117,7 @@ inline DWORD WINAPI wince_thread_function(LPVOID arg)
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // defined(ASIO_WINDOWS) && defined(UNDER_CE)
 

@@ -6,34 +6,34 @@
 #if !defined(ELEMENTS_MAY_4_2016)
 #define ELEMENTS_MAY_4_2016
 
-#include <elements/element/align.hpp>
-#include <elements/element/button.hpp>
-#include <elements/element/composite.hpp>
-#include <elements/element/child_window.hpp>
-#include <elements/element/dial.hpp>
-#include <elements/element/dynamic_list.hpp>
-#include <elements/element/floating.hpp>
-#include <elements/element/flow.hpp>
-#include <elements/element/grid.hpp>
-#include <elements/element/image.hpp>
-#include <elements/element/indirect.hpp>
-#include <elements/element/label.hpp>
-#include <elements/element/layer.hpp>
-#include <elements/element/margin.hpp>
-#include <elements/element/menu.hpp>
-#include <elements/element/misc.hpp>
-#include <elements/element/popup.hpp>
-#include <elements/element/port.hpp>
-#include <elements/element/progress_bar.hpp>
-#include <elements/element/proxy.hpp>
-#include <elements/element/size.hpp>
-#include <elements/element/slider.hpp>
-#include <elements/element/text.hpp>
-#include <elements/element/thumbwheel.hpp>
-#include <elements/element/tile.hpp>
-#include <elements/element/tooltip.hpp>
+#include <Elements/elements/element/align.hpp>
+#include <Elements/elements/element/button.hpp>
+#include <Elements/elements/element/composite.hpp>
+#include <Elements/elements/element/child_window.hpp>
+#include <Elements/elements/element/dial.hpp>
+#include <Elements/elements/element/dynamic_list.hpp>
+#include <Elements/elements/element/floating.hpp>
+#include <Elements/elements/element/flow.hpp>
+#include <Elements/elements/element/grid.hpp>
+#include <Elements/elements/element/image.hpp>
+#include <Elements/elements/element/indirect.hpp>
+#include <Elements/elements/element/label.hpp>
+#include <Elements/elements/element/layer.hpp>
+#include <Elements/elements/element/margin.hpp>
+#include <Elements/elements/element/menu.hpp>
+#include <Elements/elements/element/misc.hpp>
+#include <Elements/elements/element/popup.hpp>
+#include <Elements/elements/element/port.hpp>
+#include <Elements/elements/element/progress_bar.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/elements/element/size.hpp>
+#include <Elements/elements/element/slider.hpp>
+#include <Elements/elements/element/text.hpp>
+#include <Elements/elements/element/thumbwheel.hpp>
+#include <Elements/elements/element/tile.hpp>
+#include <Elements/elements/element/tooltip.hpp>
 
 // Include this last
-#include <elements/element/gallery.hpp>
+#include <Elements/elements/element/gallery.hpp>
 
 #endif

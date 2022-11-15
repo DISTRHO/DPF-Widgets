@@ -13,9 +13,9 @@
 #include <functional>
 #include <cairo.h>
 
-#include <infra/support.hpp>
-#include <elements/support/point.hpp>
-#include <elements/support/rect.hpp>
+#include <Elements/infra/support.hpp>
+#include <Elements/elements/support/point.hpp>
+#include <Elements/elements/support/rect.hpp>
 
 #if defined(ELEMENTS_HOST_UI_LIBRARY_WIN32)
 # include <windows.h>

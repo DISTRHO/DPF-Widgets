@@ -15,31 +15,31 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if !defined(ASIO_NO_IOSTREAM)
 
 #include <streambuf>
 #include <vector>
-#include "asio/basic_socket.hpp"
-#include "asio/basic_stream_socket.hpp"
-#include "asio/detail/buffer_sequence_adapter.hpp"
-#include "asio/detail/memory.hpp"
-#include "asio/detail/throw_error.hpp"
-#include "asio/io_context.hpp"
+#include "Elements/asio/basic_socket.hpp"
+#include "Elements/asio/basic_stream_socket.hpp"
+#include "Elements/asio/detail/buffer_sequence_adapter.hpp"
+#include "Elements/asio/detail/memory.hpp"
+#include "Elements/asio/detail/throw_error.hpp"
+#include "Elements/asio/io_context.hpp"
 
 #if defined(ASIO_HAS_BOOST_DATE_TIME) \
   && defined(ASIO_USE_BOOST_DATE_TIME_FOR_SOCKET_IOSTREAM)
-# include "asio/detail/deadline_timer_service.hpp"
+# include "Elements/asio/detail/deadline_timer_service.hpp"
 #else // defined(ASIO_HAS_BOOST_DATE_TIME)
       // && defined(ASIO_USE_BOOST_DATE_TIME_FOR_SOCKET_IOSTREAM)
-# include "asio/steady_timer.hpp"
+# include "Elements/asio/steady_timer.hpp"
 #endif // defined(ASIO_HAS_BOOST_DATE_TIME)
        // && defined(ASIO_USE_BOOST_DATE_TIME_FOR_SOCKET_IOSTREAM)
 
 #if !defined(ASIO_HAS_VARIADIC_TEMPLATES)
 
-# include "asio/detail/variadic_templates.hpp"
+# include "Elements/asio/detail/variadic_templates.hpp"
 
 // A macro that should expand to:
 //   template <typename T1, ..., typename Tn>
@@ -69,7 +69,7 @@
 
 #endif // !defined(ASIO_HAS_VARIADIC_TEMPLATES)
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -676,7 +676,7 @@ private:
 
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #if !defined(ASIO_HAS_VARIADIC_TEMPLATES)
 # undef ASIO_PRIVATE_CONNECT_DEF

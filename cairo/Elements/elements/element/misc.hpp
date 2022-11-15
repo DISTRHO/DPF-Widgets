@@ -6,12 +6,12 @@
 #if !defined(ELEMENTS_MISC_APRIL_11_2016)
 #define ELEMENTS_MISC_APRIL_11_2016
 
-#include <elements/element/element.hpp>
-#include <elements/element/proxy.hpp>
-#include <elements/element/text.hpp>
-#include <elements/element/size.hpp>
-#include <elements/support/theme.hpp>
-#include <infra/support.hpp>
+#include <Elements/elements/element/element.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/elements/element/text.hpp>
+#include <Elements/elements/element/size.hpp>
+#include <Elements/elements/support/theme.hpp>
+#include <Elements/infra/support.hpp>
 
 #include <functional>
 #include <utility>

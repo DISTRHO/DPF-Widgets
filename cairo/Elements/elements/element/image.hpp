@@ -6,9 +6,9 @@
 #if !defined(ELEMENTS_IMAGE_APRIL_24_2016)
 #define ELEMENTS_IMAGE_APRIL_24_2016
 
-#include <elements/element/element.hpp>
-#include <elements/support/canvas.hpp>
-#include <elements/support/pixmap.hpp>
+#include <Elements/elements/element/element.hpp>
+#include <Elements/elements/support/canvas.hpp>
+#include <Elements/elements/support/pixmap.hpp>
 #include <memory>
 
 namespace cycfi { namespace elements

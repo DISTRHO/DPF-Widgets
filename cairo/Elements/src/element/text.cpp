@@ -3,12 +3,12 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/text.hpp>
-#include <elements/element/port.hpp>
-#include <elements/support/theme.hpp>
-#include <elements/support/text_utils.hpp>
-#include <elements/support/context.hpp>
-#include <elements/view.hpp>
+#include <Elements/elements/element/text.hpp>
+#include <Elements/elements/element/port.hpp>
+#include <Elements/elements/support/theme.hpp>
+#include <Elements/elements/support/text_utils.hpp>
+#include <Elements/elements/support/context.hpp>
+#include <Elements/elements/view.hpp>
 #include <utility>
 
 namespace cycfi { namespace elements

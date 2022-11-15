@@ -16,16 +16,16 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_HAS_LOCAL_SOCKETS)
 
 #include <cstddef>
 #include <string>
-#include "asio/detail/socket_types.hpp"
-#include "asio/detail/string_view.hpp"
+#include "Elements/asio/detail/socket_types.hpp"
+#include "Elements/asio/detail/string_view.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace local {
@@ -128,10 +128,10 @@ private:
 } // namespace local
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #if defined(ASIO_HEADER_ONLY)
-# include "asio/local/detail/impl/endpoint.ipp"
+# include "Elements/asio/local/detail/impl/endpoint.ipp"
 #endif // defined(ASIO_HEADER_ONLY)
 
 #endif // defined(ASIO_HAS_LOCAL_SOCKETS)

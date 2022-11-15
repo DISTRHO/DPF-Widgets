@@ -3,11 +3,11 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/menu.hpp>
-#include <elements/element/composite.hpp>
-#include <elements/element/traversal.hpp>
-#include <elements/element/port.hpp>
-#include <elements/element/traversal.hpp>
+#include <Elements/elements/element/menu.hpp>
+#include <Elements/elements/element/composite.hpp>
+#include <Elements/elements/element/traversal.hpp>
+#include <Elements/elements/element/port.hpp>
+#include <Elements/elements/element/traversal.hpp>
 
 namespace cycfi { namespace elements
 {

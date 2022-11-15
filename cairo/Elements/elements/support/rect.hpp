@@ -6,7 +6,7 @@
 #if !defined(ELEMENTS_RECT_APRIL_10_2016)
 #define ELEMENTS_RECT_APRIL_10_2016
 
-#include <elements/support/point.hpp>
+#include <Elements/elements/support/point.hpp>
 
 namespace cycfi { namespace elements
 {

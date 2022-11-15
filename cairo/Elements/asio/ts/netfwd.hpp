@@ -15,19 +15,19 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_HAS_CHRONO)
-# include "asio/detail/chrono.hpp"
+# include "Elements/asio/detail/chrono.hpp"
 #endif // defined(ASIO_HAS_CHRONO)
 
 #if defined(ASIO_HAS_BOOST_DATE_TIME)
-# include "asio/detail/date_time_fwd.hpp"
+# include "Elements/asio/detail/date_time_fwd.hpp"
 #endif // defined(ASIO_HAS_BOOST_DATE_TIME)
 
 #if !defined(GENERATING_DOCUMENTATION)
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 
@@ -196,7 +196,7 @@ class udp;
 } // namespace ip
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // !defined(GENERATING_DOCUMENTATION)
 

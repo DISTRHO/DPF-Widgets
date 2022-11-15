@@ -6,12 +6,12 @@
 #if !defined(ELEMENTS_MENU_JUNE_4_2016)
 #define ELEMENTS_MENU_JUNE_4_2016
 
-#include <elements/element/element.hpp>
-#include <elements/element/button.hpp>
-#include <elements/element/popup.hpp>
-#include <elements/element/selectable.hpp>
-#include <elements/view.hpp>
-#include <infra/support.hpp>
+#include <Elements/elements/element/element.hpp>
+#include <Elements/elements/element/button.hpp>
+#include <Elements/elements/element/popup.hpp>
+#include <Elements/elements/element/selectable.hpp>
+#include <Elements/elements/view.hpp>
+#include <Elements/infra/support.hpp>
 
 namespace cycfi { namespace elements
 {

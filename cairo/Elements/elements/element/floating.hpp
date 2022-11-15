@@ -6,8 +6,8 @@
 #if !defined(ELEMENTS_FLOATING_JUNE_9_2016)
 #define ELEMENTS_FLOATING_JUNE_9_2016
 
-#include <elements/element/proxy.hpp>
-#include <infra/support.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/infra/support.hpp>
 
 namespace cycfi { namespace elements
 {

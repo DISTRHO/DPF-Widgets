@@ -6,8 +6,8 @@
 #if !defined(ELEMENTS_FLOW_SEPTEMBER_23_2016)
 #define ELEMENTS_FLOW_SEPTEMBER_23_2016
 
-#include <elements/element/composite.hpp>
-#include <elements/element/tile.hpp>
+#include <Elements/elements/element/composite.hpp>
+#include <Elements/elements/element/tile.hpp>
 #include <functional>
 
 namespace cycfi { namespace elements

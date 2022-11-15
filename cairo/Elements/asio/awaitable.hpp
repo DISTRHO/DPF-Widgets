@@ -15,7 +15,7 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_HAS_CO_AWAIT) || defined(GENERATING_DOCUMENTATION)
 
@@ -25,9 +25,9 @@
 # include <experimental/coroutine>
 #endif // defined(ASIO_HAS_STD_COROUTINE)
 
-#include "asio/executor.hpp"
+#include "Elements/asio/executor.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -124,9 +124,9 @@ private:
 
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
-#include "asio/impl/awaitable.hpp"
+#include "Elements/asio/impl/awaitable.hpp"
 
 #endif // defined(ASIO_HAS_CO_AWAIT) || defined(GENERATING_DOCUMENTATION)
 

@@ -81,16 +81,13 @@ textedit$(APP_EXT): textedit.cpp.o imgui-src.cpp.o $(DPF_DIR)/build/libdgl-openg
 
 # ---------------------------------------------------------------------------------------------------------------------
 
-# TODO patch include paths for ./Elements/ prefix
-EL_EX_INC = -I../cairo/Elements
-
 elements.cpp.o: elements.cpp
 	@echo "Compiling $<"
-	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(CAIRO_FLAGS) $(EL_EX_INC) -DDGL_CAIRO -std=gnu++17 -c -o $@
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(CAIRO_FLAGS) -DDGL_CAIRO -I../cairo -std=gnu++17 -c -o $@
 
 elements-src.cpp.o: elements-src.cpp
 	@echo "Compiling $<"
-	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(CAIRO_FLAGS) $(EL_EX_INC) -DDGL_CAIRO -std=gnu++17 -c -o $@
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(CAIRO_FLAGS) -DDGL_CAIRO -I../cairo -std=gnu++17 -c -o $@
 
 imgui.cpp.o: imgui.cpp
 	@echo "Compiling $<"

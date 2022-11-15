@@ -15,7 +15,7 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_HAS_STD_SYSTEM_ERROR)
 # include <system_error>
@@ -23,11 +23,11 @@
 # include <cerrno>
 # include <exception>
 # include <string>
-# include "asio/error_code.hpp"
-# include "asio/detail/scoped_ptr.hpp"
+# include "Elements/asio/error_code.hpp"
+# include "Elements/asio/detail/scoped_ptr.hpp"
 #endif // defined(ASIO_HAS_STD_SYSTEM_ERROR)
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 
@@ -126,6 +126,6 @@ private:
 
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_SYSTEM_ERROR_HPP

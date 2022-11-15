@@ -3,9 +3,9 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/port.hpp>
-#include <elements/element/traversal.hpp>
-#include <elements/view.hpp>
+#include <Elements/elements/element/port.hpp>
+#include <Elements/elements/element/traversal.hpp>
+#include <Elements/elements/view.hpp>
 #include <algorithm>
 #include <cmath>
 

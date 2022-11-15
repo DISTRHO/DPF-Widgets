@@ -15,16 +15,16 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if !defined(ASIO_HAS_THREADS)
-# include "asio/detail/null_static_mutex.hpp"
+# include "Elements/asio/detail/null_static_mutex.hpp"
 #elif defined(ASIO_WINDOWS)
-# include "asio/detail/win_static_mutex.hpp"
+# include "Elements/asio/detail/win_static_mutex.hpp"
 #elif defined(ASIO_HAS_PTHREADS)
-# include "asio/detail/posix_static_mutex.hpp"
+# include "Elements/asio/detail/posix_static_mutex.hpp"
 #elif defined(ASIO_HAS_STD_MUTEX_AND_CONDVAR)
-# include "asio/detail/std_static_mutex.hpp"
+# include "Elements/asio/detail/std_static_mutex.hpp"
 #else
 # error Only Windows and POSIX are supported!
 #endif

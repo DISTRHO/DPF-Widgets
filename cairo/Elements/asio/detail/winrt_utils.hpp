@@ -15,7 +15,7 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_WINDOWS_RUNTIME)
 
@@ -26,12 +26,12 @@
 #include <robuffer.h>
 #include <windows.storage.streams.h>
 #include <wrl/implements.h>
-#include "asio/buffer.hpp"
-#include "asio/error_code.hpp"
-#include "asio/detail/memory.hpp"
-#include "asio/detail/socket_ops.hpp"
+#include "Elements/asio/buffer.hpp"
+#include "Elements/asio/error_code.hpp"
+#include "Elements/asio/detail/memory.hpp"
+#include "Elements/asio/detail/socket_ops.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -99,7 +99,7 @@ inline Windows::Storage::Streams::IBuffer^ buffer_dup(
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // defined(ASIO_WINDOWS_RUNTIME)
 

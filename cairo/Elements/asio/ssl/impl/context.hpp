@@ -16,11 +16,11 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
-#include "asio/detail/throw_error.hpp"
+#include "Elements/asio/detail/throw_error.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace ssl {
@@ -62,6 +62,6 @@ ASIO_SYNC_OP_VOID context::set_password_callback(
 } // namespace ssl
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_SSL_IMPL_CONTEXT_HPP

@@ -6,9 +6,9 @@
 #if !defined(ELEMENTS_GALLERY_GROUP_JUNE_5_2016)
 #define ELEMENTS_GALLERY_GROUP_JUNE_5_2016
 
-#include <elements/element/align.hpp>
-#include <elements/element/margin.hpp>
-#include <elements/element/misc.hpp>
+#include <Elements/elements/element/align.hpp>
+#include <Elements/elements/element/margin.hpp>
+#include <Elements/elements/element/misc.hpp>
 
 namespace cycfi { namespace elements
 {

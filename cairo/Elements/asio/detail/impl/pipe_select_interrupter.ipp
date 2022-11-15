@@ -15,7 +15,7 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if !defined(ASIO_WINDOWS_RUNTIME)
 #if !defined(ASIO_WINDOWS)
@@ -27,12 +27,12 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "asio/detail/pipe_select_interrupter.hpp"
-#include "asio/detail/socket_types.hpp"
-#include "asio/detail/throw_error.hpp"
-#include "asio/error.hpp"
+#include "Elements/asio/detail/pipe_select_interrupter.hpp"
+#include "Elements/asio/detail/socket_types.hpp"
+#include "Elements/asio/detail/throw_error.hpp"
+#include "Elements/asio/error.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -118,7 +118,7 @@ bool pipe_select_interrupter::reset()
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // !defined(ASIO_HAS_EVENTFD)
 #endif // !defined(__SYMBIAN32__)

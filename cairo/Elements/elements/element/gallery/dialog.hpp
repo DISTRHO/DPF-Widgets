@@ -6,15 +6,15 @@
 #if !defined(ELEMENTS_GALLERY_DIALOG_OCTOBER_14_2019)
 #define ELEMENTS_GALLERY_DIALOG_OCTOBER_14_2019
 
-#include <elements/element/align.hpp>
-#include <elements/element/margin.hpp>
-#include <elements/element/tile.hpp>
-#include <elements/element/misc.hpp>
-#include <elements/element/size.hpp>
-#include <elements/element/layer.hpp>
-#include <elements/element/indirect.hpp>
-#include <elements/element/gallery/button.hpp>
-#include <elements/support/theme.hpp>
+#include <Elements/elements/element/align.hpp>
+#include <Elements/elements/element/margin.hpp>
+#include <Elements/elements/element/tile.hpp>
+#include <Elements/elements/element/misc.hpp>
+#include <Elements/elements/element/size.hpp>
+#include <Elements/elements/element/layer.hpp>
+#include <Elements/elements/element/indirect.hpp>
+#include <Elements/elements/element/gallery/button.hpp>
+#include <Elements/elements/support/theme.hpp>
 
 namespace cycfi { namespace elements
 {

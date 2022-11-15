@@ -15,8 +15,8 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
-#include "asio/detail/noncopyable.hpp"
+#include "Elements/asio/detail/config.hpp"
+#include "Elements/asio/detail/noncopyable.hpp"
 
 // The concurrency hint ID and mask are used to identify when a "well-known"
 // concurrency hint value has been passed to the io_context.

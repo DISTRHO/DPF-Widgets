@@ -3,9 +3,9 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/element.hpp>
-#include <elements/support.hpp>
-#include <elements/view.hpp>
+#include <Elements/elements/element/element.hpp>
+#include <Elements/elements/support.hpp>
+#include <Elements/elements/view.hpp>
 
 namespace cycfi { namespace elements
 {

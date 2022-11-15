@@ -6,7 +6,7 @@
 #if !defined(ELEMENTS_LAYER_APRIL_16_2016)
 #define ELEMENTS_LAYER_APRIL_16_2016
 
-#include <elements/element/composite.hpp>
+#include <Elements/elements/element/composite.hpp>
 #include <algorithm>
 
 namespace cycfi { namespace elements

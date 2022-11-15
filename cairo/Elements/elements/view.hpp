@@ -6,15 +6,15 @@
 #if !defined(ELEMENTS_VIEW_AUGUST_15_2016)
 #define ELEMENTS_VIEW_AUGUST_15_2016
 
-#include <elements/base_view.hpp>
-#include <elements/support/rect.hpp>
-#include <elements/support/canvas.hpp>
-#include <elements/support/theme.hpp>
-#include <elements/element/element.hpp>
-#include <elements/element/layer.hpp>
-#include <elements/element/size.hpp>
-#include <elements/element/indirect.hpp>
-#include <asio.hpp>
+#include <Elements/elements/base_view.hpp>
+#include <Elements/elements/support/rect.hpp>
+#include <Elements/elements/support/canvas.hpp>
+#include <Elements/elements/support/theme.hpp>
+#include <Elements/elements/element/element.hpp>
+#include <Elements/elements/element/layer.hpp>
+#include <Elements/elements/element/size.hpp>
+#include <Elements/elements/element/indirect.hpp>
+#include <Elements/asio.hpp>
 #include <memory>
 #include <unordered_map>
 #include <chrono>

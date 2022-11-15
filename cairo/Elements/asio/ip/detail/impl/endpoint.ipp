@@ -15,17 +15,17 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 #include <cstring>
 #if !defined(ASIO_NO_IOSTREAM)
 # include <sstream>
 #endif // !defined(ASIO_NO_IOSTREAM)
-#include "asio/detail/socket_ops.hpp"
-#include "asio/detail/throw_error.hpp"
-#include "asio/error.hpp"
-#include "asio/ip/detail/endpoint.hpp"
+#include "Elements/asio/detail/socket_ops.hpp"
+#include "Elements/asio/detail/throw_error.hpp"
+#include "Elements/asio/error.hpp"
+#include "Elements/asio/ip/detail/endpoint.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace ip {
@@ -194,6 +194,6 @@ std::string endpoint::to_string() const
 } // namespace ip
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_IP_DETAIL_IMPL_ENDPOINT_IPP

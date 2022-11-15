@@ -3,9 +3,9 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/thumbwheel.hpp>
-#include <elements/element/traversal.hpp>
-#include <elements/view.hpp>
+#include <Elements/elements/element/thumbwheel.hpp>
+#include <Elements/elements/element/traversal.hpp>
+#include <Elements/elements/view.hpp>
 
 namespace cycfi { namespace elements
 {

@@ -15,10 +15,10 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
-#include "asio/executor.hpp"
+#include "Elements/asio/detail/config.hpp"
+#include "Elements/asio/executor.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 
@@ -33,6 +33,6 @@ const char* bad_executor::what() const ASIO_NOEXCEPT_OR_NOTHROW
 
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_IMPL_EXECUTOR_IPP

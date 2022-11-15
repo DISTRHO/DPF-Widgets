@@ -6,9 +6,9 @@
 #if !defined(ELEMENTS_TRAVERSAL_MAY_23_2020)
 #define ELEMENTS_TRAVERSAL_MAY_23_2020
 
-#include <elements/element/proxy.hpp>
-#include <elements/element/indirect.hpp>
-#include <elements/element/composite.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/elements/element/indirect.hpp>
+#include <Elements/elements/element/composite.hpp>
 #include <type_traits>
 
 namespace cycfi { namespace elements

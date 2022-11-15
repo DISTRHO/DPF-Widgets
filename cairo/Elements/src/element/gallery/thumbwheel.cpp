@@ -3,8 +3,8 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/gallery/thumbwheel.hpp>
-#include <elements/view.hpp>
+#include <Elements/elements/element/gallery/thumbwheel.hpp>
+#include <Elements/elements/view.hpp>
 
 namespace cycfi { namespace elements
 {

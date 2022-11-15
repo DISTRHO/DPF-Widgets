@@ -6,9 +6,9 @@
 #if !defined(ELEMENTS_CONTEXT_APRIL_17_2016)
 #define ELEMENTS_CONTEXT_APRIL_17_2016
 
-#include <infra/string_view.hpp>
-#include <elements/support/point.hpp>
-#include <elements/support/rect.hpp>
+#include <Elements/infra/string_view.hpp>
+#include <Elements/elements/support/point.hpp>
+#include <Elements/elements/support/rect.hpp>
 #include <functional>
 
 namespace cycfi { namespace elements

@@ -6,7 +6,7 @@
 #if !defined(ELEMENTS_DRAW_UTILS_OCTOBER_27_2017)
 #define ELEMENTS_DRAW_UTILS_OCTOBER_27_2017
 
-#include <elements/support/canvas.hpp>
+#include <Elements/elements/support/canvas.hpp>
 
 namespace cycfi::elements
 {

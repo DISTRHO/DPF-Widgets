@@ -3,8 +3,8 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/support/glyphs.hpp>
-#include <elements/support/detail/scratch_context.hpp>
+#include <Elements/elements/support/glyphs.hpp>
+#include <Elements/elements/support/detail/scratch_context.hpp>
 
 namespace cycfi { namespace elements
 {

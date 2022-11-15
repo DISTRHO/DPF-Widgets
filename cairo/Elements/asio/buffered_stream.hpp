@@ -15,16 +15,16 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 #include <cstddef>
-#include "asio/async_result.hpp"
-#include "asio/buffered_read_stream.hpp"
-#include "asio/buffered_write_stream.hpp"
-#include "asio/buffered_stream_fwd.hpp"
-#include "asio/detail/noncopyable.hpp"
-#include "asio/error.hpp"
+#include "Elements/asio/async_result.hpp"
+#include "Elements/asio/buffered_read_stream.hpp"
+#include "Elements/asio/buffered_write_stream.hpp"
+#include "Elements/asio/buffered_stream_fwd.hpp"
+#include "Elements/asio/detail/noncopyable.hpp"
+#include "Elements/asio/error.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 
@@ -274,6 +274,6 @@ private:
 
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_BUFFERED_STREAM_HPP

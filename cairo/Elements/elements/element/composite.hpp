@@ -6,9 +6,9 @@
 #if !defined(ELEMENTS_COMPOSITE_APRIL_10_2016)
 #define ELEMENTS_COMPOSITE_APRIL_10_2016
 
-#include <elements/element/element.hpp>
-#include <elements/element/proxy.hpp>
-#include <elements/support/context.hpp>
+#include <Elements/elements/element/element.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/elements/support/context.hpp>
 
 #include <vector>
 #include <array>

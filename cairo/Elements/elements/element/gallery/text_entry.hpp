@@ -6,13 +6,13 @@
 #if !defined(ELEMENTS_GALLERY_TEXT_ENTRY_JUNE_5_2016)
 #define ELEMENTS_GALLERY_TEXT_ENTRY_JUNE_5_2016
 
-#include <elements/element/layer.hpp>
-#include <elements/element/port.hpp>
-#include <elements/element/margin.hpp>
-#include <elements/element/misc.hpp>
-#include <elements/element/text.hpp>
-#include <elements/element/size.hpp>
-#include <elements/support/text_utils.hpp>
+#include <Elements/elements/element/layer.hpp>
+#include <Elements/elements/element/port.hpp>
+#include <Elements/elements/element/margin.hpp>
+#include <Elements/elements/element/misc.hpp>
+#include <Elements/elements/element/text.hpp>
+#include <Elements/elements/element/size.hpp>
+#include <Elements/elements/support/text_utils.hpp>
 #include <type_traits>
 
 namespace cycfi { namespace elements

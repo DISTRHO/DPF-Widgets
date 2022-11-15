@@ -6,10 +6,10 @@
 #if !defined(ELEMENTS_THUMBWHEEL_SEPTEMBER_22_2020)
 #define ELEMENTS_THUMBWHEEL_SEPTEMBER_22_2020
 
-#include <elements/element/proxy.hpp>
-#include <elements/element/tracker.hpp>
-#include <elements/support.hpp>
-#include <infra/support.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/elements/element/tracker.hpp>
+#include <Elements/elements/support.hpp>
+#include <Elements/infra/support.hpp>
 #include <functional>
 #include <array>
 

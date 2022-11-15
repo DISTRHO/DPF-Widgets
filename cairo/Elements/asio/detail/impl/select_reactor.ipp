@@ -15,7 +15,7 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_HAS_IOCP) \
   || (!defined(ASIO_HAS_DEV_POLL) \
@@ -23,12 +23,12 @@
       && !defined(ASIO_HAS_KQUEUE) \
       && !defined(ASIO_WINDOWS_RUNTIME))
 
-#include "asio/detail/fd_set_adapter.hpp"
-#include "asio/detail/select_reactor.hpp"
-#include "asio/detail/signal_blocker.hpp"
-#include "asio/detail/socket_ops.hpp"
+#include "Elements/asio/detail/fd_set_adapter.hpp"
+#include "Elements/asio/detail/select_reactor.hpp"
+#include "Elements/asio/detail/signal_blocker.hpp"
+#include "Elements/asio/detail/socket_ops.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -327,7 +327,7 @@ void select_reactor::cancel_ops_unlocked(socket_type descriptor,
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // defined(ASIO_HAS_IOCP)
        //   || (!defined(ASIO_HAS_DEV_POLL)

@@ -3,8 +3,8 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/dynamic_list.hpp>
-#include <elements/view.hpp>
+#include <Elements/elements/element/dynamic_list.hpp>
+#include <Elements/elements/view.hpp>
 
 namespace cycfi { namespace elements
 {

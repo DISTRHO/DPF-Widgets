@@ -6,10 +6,10 @@
 #if !defined(ELEMENTS_GALLERY_PANE_JUNE_5_2016)
 #define ELEMENTS_GALLERY_PANE_JUNE_5_2016
 
-#include <elements/element/tile.hpp>
-#include <elements/element/layer.hpp>
-#include <elements/element/margin.hpp>
-#include <elements/element/misc.hpp>
+#include <Elements/elements/element/tile.hpp>
+#include <Elements/elements/element/layer.hpp>
+#include <Elements/elements/element/margin.hpp>
+#include <Elements/elements/element/misc.hpp>
 
 namespace cycfi { namespace elements
 {

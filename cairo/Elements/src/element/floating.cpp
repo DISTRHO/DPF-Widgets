@@ -3,8 +3,8 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/floating.hpp>
-#include <elements/support/context.hpp>
+#include <Elements/elements/element/floating.hpp>
+#include <Elements/elements/support/context.hpp>
 
 namespace cycfi { namespace elements
 {

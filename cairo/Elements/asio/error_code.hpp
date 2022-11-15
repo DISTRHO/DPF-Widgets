@@ -15,19 +15,19 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_HAS_STD_SYSTEM_ERROR)
 # include <system_error>
 #else // defined(ASIO_HAS_STD_SYSTEM_ERROR)
 # include <string>
-# include "asio/detail/noncopyable.hpp"
+# include "Elements/asio/detail/noncopyable.hpp"
 # if !defined(ASIO_NO_IOSTREAM)
 #  include <iosfwd>
 # endif // !defined(ASIO_NO_IOSTREAM)
 #endif // defined(ASIO_HAS_STD_SYSTEM_ERROR)
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 
@@ -193,10 +193,10 @@ std::basic_ostream<Elem, Traits>& operator<<(
 
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #if defined(ASIO_HEADER_ONLY)
-# include "asio/impl/error_code.ipp"
+# include "Elements/asio/impl/error_code.ipp"
 #endif // defined(ASIO_HEADER_ONLY)
 
 #endif // ASIO_ERROR_CODE_HPP

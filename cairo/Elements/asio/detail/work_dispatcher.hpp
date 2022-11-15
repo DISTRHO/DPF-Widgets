@@ -15,12 +15,12 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
-#include "asio/associated_executor.hpp"
-#include "asio/associated_allocator.hpp"
-#include "asio/executor_work_guard.hpp"
+#include "Elements/asio/detail/config.hpp"
+#include "Elements/asio/associated_executor.hpp"
+#include "Elements/asio/associated_allocator.hpp"
+#include "Elements/asio/executor_work_guard.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -68,6 +68,6 @@ private:
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_DETAIL_WORK_DISPATCHER_HPP

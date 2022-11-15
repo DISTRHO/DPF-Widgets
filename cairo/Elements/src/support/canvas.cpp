@@ -3,7 +3,7 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/support/canvas.hpp>
+#include <Elements/elements/support/canvas.hpp>
 #include <cairo.h>
 
 #include <memory>

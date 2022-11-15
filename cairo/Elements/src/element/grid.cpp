@@ -3,8 +3,8 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/grid.hpp>
-#include <elements/support/context.hpp>
+#include <Elements/elements/element/grid.hpp>
+#include <Elements/elements/support/context.hpp>
 
 namespace cycfi { namespace elements
 {

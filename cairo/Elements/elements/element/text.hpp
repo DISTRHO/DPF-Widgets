@@ -6,11 +6,11 @@
 #if !defined(ELEMENTS_TEXT_APRIL_17_2016)
 #define ELEMENTS_TEXT_APRIL_17_2016
 
-#include <elements/support/glyphs.hpp>
-#include <elements/support/theme.hpp>
-#include <elements/element/element.hpp>
+#include <Elements/elements/support/glyphs.hpp>
+#include <Elements/elements/support/theme.hpp>
+#include <Elements/elements/element/element.hpp>
 
-#include <infra/string_view.hpp>
+#include <Elements/infra/string_view.hpp>
 #include <string>
 #include <vector>
 

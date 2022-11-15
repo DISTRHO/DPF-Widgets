@@ -6,8 +6,8 @@
 #if !defined(ELEMENTS_GALLERY_CHILD_WINDOW_JANUARY_19_2021)
 #define ELEMENTS_GALLERY_CHILD_WINDOW_JANUARY_19_2021
 
-#include <elements/element/child_window.hpp>
-#include <elements/element/gallery/pane.hpp>
+#include <Elements/elements/element/child_window.hpp>
+#include <Elements/elements/element/gallery/pane.hpp>
 
 namespace cycfi { namespace elements
 {

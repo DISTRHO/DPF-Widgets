@@ -6,8 +6,8 @@
 #if !defined(ELEMENTS_TEXT_UTILS_MAY_22_2016)
 #define ELEMENTS_TEXT_UTILS_MAY_22_2016
 
-#include <elements/support/canvas.hpp>
-#include <elements/support/font.hpp>
+#include <Elements/elements/support/canvas.hpp>
+#include <Elements/elements/support/font.hpp>
 #include <string>
 #include <cctype>
 

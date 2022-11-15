@@ -15,17 +15,17 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if !defined(ASIO_NO_DEPRECATED)
 
 #include <cctype>
 #include <cstring>
-#include "asio/ip/address.hpp"
-#include "asio/ssl/rfc2818_verification.hpp"
-#include "asio/ssl/detail/openssl_types.hpp"
+#include "Elements/asio/ip/address.hpp"
+#include "Elements/asio/ssl/rfc2818_verification.hpp"
+#include "Elements/asio/ssl/detail/openssl_types.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace ssl {
@@ -157,7 +157,7 @@ bool rfc2818_verification::match_pattern(const char* pattern,
 } // namespace ssl
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // !defined(ASIO_NO_DEPRECATED)
 

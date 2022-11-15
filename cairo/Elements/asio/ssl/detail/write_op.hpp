@@ -15,12 +15,12 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
-#include "asio/detail/buffer_sequence_adapter.hpp"
-#include "asio/ssl/detail/engine.hpp"
+#include "Elements/asio/detail/buffer_sequence_adapter.hpp"
+#include "Elements/asio/ssl/detail/engine.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace ssl {
@@ -71,6 +71,6 @@ private:
 } // namespace ssl
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_SSL_DETAIL_WRITE_OP_HPP

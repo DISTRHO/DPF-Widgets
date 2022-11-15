@@ -16,13 +16,13 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_HAS_WINDOWS_OBJECT_HANDLE)
 
-#include "asio/detail/win_object_handle_service.hpp"
+#include "Elements/asio/detail/win_object_handle_service.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -441,7 +441,7 @@ void win_object_handle_service::wait_callback(PVOID param, BOOLEAN)
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // defined(ASIO_HAS_WINDOWS_OBJECT_HANDLE)
 

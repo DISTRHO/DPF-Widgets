@@ -15,12 +15,12 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/chrono.hpp"
+#include "Elements/asio/detail/chrono.hpp"
 
-#include "asio/wait_traits.hpp"
-#include "asio/basic_waitable_timer.hpp"
-#include "asio/system_timer.hpp"
-#include "asio/steady_timer.hpp"
-#include "asio/high_resolution_timer.hpp"
+#include "Elements/asio/wait_traits.hpp"
+#include "Elements/asio/basic_waitable_timer.hpp"
+#include "Elements/asio/system_timer.hpp"
+#include "Elements/asio/steady_timer.hpp"
+#include "Elements/asio/high_resolution_timer.hpp"
 
 #endif // ASIO_TS_TIMER_HPP

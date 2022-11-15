@@ -15,19 +15,19 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 #include <exception>
 #include <new>
 #include <tuple>
 #include <utility>
-#include "asio/detail/thread_context.hpp"
-#include "asio/detail/thread_info_base.hpp"
-#include "asio/detail/type_traits.hpp"
-#include "asio/post.hpp"
-#include "asio/system_error.hpp"
-#include "asio/this_coro.hpp"
+#include "Elements/asio/detail/thread_context.hpp"
+#include "Elements/asio/detail/thread_info_base.hpp"
+#include "Elements/asio/detail/type_traits.hpp"
+#include "Elements/asio/post.hpp"
+#include "Elements/asio/system_error.hpp"
+#include "Elements/asio/this_coro.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -431,6 +431,6 @@ struct coroutine_traits<asio::awaitable<T, Executor>, Args...>
 # endif // defined(ASIO_HAS_STD_COROUTINE)
 #endif // !defined(GENERATING_DOCUMENTATION)
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_IMPL_AWAITABLE_HPP

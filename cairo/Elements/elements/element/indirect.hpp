@@ -6,7 +6,7 @@
 #if !defined(ELEMENTS_REFERENCE_APRIL_10_2016)
 #define ELEMENTS_REFERENCE_APRIL_10_2016
 
-#include <elements/element/element.hpp>
+#include <Elements/elements/element/element.hpp>
 #include <functional>
 
 namespace cycfi { namespace elements

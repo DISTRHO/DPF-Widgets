@@ -3,9 +3,9 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/image.hpp>
-#include <elements/support.hpp>
-#include <elements/support/context.hpp>
+#include <Elements/elements/element/image.hpp>
+#include <Elements/elements/support.hpp>
+#include <Elements/elements/support/context.hpp>
 #include <algorithm>
 
 namespace cycfi { namespace elements

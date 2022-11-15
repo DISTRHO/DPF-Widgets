@@ -6,10 +6,10 @@
 #if !defined(ELEMENTS_DIAL_AUGUST_30_2016)
 #define ELEMENTS_DIAL_AUGUST_30_2016
 
-#include <elements/element/proxy.hpp>
-#include <elements/element/tracker.hpp>
-#include <elements/support.hpp>
-#include <infra/support.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/elements/element/tracker.hpp>
+#include <Elements/elements/support.hpp>
+#include <Elements/infra/support.hpp>
 #include <functional>
 
 namespace cycfi { namespace elements

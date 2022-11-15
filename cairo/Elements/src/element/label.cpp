@@ -3,7 +3,7 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/label.hpp>
+#include <Elements/elements/element/label.hpp>
 
 namespace cycfi { namespace elements
 {

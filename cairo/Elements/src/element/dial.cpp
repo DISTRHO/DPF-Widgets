@@ -3,10 +3,10 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/dial.hpp>
-#include <elements/element/traversal.hpp>
-#include <elements/support/theme.hpp>
-#include <elements/view.hpp>
+#include <Elements/elements/element/dial.hpp>
+#include <Elements/elements/element/traversal.hpp>
+#include <Elements/elements/support/theme.hpp>
+#include <Elements/elements/view.hpp>
 #include <cmath>
 
 namespace cycfi { namespace elements

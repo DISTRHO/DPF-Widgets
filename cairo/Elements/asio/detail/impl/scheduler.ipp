@@ -15,17 +15,17 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
-#include "asio/detail/concurrency_hint.hpp"
-#include "asio/detail/event.hpp"
-#include "asio/detail/limits.hpp"
-#include "asio/detail/reactor.hpp"
-#include "asio/detail/scheduler.hpp"
-#include "asio/detail/scheduler_thread_info.hpp"
-#include "asio/detail/signal_blocker.hpp"
+#include "Elements/asio/detail/concurrency_hint.hpp"
+#include "Elements/asio/detail/event.hpp"
+#include "Elements/asio/detail/limits.hpp"
+#include "Elements/asio/detail/reactor.hpp"
+#include "Elements/asio/detail/scheduler.hpp"
+#include "Elements/asio/detail/scheduler_thread_info.hpp"
+#include "Elements/asio/detail/signal_blocker.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -616,6 +616,6 @@ void scheduler::wake_one_thread_and_unlock(
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_DETAIL_IMPL_SCHEDULER_IPP

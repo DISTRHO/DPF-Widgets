@@ -6,7 +6,7 @@
 #if !defined(ELEMENTS_CIRCLE_APRIL_17_2016)
 #define ELEMENTS_CIRCLE_APRIL_17_2016
 
-#include <elements/support/rect.hpp>
+#include <Elements/elements/support/rect.hpp>
 #include <algorithm>
 
 namespace cycfi { namespace elements

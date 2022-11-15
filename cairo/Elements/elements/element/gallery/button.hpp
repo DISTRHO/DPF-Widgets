@@ -6,15 +6,15 @@
 #if !defined(ELEMENTS_GALLERY_BUTTON_JUNE_5_2016)
 #define ELEMENTS_GALLERY_BUTTON_JUNE_5_2016
 
-#include <elements/element/button.hpp>
-#include <elements/element/misc.hpp>
-#include <elements/element/label.hpp>
-#include <elements/element/align.hpp>
-#include <elements/element/margin.hpp>
-#include <elements/element/tile.hpp>
-#include <elements/support/theme.hpp>
-#include <infra/support.hpp>
-#include <infra/string_view.hpp>
+#include <Elements/elements/element/button.hpp>
+#include <Elements/elements/element/misc.hpp>
+#include <Elements/elements/element/label.hpp>
+#include <Elements/elements/element/align.hpp>
+#include <Elements/elements/element/margin.hpp>
+#include <Elements/elements/element/tile.hpp>
+#include <Elements/elements/support/theme.hpp>
+#include <Elements/infra/support.hpp>
+#include <Elements/infra/string_view.hpp>
 #include <utility>
 
 namespace cycfi { namespace elements

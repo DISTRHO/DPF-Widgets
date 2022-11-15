@@ -6,9 +6,9 @@
 #if !defined(ELEMENTS_GALLERY_ICON_BUTTON_JUNE_5_2016)
 #define ELEMENTS_GALLERY_ICON_BUTTON_JUNE_5_2016
 
-#include <elements/element/element.hpp>
-#include <elements/element/gallery/button.hpp>
-#include <elements/support/theme.hpp>
+#include <Elements/elements/element/element.hpp>
+#include <Elements/elements/element/gallery/button.hpp>
+#include <Elements/elements/support/theme.hpp>
 
 namespace cycfi { namespace elements
 {

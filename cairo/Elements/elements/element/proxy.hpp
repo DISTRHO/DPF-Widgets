@@ -6,7 +6,7 @@
 #if !defined(ELEMENTS_PROXY_APRIL_10_2016)
 #define ELEMENTS_PROXY_APRIL_10_2016
 
-#include <elements/element/element.hpp>
+#include <Elements/elements/element/element.hpp>
 #include <type_traits>
 
 namespace cycfi { namespace elements

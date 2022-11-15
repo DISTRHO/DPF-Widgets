@@ -6,9 +6,9 @@
 #if !defined(ELEMENTS_GALLERY_THUMBWHEEL_SEPTEMBER_23_2020)
 #define ELEMENTS_GALLERY_THUMBWHEEL_SEPTEMBER_23_2020
 
-#include <elements/element/thumbwheel.hpp>
-#include <elements/element/dynamic_list.hpp>
-#include <elements/element/port.hpp>
+#include <Elements/elements/element/thumbwheel.hpp>
+#include <Elements/elements/element/dynamic_list.hpp>
+#include <Elements/elements/element/port.hpp>
 
 namespace cycfi { namespace elements
 {

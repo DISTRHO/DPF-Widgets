@@ -6,8 +6,8 @@
 #if !defined(ELEMENTS_GALLERY_RADIO_BUTTON_FEBRUARY_29_2020)
 #define ELEMENTS_GALLERY_RADIO_BUTTON_FEBRUARY_29_2020
 
-#include <elements/element/gallery/button.hpp>
-#include <elements/element/gallery/toggle_selector.hpp>
+#include <Elements/elements/element/gallery/button.hpp>
+#include <Elements/elements/element/gallery/toggle_selector.hpp>
 
 namespace cycfi { namespace elements
 {

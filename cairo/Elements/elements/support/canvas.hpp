@@ -6,12 +6,12 @@
 #if !defined(ELEMENTS_CANVAS_MAY_3_2016)
 #define ELEMENTS_CANVAS_MAY_3_2016
 
-#include <elements/support/color.hpp>
-#include <elements/support/rect.hpp>
-#include <elements/support/circle.hpp>
-#include <elements/support/pixmap.hpp>
-#include <elements/support/font.hpp>
-#include <infra/filesystem.hpp>
+#include <Elements/elements/support/color.hpp>
+#include <Elements/elements/support/rect.hpp>
+#include <Elements/elements/support/circle.hpp>
+#include <Elements/elements/support/pixmap.hpp>
+#include <Elements/elements/support/font.hpp>
+#include <Elements/infra/filesystem.hpp>
 
 #include <vector>
 #include <functional>
@@ -217,5 +217,5 @@ namespace cycfi { namespace elements
    };
 }}
 
-#include <elements/support/detail/canvas_impl.hpp>
+#include <Elements/elements/support/detail/canvas_impl.hpp>
 #endif

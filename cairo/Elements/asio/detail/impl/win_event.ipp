@@ -15,15 +15,15 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_WINDOWS)
 
-#include "asio/detail/throw_error.hpp"
-#include "asio/detail/win_event.hpp"
-#include "asio/error.hpp"
+#include "Elements/asio/detail/throw_error.hpp"
+#include "Elements/asio/detail/win_event.hpp"
+#include "Elements/asio/error.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -69,7 +69,7 @@ win_event::~win_event()
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // defined(ASIO_WINDOWS)
 

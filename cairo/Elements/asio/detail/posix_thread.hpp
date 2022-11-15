@@ -15,15 +15,15 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_HAS_PTHREADS)
 
 #include <cstddef>
 #include <pthread.h>
-#include "asio/detail/noncopyable.hpp"
+#include "Elements/asio/detail/noncopyable.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -98,10 +98,10 @@ private:
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #if defined(ASIO_HEADER_ONLY)
-# include "asio/detail/impl/posix_thread.ipp"
+# include "Elements/asio/detail/impl/posix_thread.ipp"
 #endif // defined(ASIO_HEADER_ONLY)
 
 #endif // defined(ASIO_HAS_PTHREADS)

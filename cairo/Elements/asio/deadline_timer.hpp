@@ -15,13 +15,13 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_HAS_BOOST_DATE_TIME) \
   || defined(GENERATING_DOCUMENTATION)
 
-#include "asio/detail/socket_types.hpp" // Must come before posix_time.
-#include "asio/basic_deadline_timer.hpp"
+#include "Elements/asio/detail/socket_types.hpp" // Must come before posix_time.
+#include "Elements/asio/basic_deadline_timer.hpp"
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 

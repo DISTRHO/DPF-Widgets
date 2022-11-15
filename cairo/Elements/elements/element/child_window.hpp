@@ -6,10 +6,10 @@
 #if !defined(ELEMENTS_CHILD_WINDOW_JANUARY_19_2021)
 #define ELEMENTS_CHILD_WINDOW_JANUARY_19_2021
 
-#include <elements/element/floating.hpp>
-#include <elements/element/tracker.hpp>
-#include <elements/element/traversal.hpp>
-#include <elements/element/button.hpp>
+#include <Elements/elements/element/floating.hpp>
+#include <Elements/elements/element/tracker.hpp>
+#include <Elements/elements/element/traversal.hpp>
+#include <Elements/elements/element/button.hpp>
 
 namespace cycfi { namespace elements
 {

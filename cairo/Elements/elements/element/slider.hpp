@@ -6,11 +6,11 @@
 #if !defined(ELEMENTS_SLIDER_AUGUST_29_2016)
 #define ELEMENTS_SLIDER_AUGUST_29_2016
 
-#include <elements/element/proxy.hpp>
-#include <elements/element/tracker.hpp>
-#include <elements/view.hpp>
-#include <elements/support.hpp>
-#include <infra/support.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/elements/element/tracker.hpp>
+#include <Elements/elements/view.hpp>
+#include <Elements/elements/support.hpp>
+#include <Elements/infra/support.hpp>
 
 #include <cmath>
 #include <functional>

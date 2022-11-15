@@ -15,7 +15,7 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 // Older versions of gcc have difficulty compiling the sizeof expressions where
 // we test the handler type requirements. We'll disable checking of handler type
@@ -50,7 +50,7 @@
 #endif // !defined(ASIO_DISABLE_HANDLER_TYPE_REQUIREMENTS)
 
 #if defined(ASIO_ENABLE_HANDLER_TYPE_REQUIREMENTS)
-# include "asio/async_result.hpp"
+# include "Elements/asio/async_result.hpp"
 #endif // defined(ASIO_ENABLE_HANDLER_TYPE_REQUIREMENTS)
 
 namespace asio {

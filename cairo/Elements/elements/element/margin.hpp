@@ -6,9 +6,9 @@
 #if !defined(ELEMENTS_MARGIN_APRIL_11_2016)
 #define ELEMENTS_MARGIN_APRIL_11_2016
 
-#include <elements/element/proxy.hpp>
-#include <elements/support/context.hpp>
-#include <infra/support.hpp>
+#include <Elements/elements/element/proxy.hpp>
+#include <Elements/elements/support/context.hpp>
+#include <Elements/infra/support.hpp>
 #include <memory>
 
 namespace cycfi { namespace elements

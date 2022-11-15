@@ -4,8 +4,8 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <elements/element/tile.hpp>
-#include <elements/support/context.hpp>
+#include <Elements/elements/element/tile.hpp>
+#include <Elements/elements/support/context.hpp>
 
 #include <algorithm>
 #include <numeric>

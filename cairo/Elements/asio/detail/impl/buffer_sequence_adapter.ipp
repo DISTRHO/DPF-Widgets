@@ -15,16 +15,16 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_WINDOWS_RUNTIME)
 
 #include <robuffer.h>
 #include <windows.storage.streams.h>
 #include <wrl/implements.h>
-#include "asio/detail/buffer_sequence_adapter.hpp"
+#include "Elements/asio/detail/buffer_sequence_adapter.hpp"
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -111,7 +111,7 @@ void buffer_sequence_adapter_base::init_native_buffer(
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // defined(ASIO_WINDOWS_RUNTIME)
 

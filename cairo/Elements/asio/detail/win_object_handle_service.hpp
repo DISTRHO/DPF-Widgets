@@ -16,23 +16,23 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 
 #if defined(ASIO_HAS_WINDOWS_OBJECT_HANDLE)
 
-#include "asio/detail/handler_alloc_helpers.hpp"
-#include "asio/detail/memory.hpp"
-#include "asio/detail/wait_handler.hpp"
-#include "asio/error.hpp"
-#include "asio/execution_context.hpp"
+#include "Elements/asio/detail/handler_alloc_helpers.hpp"
+#include "Elements/asio/detail/memory.hpp"
+#include "Elements/asio/detail/wait_handler.hpp"
+#include "Elements/asio/error.hpp"
+#include "Elements/asio/execution_context.hpp"
 
 #if defined(ASIO_HAS_IOCP)
-# include "asio/detail/win_iocp_io_context.hpp"
+# include "Elements/asio/detail/win_iocp_io_context.hpp"
 #else // defined(ASIO_HAS_IOCP)
-# include "asio/detail/scheduler.hpp"
+# include "Elements/asio/detail/scheduler.hpp"
 #endif // defined(ASIO_HAS_IOCP)
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace detail {
@@ -184,10 +184,10 @@ private:
 } // namespace detail
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #if defined(ASIO_HEADER_ONLY)
-# include "asio/detail/impl/win_object_handle_service.ipp"
+# include "Elements/asio/detail/impl/win_object_handle_service.ipp"
 #endif // defined(ASIO_HEADER_ONLY)
 
 #endif // defined(ASIO_HAS_WINDOWS_OBJECT_HANDLE)

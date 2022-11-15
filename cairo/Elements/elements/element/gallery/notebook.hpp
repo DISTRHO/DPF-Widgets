@@ -6,14 +6,14 @@
 #if !defined(ELEMENTS_GALLERY_NOTEBOOK_MAY_23_2020)
 #define ELEMENTS_GALLERY_NOTEBOOK_MAY_23_2020
 
-#include <elements/element/gallery/tab.hpp>
-#include <elements/element/tile.hpp>
-#include <elements/element/align.hpp>
-#include <elements/element/margin.hpp>
-#include <elements/element/layer.hpp>
-#include <elements/element/layer.hpp>
-#include <elements/element/traversal.hpp>
-#include <elements/view.hpp>
+#include <Elements/elements/element/gallery/tab.hpp>
+#include <Elements/elements/element/tile.hpp>
+#include <Elements/elements/element/align.hpp>
+#include <Elements/elements/element/margin.hpp>
+#include <Elements/elements/element/layer.hpp>
+#include <Elements/elements/element/layer.hpp>
+#include <Elements/elements/element/traversal.hpp>
+#include <Elements/elements/view.hpp>
 #include <stdexcept>
 #include <string>
 

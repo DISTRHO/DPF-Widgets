@@ -3,8 +3,8 @@
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
-#include <infra/support.hpp>
-#include <elements/support/rect.hpp>
+#include <Elements/infra/support.hpp>
+#include <Elements/elements/support/rect.hpp>
 #include <algorithm>
 
 namespace cycfi { namespace elements

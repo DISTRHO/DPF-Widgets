@@ -15,22 +15,22 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
+#include "Elements/asio/detail/config.hpp"
 #include <cstddef>
 #include <cstring>
 #include <iterator>
 #include <string>
 #include <vector>
-#include "asio/detail/memory.hpp"
-#include "asio/detail/socket_ops.hpp"
-#include "asio/detail/socket_types.hpp"
-#include "asio/ip/basic_resolver_entry.hpp"
+#include "Elements/asio/detail/memory.hpp"
+#include "Elements/asio/detail/socket_ops.hpp"
+#include "Elements/asio/detail/socket_types.hpp"
+#include "Elements/asio/ip/basic_resolver_entry.hpp"
 
 #if defined(ASIO_WINDOWS_RUNTIME)
-# include "asio/detail/winrt_utils.hpp"
+# include "Elements/asio/detail/winrt_utils.hpp"
 #endif // defined(ASIO_WINDOWS_RUNTIME)
 
-#include "asio/detail/push_options.hpp"
+#include "Elements/asio/detail/push_options.hpp"
 
 namespace asio {
 namespace ip {
@@ -187,6 +187,6 @@ protected:
 } // namespace ip
 } // namespace asio
 
-#include "asio/detail/pop_options.hpp"
+#include "Elements/asio/detail/pop_options.hpp"
 
 #endif // ASIO_IP_BASIC_RESOLVER_ITERATOR_HPP
