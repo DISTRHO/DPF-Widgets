@@ -97,7 +97,7 @@ namespace cycfi { namespace elements
 
     // TODO make templated
     struct host_view {
-        DGL_NAMESPACE::ElementsStandaloneWindow* self;
+        DGL_NAMESPACE::Widget* self;
         mouse_button last_button = {};
         point last_cursor_pos = {};
         uint last_click_count = 0;
@@ -158,20 +158,6 @@ namespace cycfi { namespace elements
 START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
-
-template <>
-ElementsWidget<StandaloneWindow>::ElementsWidget(Application& app)
-    : StandaloneWindow(app),
-      view({400,400})
-{
-    addIdleCallback(this);
-}
-
-template <class BaseWidget>
-ElementsWidget<BaseWidget>::~ElementsWidget()
-{
-    BaseWidget::removeIdleCallback(this);
-}
 
 template <class BaseWidget>
 void ElementsWidget<BaseWidget>::idleCallback()
@@ -318,15 +304,79 @@ bool ElementsWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
     return true;
 }
 
+// --------------------------------------------------------------------------------------------------------------------
+
+template <>
+ElementsWidget<SubWidget>::ElementsWidget(Widget* const parentGroupWidget)
+    : SubWidget(parentGroupWidget),
+      view({400,400})
+{
+    host()->self = this;
+    getApp().addIdleCallback(this);
+}
+
+template <>
+ElementsWidget<SubWidget>::~ElementsWidget()
+{
+    getApp().removeIdleCallback(this);
+}
+
+template class ElementsWidget<SubWidget>;
+
+// --------------------------------------------------------------------------------------------------------------------
+
+template <>
+ElementsWidget<TopLevelWidget>::ElementsWidget(Window& windowToMapTo)
+    : TopLevelWidget(windowToMapTo),
+      view({400,400})
+{
+    host()->self = this;
+    addIdleCallback(this);
+}
+
+template <>
+ElementsWidget<TopLevelWidget>::~ElementsWidget()
+{
+    removeIdleCallback(this);
+}
+
+template class ElementsWidget<TopLevelWidget>;
+
+// --------------------------------------------------------------------------------------------------------------------
+
+template <>
+ElementsWidget<StandaloneWindow>::ElementsWidget(Application& app)
+    : StandaloneWindow(app),
+      view({400,400})
+{
+    host()->self = this;
+    addIdleCallback(this);
+}
+
+template <>
+ElementsWidget<StandaloneWindow>::ElementsWidget(Application& app, Window& transientParentWindow)
+    : StandaloneWindow(app, transientParentWindow),
+      view({400,400})
+{
+    host()->self = this;
+    addIdleCallback(this);
+}
+
+template <>
+ElementsWidget<StandaloneWindow>::~ElementsWidget()
+{
+    removeIdleCallback(this);
+}
+
 template class ElementsWidget<StandaloneWindow>;
 
 // --------------------------------------------------------------------------------------------------------------------
 
 ElementsStandaloneWindow::ElementsStandaloneWindow(Application& app)
-    : ElementsWidget<StandaloneWindow>(app)
-{
-    host()->self = this;
-}
+    : ElementsWidget<StandaloneWindow>(app) {}
+
+ElementsStandaloneWindow::ElementsStandaloneWindow(Application& app, Window& transientParentWindow)
+    : ElementsWidget<StandaloneWindow>(app, transientParentWindow) {}
 
 void ElementsStandaloneWindow::onFocus(bool focus, CrossingMode mode)
 {

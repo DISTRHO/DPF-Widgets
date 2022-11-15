@@ -20,11 +20,10 @@
 # error invalid use of Elements with DPF, Elements host UI must be platform agnostic
 #endif
 
-#define ELEMENTS_HOST_UI_LIBRARY_DPF 1
-
 // fix possible macro pollution from outside
 #undef index
 
+#define ELEMENTS_HOST_UI_LIBRARY_DPF 1
 #include "Elements/elements.hpp"
 
 #include "Cairo.hpp"
@@ -95,9 +94,14 @@ class ElementsStandaloneWindow : public ElementsWidget<StandaloneWindow>
 {
 public:
    /**
-      Constructor for a ElementsStandaloneWindow without transient parent window.
+      Constructor without transient parent window.
     */
     explicit ElementsStandaloneWindow(Application& app);
+
+   /**
+      Constructor with transient parent window.
+    */
+    explicit ElementsStandaloneWindow(Application& app, Window& transientParentWindow);
 
 private:
     void onFocus(bool focus, CrossingMode mode) override;
