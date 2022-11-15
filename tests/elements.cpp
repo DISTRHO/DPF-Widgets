@@ -21,81 +21,166 @@
 
 START_NAMESPACE_DGL
 
-std::string const text1 =
-   "一千条路…\n"
-   "仁、义、礼、智、信…\n"
-   "开放包容、视野宽广\n\n"
-;
-
-std::string const text2 =
-   "To traverse the quest is to become one with it.\n\n"
-
-   "You and I are adventurers of the quantum cycle. The goal of expanding wave "
-   "functions is to plant the seeds of non-locality rather than pain. "
-   "The complexity of the present time seems to demand a redefining of our "
-   "bodies if we are going to survive. "
-   "We are at a crossroads of will and greed. Humankind has nothing to lose. "
-   "Our conversations with other storytellers have led to an evolving of "
-   "hyper-sentient consciousness. "
-   "If you have never experienced this flow on a cosmic scale, it can be "
-   "difficult to self-actualize. Although you may not realize it, you are "
-   "ancient. Have you found your vision quest?\n\n"
-
-   "Imagine a deepening of what could be. We are being called to explore the "
-   "galaxy itself as an interface between nature and transformation. This "
-   "circuit never ends. Entity, look within and recreate yourself. "
-   "Eons from now, we warriors will exist like never before as we are reborn "
-   "by the universe. We must change ourselves and empower others. The "
-   "wellspring of sharing is now happening worldwide. "
-   "You will soon be awakened by a power deep within yourself - a power "
-   "that is ethereal, dynamic. Astral projection may be the solution to "
-   "what's holding you back from an ecstatic oasis of divinity. As you "
-   "reflect, you will enter into infinite freedom that transcends understanding.\n\n"
-;
-
-std::string const text3 =
-   "We are in the midst of an intergalatic condensing of beauty that will "
-   "clear a path toward the planet itself. The quantum leap of rebirth is "
-   "now happening worldwide. It is time to take healing to the next level. "
-   "Soon there will be a deepening of chi the likes of which the infinite "
-   "has never seen. The universe is approaching a tipping point. This "
-   "vision quest never ends. Imagine a condensing of what could be. "
-   "We can no longer afford to live with stagnation. Suffering is born "
-   "in the gap where stardust has been excluded. You must take a stand "
-   "against discontinuity.\n\n"
-
-   "Without complexity, one cannot dream. Stagnation is the antithesis of "
-   "life-force. Only a seeker of the galaxy may engender this wellspring of hope."
-   "Yes, it is possible to eliminate the things that can destroy us, but not "
-   "without wellbeing on our side. Where there is delusion, faith cannot thrive. "
-   "You may be ruled by desire without realizing it. Do not let it eliminate "
-   "the growth of your journey.\n\n"
-;
+using namespace cycfi::elements;
 
 class ElementsDemo : public ElementsStandaloneWindow
 {
+    // Main window background color
+    static constexpr auto bkd_color = rgba(35, 35, 37, 255);
+    box_element background = box(bkd_color);
+
+    using slider_ptr = std::shared_ptr<basic_slider_base>;
+    slider_ptr hsliders[3];
+    slider_ptr vsliders[3];
+
+    using dial_ptr = std::shared_ptr<dial_base>;
+    dial_ptr dials[3];
+
+    template <bool is_vertical>
+    auto make_markers()
+    {
+        auto track = basic_track<5, is_vertical>();
+        return slider_labels<10>(
+            slider_marks<40>(track),         // Track with marks
+            0.8,                             // Label font size (relative size)
+            "0", "1", "2", "3", "4",         // Labels
+            "5", "6", "7", "8", "9", "10"
+        );
+    }
+
+    auto make_hslider(int index)
+    {
+        hsliders[index] = share(slider(
+            basic_thumb<25>(),
+            make_markers<false>(),
+            (index + 1) * 0.25
+        ));
+        return align_middle(hmargin({ 20, 20 }, hold(hsliders[index])));
+    }
+
+    auto make_hsliders()
+    {
+        return hmin_size(300,
+            vtile(
+                make_hslider(0),
+                make_hslider(1),
+                make_hslider(2)
+            )
+        );
+    }
+
+    auto make_vslider(int index)
+    {
+        vsliders[index] = share(slider(
+            basic_thumb<25>(),
+            make_markers<true>(),
+            (index + 1) * 0.25
+        ));
+        return align_center(vmargin({ 20, 20 }, hold(vsliders[index])));
+    }
+
+    auto make_vsliders()
+    {
+        return hmin_size(300,
+            htile(
+                make_vslider(0),
+                make_vslider(1),
+                make_vslider(2)
+            )
+        );
+    }
+
+    auto make_dial(int index)
+    {
+        dials[index] = share(
+            dial(
+                radial_marks<20>(basic_knob<50>()),
+                (index + 1) * 0.25
+            )
+        );
+
+        auto markers = radial_labels<15>(
+            hold(dials[index]),
+            0.7,                                   // Label font size (relative size)
+            "0", "1", "2", "3", "4",               // Labels
+            "5", "6", "7", "8", "9", "10"
+        );
+
+        return align_center_middle(markers);
+    }
+
+    auto make_dials()
+    {
+        return hmargin(20,
+            vtile(
+                make_dial(0),
+                make_dial(1),
+                make_dial(2)
+            )
+        );
+    }
+
+    auto make_controls()
+    {
+        return
+            margin({ 20, 10, 20, 10 },
+                vmin_size(400,
+                    htile(
+                    margin({ 20, 20, 20, 20 }, pane("Vertical Sliders", make_vsliders(), 0.8f)),
+                    margin({ 20, 20, 20, 20 }, pane("Horizontal Sliders", make_hsliders(), 0.8f)),
+                    hstretch(0.5, margin({ 20, 20, 20, 20 }, pane("Knobs", make_dials(), 0.8f)))
+                    )
+                )
+            );
+    }
+
+    void link_control(int index)
+    {
+        vsliders[index]->on_change =
+            [index, this](double val)
+            {
+                hsliders[index]->slider_base::value(val);
+                dials[index]->dial_base::value(val);
+                refresh(*hsliders[index]);
+                refresh(*dials[index]);
+            };
+
+        hsliders[index]->on_change =
+            [index, this](double val)
+            {
+                vsliders[index]->slider_base::value(val);
+                dials[index]->dial_base::value(val);
+                refresh(*vsliders[index]);
+                refresh(*dials[index]);
+            };
+
+        dials[index]->on_change =
+            [index, this](double val)
+            {
+                vsliders[index]->slider_base::value(val);
+                hsliders[index]->slider_base::value(val);
+                refresh(*vsliders[index]);
+                refresh(*hsliders[index]);
+            };
+    }
+
+    void link_controls()
+    {
+        link_control(0);
+        link_control(1);
+        link_control(2);
+    }
+
 public:
     ElementsDemo(Application& app)
         : ElementsStandaloneWindow(app)
     {
-        using namespace cycfi::elements;
-
-        // set the font of text box to 文泉驿 open source font: http://wenq.org/wqy2/index.cgi
-        char const* font_family = "文泉驿微米黑, \"WenQuanYi Micro Hei\"";
-        auto text = text1+text2+text3;
-
         content(
-            button("Momentary Button"),
-            scroller(
-                margin(
-                    { 20, 20, 20, 20 },
-                    align_left_top(hsize(800,
-                    basic_text_box(text, font_descr{ font_family }
-                    )))
-                )
-            ),
-            port(image{ "/Users/falktx/Source/DISTRHO/DPF-Widgets/cairo/elements-git-src/examples/text_edit/resources/dark-bkd.jpg" })
+            make_controls(),
+            background
         );
+
+        link_controls();
     }
 };
 
@@ -107,9 +192,9 @@ int main(int, char**)
 
     Application app;
     ElementsDemo win(app);
-    win.setSize(400*win.getScaleFactor(), 400*win.getScaleFactor());
+    win.setSize(900*win.getScaleFactor(), 500*win.getScaleFactor());
     win.setResizable(true);
-    win.setTitle("Elements");
+    win.setTitle("Elements with DPF \\o/");
     win.show();
     app.exec();
 

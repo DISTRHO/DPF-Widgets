@@ -81,47 +81,61 @@ namespace cycfi { namespace elements
     // needed only for macOS?
     fs::path get_user_fonts_directory()
     {
-        return fs::path("/Users/falktx/Source/DISTRHO/DPF-Widgets/cairo/elements-git-src/resources/fonts");
+        return fs::path("/home/falktx/Source/DISTRHO/DPF-Widgets/cairo/Elements/.elements-git-src/resources/fonts");
+    }
+
+    point scroll_direction()
+    {
+       #ifdef DISTRHO_OS_MAC
+        // float dir = [[[NSUserDefaults standardUserDefaults] objectForKey:@"com.apple.swipescrolldirection"] boolValue]? +1.0f : -1.0f;
+        // return { dir, dir };
+       #else
+       #endif
+
+        return { 1.f, 1.f };
     }
 
     // TODO make templated
     struct host_view {
         DGL_NAMESPACE::ElementsStandaloneWindow* self;
-        point last_cursor_pos;
+        mouse_button last_button = {};
+        point last_cursor_pos = {};
+        uint last_click_count = 0;
+        uint last_click_time = 0;
+        uint last_scroll_time = 0;
+        // FIXME for template
+        // void repaint(DGL_NAMESPACE::Rectangle<uint>&);
     };
 
     base_view::base_view(extent /* size_ */)
-        : _view(new host_view)
+        : base_view(new host_view)
     {
     }
 
-    // base_view::base_view(host_window_handle h)
-    //     : base_view(new host_view)
-    // {
-    //     // TODO
-    //     // elements::make_view(*this, get_window(*h));
-    // }
+    base_view::base_view(host_view_handle h)
+        : _view(h)
+    {
+    }
 
     base_view::~base_view()
     {
         delete _view;
     }
 
-   point base_view::cursor_pos() const
-   {
-      return _view->last_cursor_pos;
-   }
+    point base_view::cursor_pos() const
+    {
+        return _view->last_cursor_pos;
+    }
 
-   elements::extent base_view::size() const
-   {
-        return { 400, 400 };
-      // return { float(_view->self->getWidth()), float(_view->self->getHeight()) };
-   }
+    elements::extent base_view::size() const
+    {
+        return { float(_view->self->getWidth()), float(_view->self->getHeight()) };
+    }
 
-   float base_view::hdpi_scale() const
-   {
-      return 1.0f; // ??
-   }
+    float base_view::hdpi_scale() const
+    {
+        return 1.0f; // ??
+    }
 
     void base_view::refresh()
     {
@@ -130,8 +144,9 @@ namespace cycfi { namespace elements
 
     void base_view::refresh(rect area)
     {
-        // FIXME
+        // FIXME must be template based
         _view->self->repaint();
+        // _view->self->repaint(DGL_NAMESPACE::Rectangle<uint>());
     }
 }}
 
@@ -149,7 +164,6 @@ ElementsWidget<StandaloneWindow>::ElementsWidget(Application& app)
     : StandaloneWindow(app),
       view({400,400})
 {
-    host()->self = this;
     addIdleCallback(this);
 }
 
@@ -160,24 +174,174 @@ ElementsWidget<BaseWidget>::~ElementsWidget()
 }
 
 template <class BaseWidget>
-void ElementsWidget<BaseWidget>::onDisplay()
-{
-    auto cr = static_cast<const CairoGraphicsContext&>(BaseWidget::getGraphicsContext()).handle;
-    //double left, top, right, bottom;
-    //cairo_clip_extents(cr, &left, &top, &right, &bottom);
-
-    //cycfi::elements::view::draw(cr, cycfi::elements::rect{ float(left), float(top), float(right), float(bottom) });
-    cycfi::elements::view::draw(cr,{0,0,(float)BaseWidget::getWidth(),(float)BaseWidget::getHeight()});
-}
-
-template <class BaseWidget>
 void ElementsWidget<BaseWidget>::idleCallback()
 {
     cycfi::elements::view::poll();
-    BaseWidget::repaint();
+}
+
+template <class BaseWidget>
+void ElementsWidget<BaseWidget>::onDisplay()
+{
+    auto cr = static_cast<const CairoGraphicsContext&>(BaseWidget::getGraphicsContext()).handle;
+
+    double left, top, right, bottom;
+    cairo_clip_extents(cr, &left, &top, &right, &bottom);
+
+    cycfi::elements::view::draw(cr, cycfi::elements::rect{ float(left), float(top), float(right), float(bottom) });
+}
+
+template <class BaseWidget>
+bool ElementsWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
+{
+    if (BaseWidget::onMouse(event))
+        return true;
+
+    using namespace cycfi::elements;
+    host_view* const host_view_h = host();
+
+    mouse_button btn = {};
+    btn.down = event.press;
+
+    switch (event.button)
+    {
+    case kMouseButtonLeft:
+        btn.state = mouse_button::left;
+        break;
+    case kMouseButtonRight:
+        btn.state = mouse_button::right;
+        break;
+    case kMouseButtonMiddle:
+        btn.state = mouse_button::middle;
+        break;
+    default:
+        btn.down = false;
+        break;
+    }
+
+    if (btn.down)
+    {
+        if ((event.time - host_view_h->last_click_time) < 400) // FIXME less hardcoded
+            ++host_view_h->last_click_count;
+        else
+            host_view_h->last_click_count = 1;
+        host_view_h->last_click_time = event.time;
+    }
+
+    if (event.mod & kModifierShift)
+        btn.modifiers |= mod_shift;
+    if (event.mod & kModifierControl)
+        btn.modifiers |= mod_control | mod_action; // ???
+    if (event.mod & kModifierAlt)
+        btn.modifiers |= mod_alt;
+    if (event.mod & kModifierSuper)
+        btn.modifiers |= mod_action;
+
+    btn.num_clicks = host_view_h->last_click_count;
+    btn.pos = { float(event.pos.getX()), float(event.pos.getY()) };
+
+    host_view_h->last_button = btn;
+    host_view_h->last_cursor_pos = btn.pos;
+
+    view::click(btn);
+    return true;
+}
+
+template <class BaseWidget>
+bool ElementsWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
+{
+    if (BaseWidget::onMotion(event))
+        return true;
+
+    using namespace cycfi::elements;
+    host_view* const host_view_h = host();
+
+    const point pos = { float(event.pos.getX()), float(event.pos.getY()) };
+    host_view_h->last_cursor_pos = pos;
+
+    if (host_view_h->last_button.down)
+    {
+        host_view_h->last_button.pos = pos;
+        view::drag(host_view_h->last_button);
+    }
+    else
+    {
+        view::cursor(host_view_h->last_cursor_pos, cursor_tracking::hovering);
+    }
+
+    return true;
+}
+
+template <class BaseWidget>
+bool ElementsWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
+{
+    if (BaseWidget::onScroll(event))
+        return true;
+
+    using namespace cycfi::elements;
+    host_view* const host_view_h = host();
+
+    static constexpr float _1s = 100;
+    const float elapsed = std::max<float>(10.f, event.time - host_view_h->last_scroll_time);
+    host_view_h->last_scroll_time = event.time;
+
+    float dx = 0;
+    float dy = 0;
+    float step = _1s / elapsed;
+
+    switch (event.direction)
+    {
+    case kScrollUp:
+        dy = step;
+        break;
+    case kScrollDown:
+        dy = -step;
+        break;
+    case kScrollLeft:
+        dx = step;
+        break;
+    case kScrollRight:
+        dx = -step;
+        break;
+    case kScrollSmooth:
+        dx = event.delta.getX();
+        dy = event.delta.getY();
+        break;
+    default:
+        break;
+    }
+
+    view::scroll(
+        { dx, dy },
+        { float(event.pos.getX()), float(event.pos.getY()) }
+    );
+
+    return true;
 }
 
 template class ElementsWidget<StandaloneWindow>;
+
+// --------------------------------------------------------------------------------------------------------------------
+
+ElementsStandaloneWindow::ElementsStandaloneWindow(Application& app)
+    : ElementsWidget<StandaloneWindow>(app)
+{
+    host()->self = this;
+}
+
+void ElementsStandaloneWindow::onFocus(bool focus, CrossingMode mode)
+{
+    using namespace cycfi::elements;
+
+    if (focus)
+    {
+        view::begin_focus();
+    }
+    else
+    {
+        host()->last_button = {};
+        view::end_focus();
+    }
+}
 
 // --------------------------------------------------------------------------------------------------------------------
 

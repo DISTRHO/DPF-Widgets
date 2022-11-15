@@ -16,12 +16,13 @@
 
 #pragma once
 
-// TODO patch include paths for Elements/include/ prefix
-#include "Elements/elements.hpp"
-
 #if defined(ELEMENTS_HOST_UI_LIBRARY_COCOA) || defined(ELEMENTS_HOST_UI_LIBRARY_GTK) || defined(ELEMENTS_HOST_UI_LIBRARY_WIN32)
 # error invalid use of Elements with DPF, Elements host UI must be platform agnostic
 #endif
+
+#define ELEMENTS_HOST_UI_LIBRARY_DPF 1
+
+#include "Elements/elements.hpp"
 
 #include "Cairo.hpp"
 #include "SubWidget.hpp"
@@ -56,8 +57,11 @@ public:
     ~ElementsWidget() override;
 
 private:
-    void onDisplay() override;
     void idleCallback() override;
+    void onDisplay() override;
+    bool onMouse(const Widget::MouseEvent& event) override;
+    bool onMotion(const Widget::MotionEvent& event) override;
+    bool onScroll(const Widget::ScrollEvent& event) override;
 
    #ifdef DISTRHO_UI_HPP_INCLUDED
     friend class DISTRHO_NAMESPACE::UI;
@@ -67,9 +71,21 @@ private:
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ElementsWidget)
 };
 
+class ElementsStandaloneWindow : public ElementsWidget<StandaloneWindow>
+{
+public:
+   /**
+      Constructor for a ElementsStandaloneWindow without transient parent window.
+    */
+    explicit ElementsStandaloneWindow(Application& app);
+
+private:
+    void onFocus(bool focus, CrossingMode mode) override;
+};
+
 // typedef ElementsWidget<SubWidget> ElementsSubWidget;
 // typedef ElementsWidget<TopLevelWidget> ElementsTopLevelWidget;
-typedef ElementsWidget<StandaloneWindow> ElementsStandaloneWindow;
+// // typedef ElementsWidget<StandaloneWindow> ElementsStandaloneWindow;
 
 // --------------------------------------------------------------------------------------------------------------------
 

@@ -15,6 +15,7 @@
  */
 
 // Elements is quite large, build it separately
+#define ELEMENTS_HOST_UI_LIBRARY_DPF 1
 #include "../cairo/Elements/src/element/button.cpp"
 #include "../cairo/Elements/src/element/child_window.cpp"
 #include "../cairo/Elements/src/element/composite.cpp"
