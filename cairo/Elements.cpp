@@ -81,7 +81,7 @@ namespace cycfi { namespace elements
     // needed only for macOS?
     fs::path get_user_fonts_directory()
     {
-        return fs::path("/home/falktx/Source/DISTRHO/DPF-Widgets/cairo/Elements/.elements-git-src/resources/fonts");
+        return fs::path("~/.fonts");
     }
 
     point scroll_direction()
