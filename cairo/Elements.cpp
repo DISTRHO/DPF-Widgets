@@ -16,6 +16,14 @@
 
 #include "Elements.hpp"
 
+#ifdef DISTRHO_OS_MAC
+# define Point MacPoint
+# define Size MacSize
+# include <cairo-quartz.h>
+# undef Point
+# undef Size
+#endif
+
 #ifndef ELEMENTS_SKIP_IMPLEMENTATION
 #include "Elements/src/element/button.cpp"
 #include "Elements/src/element/child_window.cpp"
