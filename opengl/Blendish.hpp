@@ -249,7 +249,8 @@ private:
    Will trigger Callback::blendishButtonClicked.
  */
 class BlendishToolButton : public BlendishSubWidget,
-                           public ButtonEventHandler
+                           public ButtonEventHandler,
+                           public ButtonEventHandler::Callback
 {
 public:
     struct Callback {
@@ -260,11 +261,18 @@ public:
     explicit BlendishToolButton(BlendishSubWidgetSharedContext* parent);
     explicit BlendishToolButton(SubWidget* parent);
 
+    void setCallback(Callback* callback);
+
 protected:
     uint getMinimumWidth() const noexcept override;
     void onBlendishDisplay() override;
     bool onMouse(const MouseEvent& ev) override;
     bool onMotion(const MotionEvent& ev) override;
+
+private:
+    Callback* callback;
+
+    void buttonClicked(SubWidget* widget, int button) override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishToolButton)
 };
@@ -277,8 +285,7 @@ protected:
    This widget is a simple checkbox.
 
    Uses the label methods from BlendishSubWidget to set its contents.
-   Provides its own methods for setting the checked state.
-   Will trigger Callback::blendishButtonClicked.
+   Uses the methods from ButtonEventHandler to set checked state.
  */
 class BlendishCheckBox : public BlendishSubWidget,
                          public ButtonEventHandler

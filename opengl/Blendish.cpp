@@ -543,16 +543,25 @@ void BlendishLabel::onBlendishDisplay()
 
 BlendishToolButton::BlendishToolButton(BlendishSubWidgetSharedContext* const parent)
     : BlendishSubWidget(parent),
-      ButtonEventHandler(this)
+      ButtonEventHandler(this),
+      callback(nullptr)
 {
+    ButtonEventHandler::setCallback(this);
     setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
 BlendishToolButton::BlendishToolButton(SubWidget* const parent)
     : BlendishSubWidget(parent),
-      ButtonEventHandler(this)
+      ButtonEventHandler(this),
+      callback(nullptr)
 {
+    ButtonEventHandler::setCallback(this);
     setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
+}
+
+void BlendishToolButton::setCallback(Callback* const cb)
+{
+    callback = cb;
 }
 
 uint BlendishToolButton::getMinimumWidth() const noexcept
@@ -585,6 +594,12 @@ bool BlendishToolButton::onMotion(const MotionEvent& ev)
     if (BlendishSubWidget::onMotion(ev))
         return true;
     return motionEvent(ev);
+}
+
+void BlendishToolButton::buttonClicked(SubWidget* const, const int button)
+{
+    if (callback != nullptr)
+        callback->blendishToolButtonClicked(this, button);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -688,9 +703,9 @@ void BlendishButtonGroup::setActiveButton(const uint id, const bool sendCallback
         callback->blendishButtonGroupClicked(this, id);
 }
 
-void BlendishButtonGroup::setCallback(Callback* const callback2)
+void BlendishButtonGroup::setCallback(Callback* const cb)
 {
-    callback = callback2;
+    callback = cb;
 }
 
 uint BlendishButtonGroup::getMinimumWidth() const noexcept
