@@ -286,6 +286,7 @@ class BlendishCheckBox : public BlendishSubWidget,
 public:
     explicit BlendishCheckBox(BlendishSubWidgetSharedContext* parent);
     explicit BlendishCheckBox(SubWidget* parent);
+    ~BlendishCheckBox() override;
 
 protected:
     uint getMinimumWidth() const noexcept override;
@@ -313,6 +314,7 @@ public:
     };
 
     explicit BlendishButtonGroup(BlendishSubWidgetSharedContext* parent);
+    ~BlendishButtonGroup() override;
 
     void addButton(uint id, const char* label);
     void setActiveButton(uint id, bool sendCallback);

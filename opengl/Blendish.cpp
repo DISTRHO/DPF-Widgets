@@ -605,6 +605,9 @@ BlendishCheckBox::BlendishCheckBox(SubWidget* const parent)
     setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
+BlendishCheckBox::~BlendishCheckBox()
+{}
+
 uint BlendishCheckBox::getMinimumWidth() const noexcept
 {
     return BND_TOOL_WIDTH;
@@ -656,6 +659,9 @@ BlendishButtonGroup::BlendishButtonGroup(BlendishSubWidgetSharedContext* const p
     ButtonEventHandler::setCallback(this);
     setSize(0, BND_WIDGET_HEIGHT * bData->scaleFactor);
 }
+
+BlendishButtonGroup::~BlendishButtonGroup()
+{}
 
 void BlendishButtonGroup::addButton(const uint id, const char* const label)
 {
