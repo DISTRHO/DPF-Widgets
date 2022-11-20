@@ -260,6 +260,7 @@ public:
 
     explicit BlendishToolButton(BlendishSubWidgetSharedContext* parent);
     explicit BlendishToolButton(SubWidget* parent);
+    ~BlendishToolButton() override;
 
     void setCallback(Callback* callback);
 

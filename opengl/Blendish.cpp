@@ -559,6 +559,9 @@ BlendishToolButton::BlendishToolButton(SubWidget* const parent)
     setSize(BND_TOOL_WIDTH*bData->scaleFactor, BND_WIDGET_HEIGHT*bData->scaleFactor);
 }
 
+BlendishToolButton::~BlendishToolButton()
+{}
+
 void BlendishToolButton::setCallback(Callback* const cb)
 {
     callback = cb;
