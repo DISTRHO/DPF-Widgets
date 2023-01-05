@@ -37,6 +37,7 @@
 # include "DearImGui/imgui_draw.cpp"
 # include "DearImGui/imgui_tables.cpp"
 # include "DearImGui/imgui_widgets.cpp"
+# include "DearImGuiKnobs/imgui_knobs.cpp"
 # if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
 #  include "DearImGui/imgui_impl_opengl3.cpp"
 # else

@@ -22,6 +22,7 @@
 #include "StandaloneWindow.hpp"
 
 #include "DearImGui/imgui.h"
+#include "DearImGuiKnobs/imgui_knobs.h"
 
 #ifdef DISTRHO_UI_HPP_INCLUDED
 START_NAMESPACE_DISTRHO
