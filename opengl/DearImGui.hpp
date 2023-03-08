@@ -23,6 +23,11 @@
 
 #include "DearImGui/imgui.h"
 #include "DearImGuiKnobs/imgui-knobs.h"
+#include "DearImGuiToggle/imgui_toggle.h"
+#include "DearImGuiToggle/imgui_toggle_math.h"
+#include "DearImGuiToggle/imgui_toggle_palette.h"
+#include "DearImGuiToggle/imgui_toggle_presets.h"
+#include "DearImGuiToggle/imgui_toggle_renderer.h"
 
 #ifdef DISTRHO_UI_HPP_INCLUDED
 START_NAMESPACE_DISTRHO
