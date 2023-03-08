@@ -38,6 +38,11 @@
 # include "DearImGui/imgui_tables.cpp"
 # include "DearImGui/imgui_widgets.cpp"
 # include "DearImGuiKnobs/imgui-knobs.cpp"
+# include "DearImGuiToggle/imgui_toggle.cpp"
+# include "DearImGuiToggle/imgui_toggle_palette.cpp"
+# include "DearImGuiToggle/imgui_toggle_presets.cpp"
+# include "DearImGuiToggle/imgui_toggle_renderer.cpp"
+
 # if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
 #  include "DearImGui/imgui_impl_opengl3.cpp"
 # else
