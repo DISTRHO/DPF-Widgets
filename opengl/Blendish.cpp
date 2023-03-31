@@ -1162,10 +1162,10 @@ BlendishMenuItem* BlendishComboBox::getCurrentMenuItem() const noexcept
 
 void BlendishComboBox::setCurrentIndex(int index, const bool triggerCallback)
 {
-    if (index < -1)
+    if (index <= -1)
         index = -1;
-    else if ((uint)index > menu.items.size())
-        index = menu.items.size();
+    else if ((uint)index >= menu.items.size())
+        index = menu.items.size() - 1;
 
     if (currentIndex == index)
         return;
