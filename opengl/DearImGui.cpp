@@ -15,6 +15,8 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #include "DearImGui.hpp"
 #include "Application.hpp"
 
