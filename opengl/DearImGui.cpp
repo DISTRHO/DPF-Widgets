@@ -15,8 +15,6 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-
 #include "DearImGui.hpp"
 #include "Application.hpp"
 
@@ -235,17 +233,17 @@ bool ImGuiWidget<BaseWidget>::onKeyboard(const Widget::KeyboardEvent& event)
 
     ImGuiIO& io(ImGui::GetIO());
 
-    io.KeyCtrl  = event.mod & kModifierControl;
-    io.KeyShift = event.mod & kModifierShift;
-    io.KeyAlt   = event.mod & kModifierAlt;
-    io.KeySuper = event.mod & kModifierSuper;
+    io.AddKeyEvent(ImGuiKey_ModCtrl,  event.mod & kModifierControl);
+    io.AddKeyEvent(ImGuiKey_ModShift, event.mod & kModifierShift);
+    io.AddKeyEvent(ImGuiKey_ModAlt,   event.mod & kModifierAlt);
+    io.AddKeyEvent(ImGuiKey_ModSuper, event.mod & kModifierSuper);
 
     // d_stdout("onKeyboard %u %u", event.key, event.keycode);
 
     if (event.key <= kKeyDelete)
-        io.KeysDown[event.key] = event.press;
+        io.AddKeyEvent(static_cast<ImGuiKey>(event.key), event.press);
     else if (event.key >= kKeyF1 && event.key <= kKeyPause)
-        io.KeysDown[0xff + event.key - kKeyF1] = event.press;
+        io.AddKeyEvent(static_cast<ImGuiKey>(0xff + event.key - kKeyF1), event.press);
 
     return io.WantCaptureKeyboard;
 }
@@ -291,13 +289,13 @@ bool ImGuiWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
     switch (event.button)
     {
     case kMouseButtonLeft:
-        io.MouseDown[0] = event.press;
+        io.AddMouseButtonEvent(0, event.press);
         break;
     case kMouseButtonRight:
-        io.MouseDown[1] = event.press;
+        io.AddMouseButtonEvent(1, event.press);
         break;
     case kMouseButtonMiddle:
-        io.MouseDown[2] = event.press;
+        io.AddMouseButtonEvent(2, event.press);
         break;
     }
 
@@ -313,8 +311,7 @@ bool ImGuiWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
     ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
-    io.MousePos.x = event.pos.getX();
-    io.MousePos.y = event.pos.getY();
+    io.AddMousePosEvent(event.pos.getX(), event.pos.getY());
     return false;
 }
 
@@ -327,8 +324,7 @@ bool ImGuiWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
     ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
-    io.MouseWheel += event.delta.getY();
-    io.MouseWheelH += event.delta.getX();
+    io.AddMouseWheelEvent(event.delta.getX(), event.delta.getY());
     return io.WantCaptureMouse;
 }
 
