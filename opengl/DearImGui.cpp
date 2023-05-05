@@ -233,12 +233,12 @@ bool ImGuiWidget<BaseWidget>::onKeyboard(const Widget::KeyboardEvent& event)
 
     ImGuiIO& io(ImGui::GetIO());
 
-    io.AddKeyEvent(ImGuiKey_ModCtrl,  event.mod & kModifierControl);
-    io.AddKeyEvent(ImGuiKey_ModShift, event.mod & kModifierShift);
-    io.AddKeyEvent(ImGuiKey_ModAlt,   event.mod & kModifierAlt);
-    io.AddKeyEvent(ImGuiKey_ModSuper, event.mod & kModifierSuper);
+    io.AddKeyEvent(ImGuiMod_Ctrl,  event.mod & kModifierControl);
+    io.AddKeyEvent(ImGuiMod_Shift, event.mod & kModifierShift);
+    io.AddKeyEvent(ImGuiMod_Alt,   event.mod & kModifierAlt);
+    io.AddKeyEvent(ImGuiMod_Super, event.mod & kModifierSuper);
 
-    // d_stdout("onKeyboard %u %u", event.key, event.keycode);
+    // d_stdout("onKeyboard %u %u %u", event.key, event.mod, event.keycode);
 
     if (event.key <= kKeyDelete)
         io.AddKeyEvent(static_cast<ImGuiKey>(event.key), event.press);
