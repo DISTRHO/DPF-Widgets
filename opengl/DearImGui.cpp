@@ -180,6 +180,27 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
 // --------------------------------------------------------------------------------------------------------------------
 
 template <class BaseWidget>
+void ImGuiWidget<BaseWidget>::setFontSize(const float fontSize)
+{
+    ImGui::SetCurrentContext(imData->context);
+    ImGuiIO& io(ImGui::GetIO());
+
+    const double scaleFactor = BaseWidget::getTopLevelWidget()->getScaleFactor();
+
+   #ifndef DGL_NO_SHARED_RESOURCES
+    using namespace dpf_resources;
+    ImFontConfig fc;
+    fc.FontDataOwnedByAtlas = false;
+    fc.OversampleH = 1;
+    fc.OversampleV = 1;
+    fc.PixelSnapH = true;
+    io.Fonts->Clear();
+    io.Fonts->AddFontFromMemoryTTF((void*)dejavusans_ttf, dejavusans_ttf_size, fontSize * scaleFactor, &fc);
+    io.Fonts->Build();
+   #endif
+}
+
+template <class BaseWidget>
 void ImGuiWidget<BaseWidget>::idleCallback()
 {
     BaseWidget::repaint();

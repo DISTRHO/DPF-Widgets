@@ -80,6 +80,11 @@ public:
     */
     ~ImGuiWidget() override;
 
+   /**
+      Change global font size.
+    */
+    void setFontSize(float fontSize);
+
 protected:
    /**
       New virtual onDisplay function.
