@@ -16,6 +16,9 @@ include $(DPF_DIR)/Makefile.base.mk
 BUILD_CXX_FLAGS += $(DGL_FLAGS) -DDONT_SET_USING_DGL_NAMESPACE
 BUILD_CXX_FLAGS += -I$(DPF_DIR)/dgl
 
+CAIRO_FLAGS += -DDGL_CAIRO -I../cairo
+OPENGL_FLAGS += -DDGL_OPENGL -I../opengl
+
 ifeq ($(WASM),true)
 LINK_FLAGS += --shell-file=./emscripten/shell.html
 LINK_FLAGS += -sEXPORTED_RUNTIME_METHODS=FS,cwrap
@@ -68,19 +71,19 @@ textedit$(APP_EXT): textedit.cpp.o imgui-src.cpp.o $(DPF_DIR)/build/libdgl-openg
 
 imgui.cpp.o: imgui.cpp
 	@echo "Compiling $<"
-	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -DDGL_OPENGL -c -o $@
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -c -o $@
 
 imgui-src.cpp.o: imgui-src.cpp
 	@echo "Compiling $<"
-	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -DDGL_OPENGL -c -o $@
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -c -o $@
 
 opengl.cpp.o: opengl.cpp
 	@echo "Compiling $<"
-	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -DDGL_OPENGL -c -o $@
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -c -o $@
 
 textedit.cpp.o: textedit.cpp
 	@echo "Compiling $<"
-	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -DDGL_OPENGL -c -o $@
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -c -o $@
 
 # ---------------------------------------------------------------------------------------------------------------------
 
