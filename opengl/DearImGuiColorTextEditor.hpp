@@ -1,6 +1,6 @@
 /*
  * Syntax highlighting text editor (for ImGui in DPF)
- * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2021-2023 Filipe Coelho <falktx@falktx.com>
  * Copyright (c) 2017 BalazsJako
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -74,8 +74,8 @@ protected:
     void onImGuiDisplay() override;
 
 private:
-    struct PrivateData;
-    PrivateData* const pData;
+    struct TextEditorPrivateData;
+    TextEditorPrivateData* const teData;
     friend class ImGuiTextEditorStandaloneWindow;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ImGuiTextEditor)

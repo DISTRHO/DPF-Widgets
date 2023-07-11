@@ -1,6 +1,6 @@
 /*
  * Syntax highlighting text editor (for ImGui in DPF)
- * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2021-2023 Filipe Coelho <falktx@falktx.com>
  * Copyright (c) 2017 BalazsJako
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,6 +30,8 @@
 # include "DearImGuiColorTextEditor/TextEditor.h"
 #endif
 
+#include "Application.hpp"
+
 #include <fstream>
 
 START_NAMESPACE_DGL
@@ -37,13 +39,13 @@ START_NAMESPACE_DGL
 // --------------------------------------------------------------------------------------------------------------------
 
 template <class BaseWidget>
-struct ImGuiTextEditor<BaseWidget>::PrivateData {
+struct ImGuiTextEditor<BaseWidget>::TextEditorPrivateData {
     ImGuiTextEditor<BaseWidget>* const self;
     TextEditor editor;
     std::string file;
     bool showMenu;
 
-    explicit PrivateData(ImGuiTextEditor<BaseWidget>* const s)
+    explicit TextEditorPrivateData(ImGuiTextEditor<BaseWidget>* const s)
         : self(s),
           showMenu(false)
     {
@@ -130,7 +132,7 @@ struct ImGuiTextEditor<BaseWidget>::PrivateData {
         }
     }
 
-    DISTRHO_DECLARE_NON_COPYABLE(PrivateData)
+    DISTRHO_DECLARE_NON_COPYABLE(TextEditorPrivateData)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -138,17 +140,17 @@ struct ImGuiTextEditor<BaseWidget>::PrivateData {
 template <>
 ImGuiTextEditor<ImGuiSubWidget>::ImGuiTextEditor(Widget* const parent)
     : ImGuiSubWidget(parent),
-      pData(new PrivateData(this)) {}
+      teData(new TextEditorPrivateData(this)) {}
 
 template <>
 ImGuiTextEditor<ImGuiTopLevelWidget>::ImGuiTextEditor(Window& windowToMapTo)
     : ImGuiTopLevelWidget(windowToMapTo),
-      pData(new PrivateData(this)) {}
+      teData(new TextEditorPrivateData(this)) {}
 
 template <class BaseWidget>
 ImGuiTextEditor<BaseWidget>::~ImGuiTextEditor()
 {
-    delete pData;
+    delete teData;
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -156,37 +158,37 @@ ImGuiTextEditor<BaseWidget>::~ImGuiTextEditor()
 template <class BaseWidget>
 void ImGuiTextEditor<BaseWidget>::setText(const std::string& text)
 {
-    pData->editor.SetText(text);
+    teData->editor.SetText(text);
 }
 
 template <class BaseWidget>
 std::string ImGuiTextEditor<BaseWidget>::getText() const
 {
-    return pData->editor.GetText();
+    return teData->editor.GetText();
 }
 
 template <class BaseWidget>
 void ImGuiTextEditor<BaseWidget>::setTextLines(const std::vector<std::string>& lines)
 {
-    pData->editor.SetTextLines(lines);
+    teData->editor.SetTextLines(lines);
 }
 
 template <class BaseWidget>
 std::vector<std::string> ImGuiTextEditor<BaseWidget>::getTextLines() const
 {
-    return pData->editor.GetTextLines();
+    return teData->editor.GetTextLines();
 }
 
 template <class BaseWidget>
 std::string ImGuiTextEditor<BaseWidget>::getSelectedText() const
 {
-    return pData->editor.GetSelectedText();
+    return teData->editor.GetSelectedText();
 }
 
 template <class BaseWidget>
 std::string ImGuiTextEditor<BaseWidget>::getCurrentLineText()const
 {
-    return pData->editor.GetCurrentLineText();
+    return teData->editor.GetCurrentLineText();
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -195,7 +197,7 @@ template <class BaseWidget>
 void ImGuiTextEditor<BaseWidget>::onImGuiDisplay()
 {
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize;
-    if (pData->showMenu)
+    if (teData->showMenu)
         flags |= ImGuiWindowFlags_MenuBar;
 
     ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -203,17 +205,17 @@ void ImGuiTextEditor<BaseWidget>::onImGuiDisplay()
 
     if (ImGui::Begin("TextEdit", nullptr, flags))
     {
-        if (pData->showMenu)
-            pData->renderMenuContent();
+        if (teData->showMenu)
+            teData->renderMenuContent();
 
-        TextEditor& editor(pData->editor);
+        TextEditor& editor(teData->editor);
 
         const TextEditor::Coordinates cpos = editor.GetCursorPosition();
 
         ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
                     editor.IsOverwrite() ? "Ovr" : "Ins",
                     editor.CanUndo() ? "*" : " ",
-                    editor.GetLanguageDefinition().mName.c_str(), pData->file.c_str());
+                    editor.GetLanguageDefinition().mName.c_str(), teData->file.c_str());
 
         editor.Render("TextEditor");
     }
@@ -232,14 +234,14 @@ ImGuiTextEditorStandaloneWindow::ImGuiTextEditorStandaloneWindow(Application& ap
     : StandaloneWindow(app),
       editor(*this)
 {
-    editor.pData->showMenu = true;
+    editor.teData->showMenu = true;
 }
 
 ImGuiTextEditorStandaloneWindow::ImGuiTextEditorStandaloneWindow(Application& app, Window& transientParentWindow)
     : StandaloneWindow(app, transientParentWindow),
       editor(*this)
 {
-    editor.pData->showMenu = true;
+    editor.teData->showMenu = true;
 }
 
 void ImGuiTextEditorStandaloneWindow::onDisplay()
@@ -256,8 +258,8 @@ void ImGuiTextEditorStandaloneWindow::onFileSelected(const char* const filename)
     if (t.good())
     {
         const std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-        editor.pData->editor.SetText(str);
-        editor.pData->file = filename;
+        editor.teData->editor.SetText(str);
+        editor.teData->file = filename;
     }
 }
 
