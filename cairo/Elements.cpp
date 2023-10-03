@@ -192,7 +192,6 @@ bool ElementsWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
 
     using namespace cycfi::elements;
     host_view* const host_view_h = host();
-    const float scaleFactor = BaseWidget::getWindow().getScaleFactor();
 
     mouse_button btn = {};
     btn.down = event.press;
@@ -232,7 +231,7 @@ bool ElementsWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
         btn.modifiers |= mod_action;
 
     btn.num_clicks = host_view_h->last_click_count;
-    btn.pos = { float(event.pos.getX()) / scaleFactor, float(event.pos.getY()) / scaleFactor };
+    btn.pos = { float(event.pos.getX()), float(event.pos.getY()) };
 
     host_view_h->last_button = btn;
     host_view_h->last_cursor_pos = btn.pos;
@@ -249,9 +248,8 @@ bool ElementsWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
 
     using namespace cycfi::elements;
     host_view* const host_view_h = host();
-    const float scaleFactor = BaseWidget::getWindow().getScaleFactor();
 
-    const point pos = { float(event.pos.getX()) / scaleFactor, float(event.pos.getY()) / scaleFactor };
+    const point pos = { float(event.pos.getX()), float(event.pos.getY()) };
     host_view_h->last_cursor_pos = pos;
 
     if (host_view_h->last_button.down)
@@ -275,7 +273,6 @@ bool ElementsWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
 
     using namespace cycfi::elements;
     host_view* const host_view_h = host();
-    const float scaleFactor = BaseWidget::getWindow().getScaleFactor();
 
     static constexpr float _1s = 100;
     const float elapsed = std::max<float>(10.f, event.time - host_view_h->last_scroll_time);
@@ -300,8 +297,8 @@ bool ElementsWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
         dx = -step;
         break;
     case kScrollSmooth:
-        dx = event.delta.getX() / scaleFactor;
-        dy = event.delta.getY() / scaleFactor;
+        dx = event.delta.getX();
+        dy = event.delta.getY();
         break;
     default:
         break;
@@ -309,7 +306,7 @@ bool ElementsWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
 
     view::scroll(
         { dx, dy },
-        { float(event.pos.getX()) / scaleFactor, float(event.pos.getY()) / scaleFactor }
+        { float(event.pos.getX()), float(event.pos.getY()) }
     );
 
     return true;
