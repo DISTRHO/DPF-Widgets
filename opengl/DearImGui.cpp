@@ -83,12 +83,14 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
     ImGuiContext* context;
     double scaleFactor;
     double lastFrameTime;
+    uint lastModifiers;
 
     explicit PrivateData(ImGuiWidget<BaseWidget>* const s, const float fontSize)
         : self(s),
           context(nullptr),
           scaleFactor(s->getTopLevelWidget()->getScaleFactor()),
-          lastFrameTime(0.0)
+          lastFrameTime(0.0),
+          lastModifiers(0)
     {
         IMGUI_CHECKVERSION();
         context = ImGui::CreateContext();
@@ -116,29 +118,6 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         io.Fonts->AddFontFromMemoryTTF((void*)dejavusans_ttf, dejavusans_ttf_size, fontSize * scaleFactor, &fc);
         io.Fonts->Build();
        #endif
-
-        io.KeyMap[ImGuiKey_Tab] = '\t';
-        io.KeyMap[ImGuiKey_LeftArrow] = 0xff + kKeyLeft - kKeyF1;
-        io.KeyMap[ImGuiKey_RightArrow] = 0xff + kKeyRight - kKeyF1;
-        io.KeyMap[ImGuiKey_UpArrow] = 0xff + kKeyUp - kKeyF1;
-        io.KeyMap[ImGuiKey_DownArrow] = 0xff + kKeyDown - kKeyF1;
-        io.KeyMap[ImGuiKey_PageUp] = 0xff + kKeyPageUp - kKeyF1;
-        io.KeyMap[ImGuiKey_PageDown] = 0xff + kKeyPageDown - kKeyF1;
-        io.KeyMap[ImGuiKey_Home] = 0xff + kKeyHome - kKeyF1;
-        io.KeyMap[ImGuiKey_End] = 0xff + kKeyEnd - kKeyF1;
-        io.KeyMap[ImGuiKey_Insert] = 0xff + kKeyInsert - kKeyF1;
-        io.KeyMap[ImGuiKey_Delete] = kKeyDelete;
-        io.KeyMap[ImGuiKey_Backspace] = kKeyBackspace;
-        io.KeyMap[ImGuiKey_Space] = ' ';
-        io.KeyMap[ImGuiKey_Enter] = '\r';
-        io.KeyMap[ImGuiKey_Escape] = kKeyEscape;
-        // io.KeyMap[ImGuiKey_KeyPadEnter] = '\n';
-        io.KeyMap[ImGuiKey_A] = 'a';
-        io.KeyMap[ImGuiKey_C] = 'c';
-        io.KeyMap[ImGuiKey_V] = 'v';
-        io.KeyMap[ImGuiKey_X] = 'x';
-        io.KeyMap[ImGuiKey_Y] = 'y';
-        io.KeyMap[ImGuiKey_Z] = 'z';
 
         io.GetClipboardTextFn = GetClipboardTextFn;
         io.SetClipboardTextFn = SetClipboardTextFn;
@@ -172,6 +151,26 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         const double delta = time - lastFrameTime;
         lastFrameTime = time;
         return delta;
+    }
+
+    void handleModifiers(ImGuiIO& io, const uint mods)
+    {
+        if (lastModifiers == mods)
+            return;
+
+        if ((mods & kModifierShift) != (lastModifiers & kModifierShift))
+            io.AddKeyEvent(ImGuiMod_Shift, mods & kModifierShift);
+
+        if ((mods & kModifierControl) != (lastModifiers & kModifierControl))
+            io.AddKeyEvent(ImGuiMod_Ctrl, mods & kModifierControl);
+
+        if ((mods & kModifierAlt) != (lastModifiers & kModifierAlt))
+            io.AddKeyEvent(ImGuiMod_Alt, mods & kModifierAlt);
+
+        if ((mods & kModifierSuper) != (lastModifiers & kModifierSuper))
+            io.AddKeyEvent(ImGuiMod_Super, mods & kModifierSuper);
+
+        lastModifiers = mods;
     }
 
     DISTRHO_DECLARE_NON_COPYABLE(PrivateData)
@@ -253,19 +252,139 @@ bool ImGuiWidget<BaseWidget>::onKeyboard(const Widget::KeyboardEvent& event)
     ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
-
-    io.AddKeyEvent(ImGuiMod_Ctrl,  event.mod & kModifierControl);
-    io.AddKeyEvent(ImGuiMod_Shift, event.mod & kModifierShift);
-    io.AddKeyEvent(ImGuiMod_Alt,   event.mod & kModifierAlt);
-    io.AddKeyEvent(ImGuiMod_Super, event.mod & kModifierSuper);
+    imData->handleModifiers(io, event.mod);
 
     // d_stdout("onKeyboard %u %u %u", event.key, event.mod, event.keycode);
 
-    if (event.key <= kKeyDelete)
-        io.AddKeyEvent(static_cast<ImGuiKey>(event.key), event.press);
-    else if (event.key >= kKeyF1 && event.key <= kKeyPause)
-        io.AddKeyEvent(static_cast<ImGuiKey>(0xff + event.key - kKeyF1), event.press);
+    ImGuiKey key;
+    switch (event.key)
+    {
+    case '\t': key = ImGuiKey_Tab; break;
+    case '0': key = ImGuiKey_0; break;
+    case '1': key = ImGuiKey_1; break;
+    case '2': key = ImGuiKey_2; break;
+    case '3': key = ImGuiKey_3; break;
+    case '4': key = ImGuiKey_4; break;
+    case '5': key = ImGuiKey_5; break;
+    case '6': key = ImGuiKey_6; break;
+    case '7': key = ImGuiKey_7; break;
+    case '8': key = ImGuiKey_8; break;
+    case '9': key = ImGuiKey_9; break;
+    case 'a': key = ImGuiKey_A; break;
+    case 'b': key = ImGuiKey_B; break;
+    case 'c': key = ImGuiKey_C; break;
+    case 'd': key = ImGuiKey_D; break;
+    case 'e': key = ImGuiKey_E; break;
+    case 'f': key = ImGuiKey_F; break;
+    case 'g': key = ImGuiKey_G; break;
+    case 'h': key = ImGuiKey_H; break;
+    case 'i': key = ImGuiKey_I; break;
+    case 'j': key = ImGuiKey_J; break;
+    case 'k': key = ImGuiKey_K; break;
+    case 'l': key = ImGuiKey_L; break;
+    case 'm': key = ImGuiKey_M; break;
+    case 'n': key = ImGuiKey_N; break;
+    case 'o': key = ImGuiKey_O; break;
+    case 'p': key = ImGuiKey_P; break;
+    case 'q': key = ImGuiKey_Q; break;
+    case 'r': key = ImGuiKey_R; break;
+    case 's': key = ImGuiKey_S; break;
+    case 't': key = ImGuiKey_T; break;
+    case 'u': key = ImGuiKey_U; break;
+    case 'v': key = ImGuiKey_V; break;
+    case 'w': key = ImGuiKey_W; break;
+    case 'x': key = ImGuiKey_X; break;
+    case 'y': key = ImGuiKey_Y; break;
+    case 'z': key = ImGuiKey_Z; break;
+    case '\'': key = ImGuiKey_Apostrophe; break;
+    case ',': key = ImGuiKey_Comma; break;
+    case '-': key = ImGuiKey_Minus; break;
+    case '.': key = ImGuiKey_Period; break;
+    case '/': key = ImGuiKey_Slash; break;
+    case ';': key = ImGuiKey_Semicolon; break;
+    case '=': key = ImGuiKey_Equal; break;
+    case '[': key = ImGuiKey_LeftBracket; break;
+    case '\\': key = ImGuiKey_Backslash; break;
+    case ']': key = ImGuiKey_RightBracket; break;
+    case '`': key = ImGuiKey_GraveAccent; break;
+    case kKeyBackspace: key = ImGuiKey_Backspace; break;
+    case kKeyEnter: key = ImGuiKey_Enter; break;
+    case kKeyEscape: key = ImGuiKey_Escape; break;
+    case kKeyDelete: key = ImGuiKey_Delete; break;
+    case kKeySpace: key = ImGuiKey_Space; break;
+    case kKeyF1: key = ImGuiKey_F1; break;
+    case kKeyF2: key = ImGuiKey_F2; break;
+    case kKeyF3: key = ImGuiKey_F3; break;
+    case kKeyF4: key = ImGuiKey_F4; break;
+    case kKeyF5: key = ImGuiKey_F5; break;
+    case kKeyF6: key = ImGuiKey_F6; break;
+    case kKeyF7: key = ImGuiKey_F7; break;
+    case kKeyF8: key = ImGuiKey_F8; break;
+    case kKeyF9: key = ImGuiKey_F9; break;
+    case kKeyF10: key = ImGuiKey_F10; break;
+    case kKeyF11: key = ImGuiKey_F11; break;
+    case kKeyF12: key = ImGuiKey_F12; break;
+    case kKeyPageUp: key = ImGuiKey_PageUp; break;
+    case kKeyPageDown: key = ImGuiKey_PageDown; break;
+    case kKeyEnd: key = ImGuiKey_End; break;
+    case kKeyHome: key = ImGuiKey_Home; break;
+    case kKeyLeft: key = ImGuiKey_LeftArrow; break;
+    case kKeyUp: key = ImGuiKey_UpArrow; break;
+    case kKeyRight: key = ImGuiKey_RightArrow; break;
+    case kKeyDown: key = ImGuiKey_DownArrow; break;
+    case kKeyPrintScreen: key = ImGuiKey_PrintScreen; break;
+    case kKeyInsert: key = ImGuiKey_Insert; break;
+    case kKeyPause: key = ImGuiKey_Pause; break;
+    case kKeyMenu: key = ImGuiKey_Menu; break;
+    case kKeyNumLock: key = ImGuiKey_NumLock; break;
+    case kKeyScrollLock: key = ImGuiKey_ScrollLock; break;
+    case kKeyCapsLock: key = ImGuiKey_CapsLock; break;
+    case kKeyShiftL: key = ImGuiKey_LeftShift; break;
+    case kKeyShiftR: key = ImGuiKey_RightShift; break;
+    case kKeyControlL: key = ImGuiKey_LeftCtrl; break;
+    case kKeyControlR: key = ImGuiKey_RightCtrl; break;
+    case kKeyAltL: key = ImGuiKey_LeftAlt; break;
+    case kKeyAltR: key = ImGuiKey_RightAlt; break;
+    case kKeySuperL: key = ImGuiKey_LeftSuper; break;
+    case kKeySuperR: key = ImGuiKey_RightSuper; break;
+    case kKeyPad0: key = ImGuiKey_Keypad0; break;
+    case kKeyPad1: key = ImGuiKey_Keypad1; break;
+    case kKeyPad2: key = ImGuiKey_Keypad2; break;
+    case kKeyPad3: key = ImGuiKey_Keypad3; break;
+    case kKeyPad4: key = ImGuiKey_Keypad4; break;
+    case kKeyPad5: key = ImGuiKey_Keypad5; break;
+    case kKeyPad6: key = ImGuiKey_Keypad6; break;
+    case kKeyPad7: key = ImGuiKey_Keypad7; break;
+    case kKeyPad8: key = ImGuiKey_Keypad8; break;
+    case kKeyPad9: key = ImGuiKey_Keypad9; break;
+    /*
+    case kKeyPadEnter: key = ImGuiKey_; break;
+    case kKeyPadPageUp: key = ImGuiKey_; break;
+    case kKeyPadPageDown: key = ImGuiKey_; break;
+    case kKeyPadEnd: key = ImGuiKey_; break;
+    case kKeyPadHome: key = ImGuiKey_; break;
+    case kKeyPadLeft: key = ImGuiKey_; break;
+    case kKeyPadUp: key = ImGuiKey_; break;
+    case kKeyPadRight: key = ImGuiKey_; break;
+    case kKeyPadDown: key = ImGuiKey_; break;
+    case kKeyPadClear: key = ImGuiKey_; break;
+    case kKeyPadInsert: key = ImGuiKey_; break;
+    case kKeyPadDelete: key = ImGuiKey_; break;
+    */
+    case kKeyPadEqual: key = ImGuiKey_KeypadEqual; break;
+    case kKeyPadMultiply: key = ImGuiKey_KeypadMultiply; break;
+    case kKeyPadAdd: key = ImGuiKey_KeypadAdd; break;
+    /*
+    case kKeyPadSeparator: key = ImGuiKey_; break;
+    */
+    case kKeyPadSubtract: key = ImGuiKey_KeypadSubtract; break;
+    case kKeyPadDecimal: key = ImGuiKey_KeypadDecimal; break;
+    case kKeyPadDivide: key = ImGuiKey_KeypadDivide; break;
+    /* FIXME missing ImGuiKey_KeypadEnter */
+    default: return false;
+    }
 
+    io.AddKeyEvent(key, event.press);
     return io.WantCaptureKeyboard;
 }
 
@@ -278,22 +397,11 @@ bool ImGuiWidget<BaseWidget>::onCharacterInput(const Widget::CharacterInputEvent
     ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
+    imData->handleModifiers(io, event.mod);
 
-    switch (event.character)
-    {
-    case kKeyBackspace:
-    case kKeyEscape:
-    case kKeyDelete:
-    case '\n':
-    case '\r':
-    case '\t':
-        break;
-    default:
-        // d_stdout("input %u %u %lu '%s'", event.keycode, event.character, std::strlen(event.string), event.string);
-        io.AddInputCharactersUTF8(event.string);
-        break;
-    }
+    // d_stdout("input %u %u %lu '%s'", event.keycode, event.character, std::strlen(event.string), event.string);
 
+    io.AddInputCharacter(event.character);
     return io.WantCaptureKeyboard;
 }
 
@@ -306,20 +414,18 @@ bool ImGuiWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
     ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
+    imData->handleModifiers(io, event.mod);
 
+    ImGuiMouseButton button;
     switch (event.button)
     {
-    case kMouseButtonLeft:
-        io.AddMouseButtonEvent(0, event.press);
-        break;
-    case kMouseButtonRight:
-        io.AddMouseButtonEvent(1, event.press);
-        break;
-    case kMouseButtonMiddle:
-        io.AddMouseButtonEvent(2, event.press);
-        break;
+    case kMouseButtonLeft: button = ImGuiMouseButton_Left; break;
+    case kMouseButtonRight: button = ImGuiMouseButton_Right; break;
+    case kMouseButtonMiddle: button = ImGuiMouseButton_Middle; break;
+    default: return false;
     }
 
+    io.AddMouseButtonEvent(button, event.press);
     return io.WantCaptureMouse;
 }
 
@@ -332,6 +438,8 @@ bool ImGuiWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
     ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
+    imData->handleModifiers(io, event.mod);
+
     io.AddMousePosEvent(event.pos.getX(), event.pos.getY());
     return false;
 }
@@ -345,6 +453,8 @@ bool ImGuiWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
     ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
+    imData->handleModifiers(io, event.mod);
+
     io.AddMouseWheelEvent(event.delta.getX(), event.delta.getY());
     return io.WantCaptureMouse;
 }
