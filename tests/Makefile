@@ -14,7 +14,7 @@ include $(DPF_DIR)/Makefile.base.mk
 # ---------------------------------------------------------------------------------------------------------------------
 
 BUILD_CXX_FLAGS += $(DGL_FLAGS) -DDONT_SET_USING_DGL_NAMESPACE
-BUILD_CXX_FLAGS += -I$(DPF_DIR)/dgl
+BUILD_CXX_FLAGS += -I$(DPF_DIR)/dgl -I../opengl
 
 CAIRO_FLAGS += -DDGL_CAIRO -I../cairo
 OPENGL_FLAGS += -DDGL_OPENGL -I../opengl

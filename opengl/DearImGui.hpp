@@ -21,6 +21,8 @@
 #include "TopLevelWidget.hpp"
 #include "StandaloneWindow.hpp"
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #include "DearImGui/imgui.h"
 #include "DearImGuiKnobs/imgui-knobs.h"
 #include "DearImGuiToggle/imgui_toggle.h"
