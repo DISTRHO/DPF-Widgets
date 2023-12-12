@@ -1,0 +1,54 @@
+diff --git a/elements/base_view.hpp b/elements/base_view.hpp
+index 2b8e80a3..4031eb97 100644
+--- a/elements/base_view.hpp
++++ b/elements/base_view.hpp
+@@ -278,7 +278,10 @@ namespace cycfi { namespace elements
+    // The base view base class
+    ////////////////////////////////////////////////////////////////////////////
+
+-#if defined(ELEMENTS_HOST_UI_LIBRARY_COCOA) || defined(ELEMENTS_HOST_UI_LIBRARY_GTK)
++#if defined(ELEMENTS_HOST_UI_LIBRARY_DPF)
++   struct host_view;
++   using host_view_handle = host_view*;
++#elif defined(ELEMENTS_HOST_UI_LIBRARY_COCOA) || defined(ELEMENTS_HOST_UI_LIBRARY_GTK)
+    struct host_view;
+    using host_view_handle = host_view*;
+    struct host_window;
+@@ -294,11 +297,13 @@ namespace cycfi { namespace elements
+    {
+    public:
+
+-#if defined(ELEMENTS_HOST_UI_LIBRARY_COCOA) || defined(ELEMENTS_HOST_UI_LIBRARY_GTK)
++#if defined(ELEMENTS_HOST_UI_LIBRARY_COCOA) || defined(ELEMENTS_HOST_UI_LIBRARY_DPF) || defined(ELEMENTS_HOST_UI_LIBRARY_GTK)
+                            base_view(host_view_handle h);
+ #endif
+                            base_view(extent size_);
++#if !defined(ELEMENTS_HOST_UI_LIBRARY_DPF)
+                            base_view(host_window_handle h);
++#endif
+       virtual              ~base_view();
+
+       virtual void         draw(cairo_t* ctx, rect area);
+diff --git a/src/view.cpp b/src/view.cpp
+index 406172c4..a2da3278 100644
+--- a/src/view.cpp
++++ b/src/view.cpp
+@@ -21,18 +21,6 @@
+     , _work(_io)
+    {}
+
+-   view::view(window& win)
+-    : base_view(win.host())
+-    , _main_element(make_scaled_content())
+-    , _work(_io)
+-   {
+-      on_change_limits = [&win](view_limits limits_)
+-      {
+-         win.limits(limits_);
+-      };
+-      win.limits(_current_limits);
+-   }
+-
+    view::~view()
+    {
+       _io.stop();
