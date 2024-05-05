@@ -184,8 +184,7 @@ private:
     void recreateTextureData(const uint width, const uint height)
     {
         const lv_color_format_t lvformat = lv_display_get_color_format(display);
-        const uint32_t stride = lv_draw_buf_width_to_stride(width, lvformat);
-        const uint32_t data_size = height * stride;
+        const uint32_t data_size = lv_draw_buf_width_to_stride(width, lvformat) * height;
 
         textureData = static_cast<uint8_t*>(std::realloc(textureData, data_size));
         std::memset(textureData, 0, data_size);
