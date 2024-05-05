@@ -17,6 +17,7 @@
 #include "LVGL.hpp"
 #include "OpenGL.hpp"
 
+#include "../distrho/extra/RingBuffer.hpp"
 #include "../distrho/extra/Sleep.hpp"
 #include "../distrho/extra/Time.hpp"
 
@@ -46,6 +47,7 @@ struct LVGLWidget::PrivateData {
     bool mouseButtons[3] = {};
     lv_point_t mousePos = {};
     double mouseWheelDelta = 0.0;
+    SmallStackRingBuffer keyBuffer;
 
     GLuint textureId = 0;
     Size<uint> textureSize;
@@ -217,8 +219,16 @@ private:
     {
         PrivateData* const evthis = static_cast<PrivateData*>(lv_indev_get_driver_data(indev));
 
-        // TODO
-        data->state = LV_INDEV_STATE_RELEASED;
+        if (evthis->keyBuffer.isDataAvailableForReading())
+        {
+            data->state = LV_INDEV_STATE_PRESSED;
+            data->key = evthis->keyBuffer.readUShort();
+            data->continue_reading = evthis->keyBuffer.isDataAvailableForReading();
+        }
+        else
+        {
+            data->state = LV_INDEV_STATE_RELEASED;
+        }
     }
 
     static void indev_mouse_read_cb(lv_indev_t* const indev, lv_indev_data_t* const data)
@@ -317,16 +327,79 @@ bool LVGLWidget::onKeyboard(const Widget::KeyboardEvent& event)
     if (TopLevelWidget::onKeyboard(event))
         return true;
 
-    // TODO
-    return false;
-}
+    if (! event.press)
+        return false;
 
-bool LVGLWidget::onCharacterInput(const Widget::CharacterInputEvent& event)
-{
-    if (TopLevelWidget::onCharacterInput(event))
-        return true;
+    uint16_t key;
+    if (event.key >= kKeyF1)
+    {
+        switch (event.key)
+        {
+        case kKeyUp:
+        case kKeyPadUp:
+            key = LV_KEY_UP;
+            break;
+        case kKeyDown:
+        case kKeyPadDown:
+            key = LV_KEY_DOWN;
+            break;
+        case kKeyRight:
+        case kKeyPadRight:
+            key = LV_KEY_RIGHT;
+            break;
+        case kKeyLeft:
+        case kKeyPadLeft:
+            key = LV_KEY_LEFT;
+            break;
+        case kKeyHome:
+        case kKeyPadHome:
+            key = LV_KEY_HOME;
+            break;
+        case kKeyEnd:
+        case kKeyPadEnd:
+            key = LV_KEY_END;
+            break;
+        case kKeyPadEnter:
+            key = LV_KEY_ENTER;
+            break;
+        case kKeyPad0: key = '0'; break;
+        case kKeyPad1: key = '1'; break;
+        case kKeyPad2: key = '2'; break;
+        case kKeyPad3: key = '3'; break;
+        case kKeyPad4: key = '4'; break;
+        case kKeyPad5: key = '5'; break;
+        case kKeyPad6: key = '6'; break;
+        case kKeyPad7: key = '7'; break;
+        case kKeyPad8: key = '8'; break;
+        case kKeyPad9: key = '9'; break;
+        case kKeyPadEqual: key = '='; break;
+        case kKeyPadMultiply: key = '*'; break;
+        case kKeyPadAdd: key = '+'; break;
+        case kKeyPadSubtract: key = '-'; break;
+        case kKeyPadDecimal: key = '.'; break;
+        case kKeyPadDivide: key = '/'; break;
+        default:
+            return false;
+        }
+    }
+    else
+    {
+        switch (event.key)
+        {
+        case kKeyEnter:
+            key = LV_KEY_ENTER;
+            break;
+        case kKeyTab:
+            key = event.mod & kModifierShift ? LV_KEY_PREV : LV_KEY_NEXT;
+            break;
+        default:
+            key = event.key;
+            break;
+        }
+    }
 
-    // TODO
+    lvglData->keyBuffer.writeUShort(key);
+    lvglData->keyBuffer.commitWrite();
     return false;
 }
 
