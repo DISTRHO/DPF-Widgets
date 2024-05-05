@@ -5,6 +5,21 @@
 #include "../../generic/ResizeHandle.hpp"
 #include "../../opengl/LVGL.hpp"
 
+#include "demos/lv_demos.h"
+
+class LVGLDemo : public LVGLWidget
+{
+public:
+    LVGLDemo(Window& window)
+        : LVGLWidget(window) {}
+
+    // delay setup after window size has been set
+    void setup()
+    {
+        lv_demo_widgets();
+    }
+};
+
 class DemoWindow : public StandaloneWindow
 {
     static const uint kMarginBase    = 8;
@@ -13,14 +28,16 @@ class DemoWindow : public StandaloneWindow
     static const uint kMinWindowWidth  = 1000;
     static const uint kMinWindowHeight = 600;
 
-    // ResizeHandle resizeHandle;
-    LVGLWidget lvgl;
+    LVGLDemo lvgl;
+    ResizeHandle resizeHandle;
+
+    bool widgetsDone = false;
 
 public:
     DemoWindow(Application& app)
         : StandaloneWindow(app),
-        //   resizeHandle(this),
-          lvgl(this)
+          lvgl((Window&)*this),
+          resizeHandle(this)
     {
         const double scaleFactor = getScaleFactor();
         const uint margin = kMarginContent * scaleFactor;
@@ -29,6 +46,8 @@ public:
         setSize(kMinWindowWidth * scaleFactor, kMinWindowHeight * scaleFactor);
         setResizable(true);
         setTitle("LVGL Widgets Demo");
+
+        lvgl.setup();
     }
 
 protected:

@@ -21,8 +21,6 @@
 #include "../distrho/extra/Sleep.hpp"
 #include "../distrho/extra/Time.hpp"
 
-#include "demos/lv_demos.h"
-
 START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -530,14 +528,6 @@ void LVGLWidget::onResize(const Widget::ResizeEvent& event)
     lv_global = lvglData->global;
     lv_display_set_resolution(lvglData->display, width, height);
     lv_refr_now(lvglData->display);
-
-    // TESTING
-    static bool testing = true;
-    if (testing)
-    {
-        testing = false;
-        lv_demo_widgets();
-    }
 }
 
 // --------------------------------------------------------------------------------------------------------------------
