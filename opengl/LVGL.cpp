@@ -29,11 +29,6 @@ START_NAMESPACE_DGL
 
 static thread_local lv_global_t* lv_global = nullptr;
 
-static uint32_t gettime_ms() noexcept
-{
-    return DISTRHO_NAMESPACE::d_gettime_ms();
-}
-
 struct LVGLWidget::PrivateData {
     LVGLWidget* const self;
     lv_global_t* const global;
@@ -51,7 +46,9 @@ struct LVGLWidget::PrivateData {
 
     GLuint textureId = 0;
     Size<uint> textureSize;
-    void* textureData = nullptr;
+    uint8_t* textureData = nullptr;
+
+    lv_area_t updatedArea = {};
 
     explicit PrivateData(LVGLWidget* const s)
         : self(s),
@@ -73,11 +70,13 @@ private:
     void init()
     {
         lv_init();
-        lv_delay_set_cb(d_msleep);
+        lv_delay_set_cb(msleep);
         lv_tick_set_cb(gettime_ms);
 
         const uint width = self->getWidth() ?: 100;
         const uint height = self->getHeight() ?: 100;
+
+        lv_area_set(&updatedArea, 0, 0, width, height);
 
         display = lv_display_create(width, height);
         DISTRHO_SAFE_ASSERT_RETURN(display != nullptr,);
@@ -125,11 +124,8 @@ private:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-        static constexpr const float transparent[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+        static constexpr const float transparent[] = { 0.f, 0.f, 0.f, 0.f };
         glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, transparent);
-
-        glPixelStorei(GL_PACK_ALIGNMENT, 1);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_TEXTURE_2D);
@@ -189,16 +185,30 @@ private:
 
     void recreateTextureData(const uint width, const uint height)
     {
-        const auto format = lv_display_get_color_format(display);
-        const uint32_t stride = lv_draw_buf_width_to_stride(width, format);
+        const lv_color_format_t lvformat = lv_display_get_color_format(display);
+        const uint32_t stride = lv_draw_buf_width_to_stride(width, lvformat);
         const uint32_t data_size = height * stride;
 
-        textureData = std::realloc(textureData, data_size);
+        textureData = static_cast<uint8_t*>(std::realloc(textureData, data_size));
         std::memset(textureData, 0, data_size);
 
         textureSize = Size<uint>(width, height);
         lv_display_set_buffers(display, textureData, nullptr, data_size, LV_DISPLAY_RENDER_MODE_DIRECT);
     }
+
+    // ----------------------------------------------------------------------------------------------------------------
+
+    static void msleep(const uint32_t millis) noexcept
+    {
+        return DISTRHO_NAMESPACE::d_msleep(millis);
+    }
+
+    static uint32_t gettime_ms() noexcept
+    {
+        return DISTRHO_NAMESPACE::d_gettime_ms();
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------
 
     static void resolution_changed_cb(lv_event_t* const ev)
     {
@@ -210,10 +220,33 @@ private:
         evthis->recreateTextureData(width, height);
     }
 
-    static void flush_cb(lv_display_t* const evdisplay, const lv_area_t*, uint8_t*)
+    static void flush_cb(lv_display_t* const evdisplay, const lv_area_t* const area, uint8_t* const data)
     {
+        PrivateData* const evthis = static_cast<PrivateData*>(lv_display_get_driver_data(evdisplay));
+
+        if (evthis->updatedArea.x1 == 0 &&
+            evthis->updatedArea.y1 == 0 &&
+            evthis->updatedArea.x2 == 0 &&
+            evthis->updatedArea.y2 == 0)
+        {
+            lv_area_copy(&evthis->updatedArea, area);
+        }
+        else
+        {
+            lv_area_t tmp;
+            lv_area_copy(&tmp, &evthis->updatedArea);
+            _lv_area_join(&evthis->updatedArea, &tmp, area);
+        }
+
+        evthis->self->repaint(Rectangle<uint>(evthis->updatedArea.x1,
+                                              evthis->updatedArea.y1,
+                                              evthis->updatedArea.x2 - evthis->updatedArea.x1,
+                                              evthis->updatedArea.y2 - evthis->updatedArea.y1));
+
         lv_display_flush_ready(evdisplay);
     }
+
+    // ----------------------------------------------------------------------------------------------------------------
 
     static void indev_keyboard_read_cb(lv_indev_t* const indev, lv_indev_data_t* const data)
     {
@@ -277,9 +310,6 @@ void LVGLWidget::idleCallback()
 {
     lv_global = lvglData->global;
     lv_timer_handler();
-
-    // FIXME
-    TopLevelWidget::repaint();
 }
 
 void LVGLWidget::onDisplay()
@@ -287,9 +317,9 @@ void LVGLWidget::onDisplay()
     DISTRHO_SAFE_ASSERT_RETURN(getSize() == lvglData->textureSize,);
 
    #if LV_COLOR_DEPTH == 32
-    constexpr const GLenum format = GL_BGRA;
+    static constexpr const GLenum format = GL_BGRA;
    #elif LV_COLOR_DEPTH == 24
-    constexpr const GLenum format = GL_BGR;
+    static constexpr const GLenum format = GL_BGR;
    #else
     #error Unsupported color format
    #endif
@@ -297,23 +327,75 @@ void LVGLWidget::onDisplay()
     const int width = static_cast<int>(getWidth());
     const int height = static_cast<int>(getHeight());
 
+    glColor3f(1.f, 1.f, 1.f);
+    glBegin(GL_QUADS);
+    {
+        glTexCoord2f(0.f, 0.f);
+        glVertex2d(0, 0);
+
+        glTexCoord2f(1.f, 0.f);
+        glVertex2d(width, 0);
+
+        glTexCoord2f(1.f, 1.f);
+        glVertex2d(width, height);
+
+        glTexCoord2f(0.f, 1.f);
+        glVertex2d(0, height);
+    }
+    glEnd();
+
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, lvglData->textureId);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, lvglData->textureData);
+    if (lvglData->updatedArea.x1 != lvglData->updatedArea.x2 || lvglData->updatedArea.y1 != lvglData->updatedArea.y2)
+    {
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
+
+        // full size
+        if (lvglData->updatedArea.x1 == 0 &&
+            lvglData->updatedArea.y1 == 0 &&
+            lvglData->updatedArea.x2 == width &&
+            lvglData->updatedArea.y2 == height)
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, lvglData->textureData);
+        }
+        // partial size
+        else
+        {
+            const int32_t partial_x = lvglData->updatedArea.x1;
+            const int32_t partial_y = lvglData->updatedArea.y1;
+            const int32_t partial_width = lvglData->updatedArea.x2 - partial_x;
+            const int32_t partial_height = lvglData->updatedArea.y2 - partial_y;
+
+            const uint8_t colsize = lv_color_format_get_size(lv_display_get_color_format(lvglData->display));
+            const int32_t offset = partial_y * width * colsize + partial_x * colsize;
+
+            glTexSubImage2D(GL_TEXTURE_2D, 0,
+                            partial_x,
+                            partial_y,
+                            partial_width,
+                            partial_height,
+                            format, GL_UNSIGNED_BYTE,
+                            lvglData->textureData + offset);
+        }
+
+        lv_area_set(&lvglData->updatedArea, 0, 0, 0, 0);
+    }
 
     glBegin(GL_QUADS);
     {
-        glTexCoord2f(0.0f, 0.0f);
+        glTexCoord2f(0.f, 0.f);
         glVertex2d(0, 0);
 
-        glTexCoord2f(1.0f, 0.0f);
+        glTexCoord2f(1.f, 0.f);
         glVertex2d(width, 0);
 
-        glTexCoord2f(1.0f, 1.0f);
+        glTexCoord2f(1.f, 1.f);
         glVertex2d(width, height);
 
-        glTexCoord2f(0.0f, 1.0f);
+        glTexCoord2f(0.f, 1.f);
         glVertex2d(0, height);
     }
     glEnd();
@@ -441,8 +523,12 @@ void LVGLWidget::onResize(const Widget::ResizeEvent& event)
     if (lvglData->display == nullptr)
         return;
 
+    const uint width = event.size.getWidth();
+    const uint height = event.size.getHeight();
+    lv_area_set(&lvglData->updatedArea, 0, 0, width, height);
+
     lv_global = lvglData->global;
-    lv_display_set_resolution(lvglData->display, event.size.getWidth(), event.size.getHeight());
+    lv_display_set_resolution(lvglData->display, width, height);
     lv_refr_now(lvglData->display);
 
     // TESTING
@@ -450,7 +536,7 @@ void LVGLWidget::onResize(const Widget::ResizeEvent& event)
     if (testing)
     {
         testing = false;
-        lv_demo_keypad_encoder();
+        lv_demo_widgets();
     }
 }
 

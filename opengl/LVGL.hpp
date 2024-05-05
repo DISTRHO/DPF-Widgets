@@ -92,7 +92,7 @@ START_NAMESPACE_DGL
 /**
    LVGL Widget class.
 
-   This class exposes the Dear ImGui drawing API inside a DGL Widget.
+   This class exposes the LVGL drawing API inside a DGL Widget.
    The drawing function onDisplay() is implemented internally
    but a new onImGuiDisplay() needs to be overridden instead.
 
