@@ -20,7 +20,10 @@
 # error DPF LVGL widgets require C++11
 #endif
 
+#include "SubWidget.hpp"
 #include "TopLevelWidget.hpp"
+#include "StandaloneWindow.hpp"
+
 #include "lvgl.h"
 
 START_NAMESPACE_DGL
@@ -93,25 +96,34 @@ START_NAMESPACE_DGL
    LVGL Widget class.
 
    This class exposes the LVGL drawing API inside a DGL Widget.
-   The drawing function onDisplay() is implemented internally
-   but a new onImGuiDisplay() needs to be overridden instead.
 
-   This class will take care of setting up ImGui for drawing,
+   This class will take care of setting up LVGL for drawing,
    and also also user input, resizes and everything in between.
  */
-class LVGLWidget : public TopLevelWidget,
+template <class BaseWidget>
+class LVGLWidget : public BaseWidget,
                    public IdleCallback
 {
 public:
    /**
-      Constructor for a LVGLTopLevelWidget.
+      Constructor for a LVGLSubWidget.
     */
-    explicit LVGLWidget(TopLevelWidget* tlw);
+    explicit LVGLWidget(Widget* parentGroupWidget);
 
    /**
       Constructor for a LVGLTopLevelWidget.
     */
     explicit LVGLWidget(Window& windowToMapTo);
+
+   /**
+      Constructor for a LVGLStandaloneWindow without transient parent window.
+    */
+    explicit LVGLWidget(Application& app);
+
+   /**
+      Constructor for a LVGLStandaloneWindow with transient parent window.
+    */
+    explicit LVGLWidget(Application& app, Window& transientParentWindow);
 
    /**
       Destructor.
@@ -132,6 +144,10 @@ protected:
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LVGLWidget)
 };
+
+typedef LVGLWidget<SubWidget> LVGLSubWidget;
+typedef LVGLWidget<TopLevelWidget> LVGLTopLevelWidget;
+typedef LVGLWidget<StandaloneWindow> LVGLStandaloneWindow;
 
 // --------------------------------------------------------------------------------------------------------------------
 

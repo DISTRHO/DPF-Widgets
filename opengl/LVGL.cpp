@@ -27,8 +27,9 @@ START_NAMESPACE_DGL
 
 static thread_local lv_global_t* lv_global = nullptr;
 
-struct LVGLWidget::PrivateData {
-    LVGLWidget* const self;
+template <class BaseWidget>
+struct LVGLWidget<BaseWidget>::PrivateData {
+    LVGLWidget<BaseWidget>* const self;
     lv_global_t* const global;
 
     lv_display_t* display = nullptr;
@@ -48,7 +49,7 @@ struct LVGLWidget::PrivateData {
 
     lv_area_t updatedArea = {};
 
-    explicit PrivateData(LVGLWidget* const s)
+    explicit PrivateData(LVGLWidget<BaseWidget>* const s)
         : self(s),
           global(static_cast<lv_global_t*>(std::calloc(1, sizeof(lv_global_t))))
     {
@@ -79,7 +80,7 @@ private:
         display = lv_display_create(width, height);
         DISTRHO_SAFE_ASSERT_RETURN(display != nullptr,);
 
-        lv_display_set_dpi(display, LV_DPI_DEF * self->getScaleFactor());
+        lv_display_set_dpi(display, LV_DPI_DEF * self->getTopLevelWidget()->getScaleFactor());
 
         group = lv_group_create();
         lv_group_set_default(group);
@@ -193,6 +194,8 @@ private:
         lv_display_set_buffers(display, textureData, nullptr, data_size, LV_DISPLAY_RENDER_MODE_DIRECT);
     }
 
+    void repaint(const Rectangle<uint>& rect);
+
     // ----------------------------------------------------------------------------------------------------------------
 
     static void msleep(const uint32_t millis) noexcept
@@ -235,10 +238,10 @@ private:
             _lv_area_join(&evthis->updatedArea, &tmp, area);
         }
 
-        evthis->self->repaint(Rectangle<uint>(evthis->updatedArea.x1,
-                                              evthis->updatedArea.y1,
-                                              evthis->updatedArea.x2 - evthis->updatedArea.x1,
-                                              evthis->updatedArea.y2 - evthis->updatedArea.y1));
+        evthis->repaint(Rectangle<uint>(evthis->updatedArea.x1,
+                                        evthis->updatedArea.y1,
+                                        evthis->updatedArea.x2 - evthis->updatedArea.x1,
+                                        evthis->updatedArea.y2 - evthis->updatedArea.y1));
 
         lv_display_flush_ready(evdisplay);
     }
@@ -283,35 +286,17 @@ private:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-LVGLWidget::LVGLWidget(TopLevelWidget* const tlw)
-    : TopLevelWidget(tlw->getWindow()),
-      lvglData(new PrivateData(this))
-{
-    addIdleCallback(this, 1000 / 60); // 60 fps
-}
-
-LVGLWidget::LVGLWidget(Window& windowToMapTo)
-    : TopLevelWidget(windowToMapTo),
-      lvglData(new PrivateData(this))
-{
-    addIdleCallback(this, 1000 / 60); // 60 fps
-}
-
-LVGLWidget::~LVGLWidget()
-{
-    removeIdleCallback(this);
-    delete lvglData;
-}
-
-void LVGLWidget::idleCallback()
+template <class BaseWidget>
+void LVGLWidget<BaseWidget>::idleCallback()
 {
     lv_global = lvglData->global;
     lv_timer_handler();
 }
 
-void LVGLWidget::onDisplay()
+template <class BaseWidget>
+void LVGLWidget<BaseWidget>::onDisplay()
 {
-    DISTRHO_SAFE_ASSERT_RETURN(getSize() == lvglData->textureSize,);
+    DISTRHO_SAFE_ASSERT_RETURN(BaseWidget::getSize() == lvglData->textureSize,);
 
    #if LV_COLOR_DEPTH == 32
     static constexpr const GLenum format = GL_BGRA;
@@ -321,8 +306,8 @@ void LVGLWidget::onDisplay()
     #error Unsupported color format
    #endif
 
-    const int width = static_cast<int>(getWidth());
-    const int height = static_cast<int>(getHeight());
+    const int32_t width = static_cast<int32_t>(BaseWidget::getWidth());
+    const int32_t height = static_cast<int32_t>(BaseWidget::getHeight());
 
     glColor3f(1.f, 1.f, 1.f);
     glBegin(GL_QUADS);
@@ -401,9 +386,10 @@ void LVGLWidget::onDisplay()
     glDisable(GL_TEXTURE_2D);
 }
 
-bool LVGLWidget::onKeyboard(const Widget::KeyboardEvent& event)
+template <class BaseWidget>
+bool LVGLWidget<BaseWidget>::onKeyboard(const Widget::KeyboardEvent& event)
 {
-    if (TopLevelWidget::onKeyboard(event))
+    if (BaseWidget::onKeyboard(event))
         return true;
 
     if (! event.press)
@@ -482,9 +468,10 @@ bool LVGLWidget::onKeyboard(const Widget::KeyboardEvent& event)
     return false;
 }
 
-bool LVGLWidget::onMouse(const Widget::MouseEvent& event)
+template <class BaseWidget>
+bool LVGLWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
 {
-    if (TopLevelWidget::onMouse(event))
+    if (BaseWidget::onMouse(event))
         return true;
 
     if (event.button > ARRAY_SIZE(lvglData->mouseButtons))
@@ -494,28 +481,31 @@ bool LVGLWidget::onMouse(const Widget::MouseEvent& event)
     return true;
 }
 
-bool LVGLWidget::onMotion(const Widget::MotionEvent& event)
+template <class BaseWidget>
+bool LVGLWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
 {
-    if (TopLevelWidget::onMotion(event))
+    if (BaseWidget::onMotion(event))
         return true;
 
-    lvglData->mousePos.x = std::max(0, std::min<int>(getWidth(), event.pos.getX()));
-    lvglData->mousePos.y = std::max(0, std::min<int>(getHeight(), event.pos.getY()));
+    lvglData->mousePos.x = std::max(0, std::min<int>(BaseWidget::getWidth(), event.pos.getX()));
+    lvglData->mousePos.y = std::max(0, std::min<int>(BaseWidget::getHeight(), event.pos.getY()));
     return true;
 }
 
-bool LVGLWidget::onScroll(const Widget::ScrollEvent& event)
+template <class BaseWidget>
+bool LVGLWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
 {
-    if (TopLevelWidget::onScroll(event))
+    if (BaseWidget::onScroll(event))
         return true;
 
     lvglData->mouseWheelDelta -= event.delta.getY();
     return false;
 }
 
-void LVGLWidget::onResize(const Widget::ResizeEvent& event)
+template <class BaseWidget>
+void LVGLWidget<BaseWidget>::onResize(const Widget::ResizeEvent& event)
 {
-    TopLevelWidget::onResize(event);
+    BaseWidget::onResize(event);
 
     if (lvglData->display == nullptr)
         return;
@@ -528,6 +518,92 @@ void LVGLWidget::onResize(const Widget::ResizeEvent& event)
     lv_display_set_resolution(lvglData->display, width, height);
     lv_refr_now(lvglData->display);
 }
+
+// --------------------------------------------------------------------------------------------------------------------
+// LVGLSubWidget
+
+template <>
+LVGLWidget<SubWidget>::LVGLWidget(Widget* const parent)
+    : SubWidget(parent),
+      lvglData(new PrivateData(this))
+{
+    getWindow().addIdleCallback(this, 1000 / 60); // 60 fps
+}
+
+template <>
+LVGLWidget<SubWidget>::~LVGLWidget()
+{
+    getWindow().removeIdleCallback(this);
+    delete lvglData;
+}
+
+template <>
+void LVGLWidget<SubWidget>::PrivateData::repaint(const Rectangle<uint>&)
+{
+    self->repaint();
+}
+
+template class LVGLWidget<SubWidget>;
+
+// --------------------------------------------------------------------------------------------------------------------
+// LVGLTopLevelWidget
+
+template <>
+LVGLWidget<TopLevelWidget>::LVGLWidget(Window& windowToMapTo)
+    : TopLevelWidget(windowToMapTo),
+      lvglData(new PrivateData(this))
+{
+    addIdleCallback(this, 1000 / 60); // 60 fps
+}
+
+template <>
+LVGLWidget<TopLevelWidget>::~LVGLWidget()
+{
+    removeIdleCallback(this);
+    delete lvglData;
+}
+
+template <>
+void LVGLWidget<TopLevelWidget>::PrivateData::repaint(const Rectangle<uint>& rect)
+{
+    self->repaint(rect);
+}
+
+template class LVGLWidget<TopLevelWidget>;
+
+// --------------------------------------------------------------------------------------------------------------------
+// LVGLStandaloneWindow
+
+template <>
+LVGLWidget<StandaloneWindow>::LVGLWidget(Application& app)
+    : StandaloneWindow(app),
+      lvglData(new PrivateData(this))
+{
+    Window::addIdleCallback(this, 1000 / 60); // 60 fps
+}
+
+template <>
+LVGLWidget<StandaloneWindow>::LVGLWidget(Application& app, Window& transientParentWindow)
+    : StandaloneWindow(app, transientParentWindow),
+      lvglData(new PrivateData(this))
+{
+    Window::addIdleCallback(this, 1000 / 60); // 60 fps
+}
+
+template <>
+LVGLWidget<StandaloneWindow>::~LVGLWidget()
+{
+    Window::removeIdleCallback(this);
+    delete lvglData;
+}
+
+template <>
+void LVGLWidget<StandaloneWindow>::PrivateData::repaint(const Rectangle<uint>& rect)
+{
+    self->repaint(rect);
+}
+
+template class LVGLWidget<StandaloneWindow>;
 
 // --------------------------------------------------------------------------------------------------------------------
 
