@@ -37,11 +37,19 @@ struct LVGLWidget::PrivateData {
     LVGLWidget* const self;
     lv_global_t* const global;
 
+    lv_display_t* display = nullptr;
+    lv_group_t* group = nullptr;
+    lv_indev_t* keyboard = nullptr;
+    lv_indev_t* mousepointer = nullptr;
+    lv_indev_t* mousewheel = nullptr;
+
+    bool mouseButtons[3] = {};
+    lv_point_t mousePos = {};
+    double mouseWheelDelta = 0.0;
+
     GLuint textureId = 0;
     Size<uint> textureSize;
     void* textureData = nullptr;
-
-    lv_display_t* display = nullptr;
 
     explicit PrivateData(LVGLWidget* const s)
         : self(s),
@@ -66,13 +74,43 @@ private:
         lv_delay_set_cb(d_msleep);
         lv_tick_set_cb(gettime_ms);
 
-        const uint width = self->getWidth() ?: 2000;
-        const uint height = self->getHeight() ?: 1200;
+        const uint width = self->getWidth() ?: 100;
+        const uint height = self->getHeight() ?: 100;
 
         display = lv_display_create(width, height);
         DISTRHO_SAFE_ASSERT_RETURN(display != nullptr,);
 
         lv_display_set_dpi(display, LV_DPI_DEF * self->getScaleFactor());
+
+        group = lv_group_create();
+        lv_group_set_default(group);
+
+        if (lv_indev_t* const indev = lv_indev_create())
+        {
+            keyboard = indev;
+            lv_indev_set_type(indev, LV_INDEV_TYPE_KEYPAD);
+            lv_indev_set_read_cb(indev, indev_keyboard_read_cb);
+            lv_indev_set_driver_data(indev, this);
+            lv_indev_set_group(indev, group);
+        }
+
+        if (lv_indev_t* const indev = lv_indev_create())
+        {
+            mousepointer = indev;
+            lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
+            lv_indev_set_read_cb(indev, indev_mouse_read_cb);
+            lv_indev_set_driver_data(indev, this);
+            lv_indev_set_group(indev, group);
+        }
+
+        if (lv_indev_t* const indev = lv_indev_create())
+        {
+            mousewheel = indev;
+            lv_indev_set_type(indev, LV_INDEV_TYPE_ENCODER);
+            lv_indev_set_read_cb(indev, indev_mousewheel_read_cb);
+            lv_indev_set_driver_data(indev, this);
+            lv_indev_set_group(indev, group);
+        }
 
         glGenTextures(1, &textureId);
         DISTRHO_SAFE_ASSERT_RETURN(textureId != 0,);
@@ -105,6 +143,30 @@ private:
     {
         global->deinit_in_progress = true;
 
+        if (keyboard != nullptr)
+        {
+            lv_indev_delete(keyboard);
+            keyboard = nullptr;
+        }
+
+        if (mousepointer != nullptr)
+        {
+            lv_indev_delete(mousepointer);
+            mousepointer = nullptr;
+        }
+
+        if (mousewheel != nullptr)
+        {
+            lv_indev_delete(mousewheel);
+            mousewheel = nullptr;
+        }
+
+        if (group != nullptr)
+        {
+            lv_group_delete(group);
+            group = nullptr;
+        }
+
         if (display != nullptr)
         {
             lv_display_delete(display);
@@ -119,7 +181,7 @@ private:
 
         std::free(textureData);
         textureData = nullptr;
-    
+
         lv_deinit();
     }
 
@@ -151,6 +213,31 @@ private:
         lv_display_flush_ready(evdisplay);
     }
 
+    static void indev_keyboard_read_cb(lv_indev_t* const indev, lv_indev_data_t* const data)
+    {
+        PrivateData* const evthis = static_cast<PrivateData*>(lv_indev_get_driver_data(indev));
+
+        // TODO
+        data->state = LV_INDEV_STATE_RELEASED;
+    }
+
+    static void indev_mouse_read_cb(lv_indev_t* const indev, lv_indev_data_t* const data)
+    {
+        PrivateData* const evthis = static_cast<PrivateData*>(lv_indev_get_driver_data(indev));
+
+        data->point = evthis->mousePos;
+        data->state = evthis->mouseButtons[kMouseButtonLeft] ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
+    }
+
+    static void indev_mousewheel_read_cb(lv_indev_t* const indev, lv_indev_data_t* const data)
+    {
+        PrivateData* const evthis = static_cast<PrivateData*>(lv_indev_get_driver_data(indev));
+
+        data->state = evthis->mouseButtons[kMouseButtonMiddle] ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
+        data->enc_diff = evthis->mouseWheelDelta;
+        evthis->mouseWheelDelta = 0.0;
+    }
+
     DISTRHO_DECLARE_NON_COPYABLE(PrivateData)
 };
 
@@ -161,9 +248,6 @@ LVGLWidget::LVGLWidget(TopLevelWidget* const tlw)
       lvglData(new PrivateData(this))
 {
     addIdleCallback(this, 1000 / 60); // 60 fps
-
-    // TESTING
-    lv_demo_music();
 }
 
 LVGLWidget::LVGLWidget(Window& windowToMapTo)
@@ -171,9 +255,6 @@ LVGLWidget::LVGLWidget(Window& windowToMapTo)
       lvglData(new PrivateData(this))
 {
     addIdleCallback(this, 1000 / 60); // 60 fps
-
-    // TESTING
-    lv_demo_music();
 }
 
 LVGLWidget::~LVGLWidget()
@@ -254,8 +335,11 @@ bool LVGLWidget::onMouse(const Widget::MouseEvent& event)
     if (TopLevelWidget::onMouse(event))
         return true;
 
-    // TODO
-    return false;
+    if (event.button > ARRAY_SIZE(lvglData->mouseButtons))
+        return false;
+
+    lvglData->mouseButtons[event.button] = event.press;
+    return true;
 }
 
 bool LVGLWidget::onMotion(const Widget::MotionEvent& event)
@@ -263,8 +347,9 @@ bool LVGLWidget::onMotion(const Widget::MotionEvent& event)
     if (TopLevelWidget::onMotion(event))
         return true;
 
-    // TODO
-    return false;
+    lvglData->mousePos.x = std::max(0, std::min<int>(getWidth(), event.pos.getX()));
+    lvglData->mousePos.y = std::max(0, std::min<int>(getHeight(), event.pos.getY()));
+    return true;
 }
 
 bool LVGLWidget::onScroll(const Widget::ScrollEvent& event)
@@ -272,7 +357,7 @@ bool LVGLWidget::onScroll(const Widget::ScrollEvent& event)
     if (TopLevelWidget::onScroll(event))
         return true;
 
-    // TODO
+    lvglData->mouseWheelDelta -= event.delta.getY();
     return false;
 }
 
@@ -286,6 +371,14 @@ void LVGLWidget::onResize(const Widget::ResizeEvent& event)
     lv_global = lvglData->global;
     lv_display_set_resolution(lvglData->display, event.size.getWidth(), event.size.getHeight());
     lv_refr_now(lvglData->display);
+
+    // TESTING
+    static bool testing = true;
+    if (testing)
+    {
+        testing = false;
+        lv_demo_keypad_encoder();
+    }
 }
 
 // --------------------------------------------------------------------------------------------------------------------

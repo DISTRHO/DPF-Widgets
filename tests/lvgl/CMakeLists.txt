@@ -4,8 +4,8 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(LV_CONF_PATH "${PROJECT_SOURCE_DIR}/lv_conf.h")
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/../../../DPF ${PROJECT_SOURCE_DIR}/dpf-bin)
-add_subdirectory(lvgl ${PROJECT_SOURCE_DIR}/lvgl-bin)
+add_subdirectory(${PROJECT_SOURCE_DIR}/../../../DPF ${CMAKE_BINARY_DIR}/dpf)
+add_subdirectory(lvgl ${CMAKE_BINARY_DIR}/lvgl)
 
 dpf__add_dgl_opengl(FALSE)
 
