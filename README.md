@@ -46,17 +46,17 @@ Used in:
 - [dear-plugins](https://github.com/DISTRHO/dear-plugins)
 - [Ildaeil](https://github.com/DISTRHO/Ildaeil)
 - [master_me](https://github.com/trummerschlunk/master_me/) (histogram display)
+- [WSTD CRSHR](https://github.com/Wasted-Audio/wstd-crshr)
+- [WSTD DLAY](https://github.com/Wasted-Audio/wstd-dlay)
+- [WSTD DL3Y](https://github.com/Wasted-Audio/wstd-dl3y)
 - [WSTD EQ](https://github.com/Wasted-Audio/wstd-eq)
 - [WSTD 3Q](https://github.com/Wasted-Audio/wstd-3q)
 - [WSTD FLANGR](https://github.com/Wasted-Audio/wstd-flangr)
 - [WSTD FL3NGR](https://github.com/Wasted-Audio/wstd-fl3ngr)
-- [WSTD DLAY](https://github.com/Wasted-Audio/wstd-dlay)
-- [WSTD DL3Y](https://github.com/Wasted-Audio/wstd-dl3y)
-- [WSTD CRSHR](https://github.com/Wasted-Audio/wstd-crshr)
-- [WSTD SMTHR](https://github.com/Wasted-Audio/wstd-smthr)
 - [WSTD FLDR](https://github.com/Wasted-Audio/wstd-fldr)
 - [WSTD MANGLR](https://github.com/Wasted-Audio/wstd-manglr)
 - [WSTD M3NGLR](https://github.com/Wasted-Audio/wstd-m3nglr)
+- [WSTD SMTHR](https://github.com/Wasted-Audio/wstd-smthr)
 
 See [imgui-template-plugin](https://github.com/DISTRHO/imgui-template-plugin/) for a CMake-based template plugin project around ImGui.
 See [imgui-template-app](https://github.com/DISTRHO/imgui-template-app/) for a standalone application template.
