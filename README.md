@@ -22,9 +22,9 @@ Used very often and in many plugins.
 
 #### opengl / Blendish
 
-![screenshot](screenshot/Blendish.png)
+![screenshot](screenshots/Blendish.png)
 
-Blendish widgets for DPF.
+[oui-blendish](https://github.com/VCVRack/oui-blendish) widgets for DPF.  
 Work in progress, usable in very select cases.
 
 Used in:
