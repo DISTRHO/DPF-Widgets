@@ -487,8 +487,8 @@ bool LVGLWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
     if (BaseWidget::onMotion(event))
         return true;
 
-    lvglData->mousePos.x = std::max(0, std::min<int>(BaseWidget::getWidth(), event.pos.getX()));
-    lvglData->mousePos.y = std::max(0, std::min<int>(BaseWidget::getHeight(), event.pos.getY()));
+    lvglData->mousePos.x = std::max(0, std::min<int>(BaseWidget::getWidth() - 1, event.pos.getX()));
+    lvglData->mousePos.y = std::max(0, std::min<int>(BaseWidget::getHeight() - 1, event.pos.getY()));
     return true;
 }
 
