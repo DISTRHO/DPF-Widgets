@@ -38,7 +38,7 @@ Used in:
 ![screenshot](https://raw.githubusercontent.com/DISTRHO/dear-plugins/main/plugins/ImGuiDemo/Screenshot.png)
 
 Exposes the [Dear ImGui](https://github.com/ocornut/imgui/) drawing API inside a DGL Widget.  
-The drawing function onDisplay() is implemented internally but a new onImGuiDisplay() needs to be overridden instead.  
+The drawing function `onDisplay()` is implemented internally but a new `onImGuiDisplay()` needs to be overridden instead.  
 This class will take care of setting up ImGui for drawing, and also also user input, resizes and everything in between.
 
 Used in:
@@ -47,8 +47,8 @@ Used in:
 - [Ildaeil](https://github.com/DISTRHO/Ildaeil)
 - [master_me](https://github.com/trummerschlunk/master_me/) (histogram display)
 
-See [imgui-template-plugin](https://github.com/DISTRHO/imgui-template-plugin/) for a CMake-based template plugin project around ImGui,
-or [imgui-template-app](https://github.com/DISTRHO/imgui-template-app/) for a standalone application template.
+See [imgui-template-plugin](https://github.com/DISTRHO/imgui-template-plugin/) for a CMake-based template plugin project around ImGui.  
+See [imgui-template-app](https://github.com/DISTRHO/imgui-template-app/) for a standalone application template.
 
 ---
 
@@ -81,7 +81,9 @@ See [lvgl-template-plugin](https://github.com/DISTRHO/lvgl-template-plugin/) for
 
 [Quanta](https://forum.cockos.com/showthread.php?t=269437)-inspired widgets for DPF.
 
-In use for [master_me](https://github.com/trummerschlunk/master_me/) project.
+Used in:
+
+- [master_me](https://github.com/trummerschlunk/master_me/)
 
 ---
 
