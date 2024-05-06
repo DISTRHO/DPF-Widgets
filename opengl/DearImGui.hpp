@@ -1,7 +1,7 @@
 /*
  * Dear ImGui for DPF
  * Copyright (C) 2021 Jean Pierre Cimalando <jp-dev@inbox.ru>
- * Copyright (C) 2021-2023 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2021-2024 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -22,7 +22,6 @@
 #include "StandaloneWindow.hpp"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#define IMGUI_DISABLE_OBSOLETE_KEYIO
 
 #include "DearImGui/imgui.h"
 #include "DearImGuiKnobs/imgui-knobs.h"

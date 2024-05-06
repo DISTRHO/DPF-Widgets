@@ -19,7 +19,6 @@
 
 #include "Application.hpp"
 #include "../opengl/DearImGui.cpp"
-#include "../opengl/DearImGuiColorTextEditor.cpp"
 
 START_NAMESPACE_DGL
 
