@@ -309,7 +309,8 @@ void LVGLWidget<BaseWidget>::onDisplay()
     const int32_t width = static_cast<int32_t>(BaseWidget::getWidth());
     const int32_t height = static_cast<int32_t>(BaseWidget::getHeight());
 
-    glColor3f(1.f, 1.f, 1.f);
+#if 0
+    glColor4f(1.f, 1.f, 1.f, 1.f);
     glBegin(GL_QUADS);
     {
         glTexCoord2f(0.f, 0.f);
@@ -325,6 +326,7 @@ void LVGLWidget<BaseWidget>::onDisplay()
         glVertex2d(0, height);
     }
     glEnd();
+#endif
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, lvglData->textureId);
