@@ -104,7 +104,7 @@ public:
         */
         menu.setAbsoluteX(toolButton2.getAbsoluteX());
         menu.setAbsoluteY(numberFieldW.getAbsoluteY());
-        menu.setLabel("This is a menu, and I am a title");
+        menu.setLabel("This is a menu, I am a title");
         menu.addMenuItem("First item of the menu");
         menu.addMenuItem("Short second");
         menu.addMenuItem("Thirsty third");

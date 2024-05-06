@@ -22,8 +22,10 @@ Used very often and in many plugins.
 
 #### opengl / Blendish
 
+![screenshot](screenshot/Blendish.png)
+
 Blendish widgets for DPF.
-Work in progress, but mostly usable.
+Work in progress, usable in very select cases.
 
 Used in:
 
