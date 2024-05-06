@@ -18,6 +18,8 @@ Works in both Cairo and OpenGL modes (classic/legacy OpenGL only, does not suppo
 
 Used very often and in many plugins.
 
+---
+
 #### opengl / Blendish
 
 Blendish widgets for DPF.
@@ -26,6 +28,8 @@ Work in progress, but mostly usable.
 Used in:
 
 - [AIDA-X](https://github.com/AidaDSP/AIDA-X/) (standalone options)
+
+---
 
 #### opengl / DearImGui
 
@@ -44,6 +48,8 @@ Used in:
 See [imgui-template-plugin](https://github.com/DISTRHO/imgui-template-plugin/) for a CMake-based template plugin project around ImGui,
 or [imgui-template-app](https://github.com/DISTRHO/imgui-template-app/) for a standalone application template.
 
+---
+
 #### opengl / DearImGuiColorTextEditor
 
 ![screenshot](https://raw.githubusercontent.com/DISTRHO/dear-plugins/main/plugins/TextEditor/Screenshot.png)
@@ -54,6 +60,8 @@ Used in:
 
 - [dear-plugins](https://github.com/DISTRHO/dear-plugins)
 
+---
+
 #### opengl / LVGL
 
 ![screenshot](https://raw.githubusercontent.com/DISTRHO/lvgl-template-plugin/main/Screenshot.png)
@@ -63,6 +71,8 @@ This class will take care of setting up LVGL for drawing, and also also user inp
 
 See [lvgl-template-plugin](https://github.com/DISTRHO/lvgl-template-plugin/) for a CMake-based template plugin project around LVGL.
 
+---
+
 #### opengl / Quantum
 
 ![screenshot](https://raw.githubusercontent.com/trummerschlunk/master_me/master/img/screenshot-expert.png)
@@ -70,6 +80,8 @@ See [lvgl-template-plugin](https://github.com/DISTRHO/lvgl-template-plugin/) for
 [Quanta](https://forum.cockos.com/showthread.php?t=269437)-inspired widgets for DPF.
 
 In use for [master_me](https://github.com/trummerschlunk/master_me/) project.
+
+---
 
 ## Rules and Layout
 
