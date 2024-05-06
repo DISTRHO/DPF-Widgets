@@ -80,7 +80,7 @@ Used in:
 ![screenshot](https://raw.githubusercontent.com/DISTRHO/lvgl-template-plugin/main/Screenshot.png)
 
 Exposes the [LVGL](https://github.com/lvgl/lvgl) drawing API inside a DGL Widget.
-This class will take care of setting up LVGL for drawing, and also also user input, resizes and everything in between.
+This class will take care of setting up LVGL for drawing, and also user input, resizes and everything in between.
 
 See [lvgl-template-plugin](https://github.com/DISTRHO/lvgl-template-plugin/) for a CMake-based template plugin project around LVGL.
 
