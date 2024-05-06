@@ -29,6 +29,8 @@ Used in:
 
 #### opengl / DearImGui
 
+![screenshot](https://raw.githubusercontent.com/DISTRHO/dear-plugins/main/plugins/ImGuiDemo/Screenshot.png)
+
 Exposes the [Dear ImGui](https://github.com/ocornut/imgui/) drawing API inside a DGL Widget.  
 The drawing function onDisplay() is implemented internally but a new onImGuiDisplay() needs to be overridden instead.  
 This class will take care of setting up ImGui for drawing, and also also user input, resizes and everything in between.
@@ -44,6 +46,8 @@ or [imgui-template-app](https://github.com/DISTRHO/imgui-template-app/) for a st
 
 #### opengl / DearImGuiColorTextEditor
 
+![screenshot](https://raw.githubusercontent.com/DISTRHO/dear-plugins/main/plugins/TextEditor/Screenshot.png)
+
 Text Editor Widget class, based on [ImGuiColorTextEdit](https://github.com/BalazsJako/ImGuiColorTextEdit/).
 
 Used in:
@@ -52,12 +56,16 @@ Used in:
 
 #### opengl / LVGL
 
+![screenshot](https://raw.githubusercontent.com/DISTRHO/lvgl-template-plugin/main/Screenshot.png)
+
 Exposes the [LVGL](https://github.com/lvgl/lvgl) drawing API inside a DGL Widget.  
 This class will take care of setting up LVGL for drawing, and also also user input, resizes and everything in between.
 
 See [lvgl-template-plugin](https://github.com/DISTRHO/lvgl-template-plugin/) for a CMake-based template plugin project around LVGL.
 
 #### opengl / Quantum
+
+![screenshot](https://raw.githubusercontent.com/trummerschlunk/master_me/master/img/screenshot-expert.png)
 
 [Quanta](https://forum.cockos.com/showthread.php?t=269437)-inspired widgets for DPF.
 
