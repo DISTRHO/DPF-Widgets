@@ -98,7 +98,7 @@ START_NAMESPACE_DGL
    This class exposes the LVGL drawing API inside a DGL Widget.
 
    This class will take care of setting up LVGL for drawing,
-   and also also user input, resizes and everything in between.
+   and also user input, resizes and everything in between.
  */
 template <class BaseWidget>
 class LVGLWidget : public BaseWidget,

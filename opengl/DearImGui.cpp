@@ -596,3 +596,49 @@ template class ImGuiWidget<StandaloneWindow>;
 // --------------------------------------------------------------------------------------------------------------------
 
 END_NAMESPACE_DGL
+
+// --------------------------------------------------------------------------------------------------------------------
+// extra ImGui calls
+
+namespace ImGui {
+
+// --------------------------------------------------------------------------------------------------------------------
+
+void RightAlignedLabelText(const char* label, const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    RightAlignedLabelTextV(label, fmt, args);
+    va_end(args);
+}
+
+void RightAlignedLabelTextV(const char* label, const char* fmt, va_list args)
+{
+    ImGuiWindow* window = GetCurrentWindow();
+    if (window->SkipItems)
+        return;
+
+    ImGuiContext& g = *GImGui;
+    const ImGuiStyle& style = g.Style;
+    const float w = CalcItemWidth();
+
+    const char* value_text_begin, *value_text_end;
+    ImFormatStringToTempBufferV(&value_text_begin, &value_text_end, fmt, args);
+    const ImVec2 value_size = CalcTextSize(value_text_begin, value_text_end, false);
+    const ImVec2 label_size = CalcTextSize(label, NULL, true);
+
+    const ImVec2 pos = window->DC.CursorPos;
+    const ImRect value_bb(pos, pos + ImVec2(w, value_size.y + style.FramePadding.y * 2));
+    const ImRect total_bb(pos, pos + ImVec2(w + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), ImMax(value_size.y, label_size.y) + style.FramePadding.y * 2));
+    ItemSize(total_bb, style.FramePadding.y);
+    if (!ItemAdd(total_bb, 0))
+        return;
+
+    // Render
+    RenderTextClipped(value_bb.Max - value_size - style.FramePadding, value_bb.Max, value_text_begin, value_text_end, &value_size, ImVec2(0.0f, 0.0f));
+    RenderText(ImVec2(value_bb.Max.x + style.ItemInnerSpacing.x, value_bb.Min.y + style.FramePadding.y), label);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+}

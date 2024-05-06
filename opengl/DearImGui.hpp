@@ -121,3 +121,18 @@ typedef ImGuiWidget<StandaloneWindow> ImGuiStandaloneWindow;
 // --------------------------------------------------------------------------------------------------------------------
 
 END_NAMESPACE_DGL
+
+// --------------------------------------------------------------------------------------------------------------------
+// extra ImGui calls
+
+namespace ImGui {
+
+// --------------------------------------------------------------------------------------------------------------------
+// custom ImGui LabelText implementation for right alignment
+
+void RightAlignedLabelText(const char* label, const char* fmt, ...);
+void RightAlignedLabelTextV(const char* label, const char* fmt, va_list args);
+
+// --------------------------------------------------------------------------------------------------------------------
+
+}
