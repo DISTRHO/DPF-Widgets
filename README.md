@@ -3,9 +3,9 @@
 
 This is a repository for shared GUI widgets targetting [DPF](https://github.com/DISTRHO/DPF/).
 
-Since [DPF](https://github.com/DISTRHO/DPF/) allows multiple backends (cairo, opengl or vulkan), we need to split them as such.  
-Each folder provides widgets for its dedicated backend type.  
-It is not mandatory that a widget is usable for more than 1 backend.  
+Since [DPF](https://github.com/DISTRHO/DPF/) allows multiple backends (cairo, opengl or vulkan), we need to split them as such.
+Each folder provides widgets for its dedicated backend type.
+It is not mandatory that a widget is usable for more than 1 backend.
 Generic widgets (those based on DPF core classes like Color, Rectangle, etc) are placed under the "generic" directory.
 
 ## Status
@@ -24,7 +24,7 @@ Used very often and in many plugins.
 
 ![screenshot](screenshots/Blendish.png)
 
-[oui-blendish](https://github.com/VCVRack/oui-blendish) widgets for DPF.  
+[oui-blendish](https://github.com/VCVRack/oui-blendish) widgets for DPF.
 Work in progress, usable in very select cases.
 
 Used in:
@@ -37,8 +37,8 @@ Used in:
 
 ![screenshot](https://raw.githubusercontent.com/DISTRHO/dear-plugins/main/plugins/ImGuiDemo/Screenshot.png)
 
-Exposes the [Dear ImGui](https://github.com/ocornut/imgui/) drawing API inside a DGL Widget.  
-The drawing function `onDisplay()` is implemented internally but a new `onImGuiDisplay()` needs to be overridden instead.  
+Exposes the [Dear ImGui](https://github.com/ocornut/imgui/) drawing API inside a DGL Widget.
+The drawing function `onDisplay()` is implemented internally but a new `onImGuiDisplay()` needs to be overridden instead.
 This class will take care of setting up ImGui for drawing, and also also user input, resizes and everything in between.
 
 Used in:
@@ -46,8 +46,19 @@ Used in:
 - [dear-plugins](https://github.com/DISTRHO/dear-plugins)
 - [Ildaeil](https://github.com/DISTRHO/Ildaeil)
 - [master_me](https://github.com/trummerschlunk/master_me/) (histogram display)
+- [WSTD EQ](https://github.com/Wasted-Audio/wstd-eq)
+- [WSTD 3Q](https://github.com/Wasted-Audio/wstd-3q)
+- [WSTD FLANGR](https://github.com/Wasted-Audio/wstd-flangr)
+- [WSTD FL3NGR](https://github.com/Wasted-Audio/wstd-fl3ngr)
+- [WSTD DLAY](https://github.com/Wasted-Audio/wstd-dlay)
+- [WSTD DL3Y](https://github.com/Wasted-Audio/wstd-dl3y)
+- [WSTD CRSHR](https://github.com/Wasted-Audio/wstd-crshr)
+- [WSTD SMTHR](https://github.com/Wasted-Audio/wstd-smthr)
+- [WSTD FLDR](https://github.com/Wasted-Audio/wstd-fldr)
+- [WSTD MANGLR](https://github.com/Wasted-Audio/wstd-manglr)
+- [WSTD M3NGLR](https://github.com/Wasted-Audio/wstd-m3nglr)
 
-See [imgui-template-plugin](https://github.com/DISTRHO/imgui-template-plugin/) for a CMake-based template plugin project around ImGui.  
+See [imgui-template-plugin](https://github.com/DISTRHO/imgui-template-plugin/) for a CMake-based template plugin project around ImGui.
 See [imgui-template-app](https://github.com/DISTRHO/imgui-template-app/) for a standalone application template.
 
 ---
@@ -68,8 +79,8 @@ Used in:
 
 ![screenshot](https://raw.githubusercontent.com/DISTRHO/lvgl-template-plugin/main/Screenshot.png)
 
-Exposes the [LVGL](https://github.com/lvgl/lvgl) drawing API inside a DGL Widget.  
-This class will take care of setting up LVGL for drawing, and also also user input, resizes and everything in between.
+Exposes the [LVGL](https://github.com/lvgl/lvgl) drawing API inside a DGL Widget.
+This class will take care of setting up LVGL for drawing, and also user input, resizes and everything in between.
 
 See [lvgl-template-plugin](https://github.com/DISTRHO/lvgl-template-plugin/) for a CMake-based template plugin project around LVGL.
 
