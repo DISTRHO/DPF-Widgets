@@ -72,15 +72,16 @@ private:
         lv_delay_set_cb(msleep);
         lv_tick_set_cb(gettime_ms);
 
-        const uint width = self->getWidth() ?: 100;
-        const uint height = self->getHeight() ?: 100;
+        const double scaleFactor = self->getTopLevelWidget()->getScaleFactor();
+        const uint width = self->getWidth() ?: 640 * scaleFactor;
+        const uint height = self->getHeight() ?: 480 * scaleFactor;
 
         lv_area_set(&updatedArea, 0, 0, width, height);
 
         display = lv_display_create(width, height);
         DISTRHO_SAFE_ASSERT_RETURN(display != nullptr,);
 
-        lv_display_set_dpi(display, LV_DPI_DEF * self->getTopLevelWidget()->getScaleFactor());
+        lv_display_set_dpi(display, LV_DPI_DEF * scaleFactor);
 
         group = lv_group_create();
         lv_group_set_default(group);

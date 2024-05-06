@@ -1,7 +1,7 @@
 /*
  * Dear ImGui for DPF
  * Copyright (C) 2021 Jean Pierre Cimalando <jp-dev@inbox.ru>
- * Copyright (C) 2021-2022 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2021-2024 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -98,8 +98,8 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
 
         ImGuiIO& io(ImGui::GetIO());
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        io.DisplaySize.x = self->getWidth();
-        io.DisplaySize.y = self->getHeight();
+        io.DisplaySize.x = self->getWidth() ?: 640 * scaleFactor;
+        io.DisplaySize.y = self->getHeight() ?: 480 * scaleFactor;
         // not needed, we handle this ourselves
         // io.DisplayFramebufferScale = ImVec2(scaleFactor, scaleFactor);
         io.IniFilename = nullptr;
