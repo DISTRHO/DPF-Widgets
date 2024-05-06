@@ -10,7 +10,7 @@ Generic widgets (those based on DPF core classes like Color, Rectangle, etc) are
 
 ## Status
 
-**generic / ResizeHandle**
+#### generic / ResizeHandle
 
 Resize handle for DPF windows, will sit on bottom-right.
 
@@ -18,7 +18,7 @@ Works in both Cairo and OpenGL modes (classic/legacy OpenGL only, does not suppo
 
 Used very often and in many plugins.
 
-** opengl/Blendish **
+#### opengl / Blendish
 
 Blendish widgets for DPF.
 Work in progress, but mostly usable.
@@ -27,7 +27,7 @@ Used in:
 
 - [AIDA-X](https://github.com/AidaDSP/AIDA-X/) (standalone options)
 
-** opengl/DearImGui **
+#### opengl / DearImGui
 
 Exposes the [Dear ImGui](https://github.com/ocornut/imgui/) drawing API inside a DGL Widget.  
 The drawing function onDisplay() is implemented internally but a new onImGuiDisplay() needs to be overridden instead.  
@@ -42,7 +42,7 @@ Used in:
 See [imgui-template-plugin](https://github.com/DISTRHO/imgui-template-plugin/) for a CMake-based template plugin project around ImGui,
 or [imgui-template-app](https://github.com/DISTRHO/imgui-template-app/) for a standalone application template.
 
-** opengl/DearImGuiColorTextEditor **
+#### opengl / DearImGuiColorTextEditor
 
 Text Editor Widget class, based on [ImGuiColorTextEdit](https://github.com/BalazsJako/ImGuiColorTextEdit/).
 
@@ -50,14 +50,14 @@ Used in:
 
 - [dear-plugins](https://github.com/DISTRHO/dear-plugins)
 
-** opengl/LVGL **
+#### opengl / LVGL
 
 Exposes the [LVGL](https://github.com/lvgl/lvgl) drawing API inside a DGL Widget.  
 This class will take care of setting up LVGL for drawing, and also also user input, resizes and everything in between.
 
 See [lvgl-template-plugin](https://github.com/DISTRHO/lvgl-template-plugin/) for a CMake-based template plugin project around LVGL.
 
-** opengl/Quantum **
+#### opengl / Quantum
 
 [Quanta](https://forum.cockos.com/showthread.php?t=269437)-inspired widgets for DPF.
 
