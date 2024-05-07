@@ -123,8 +123,7 @@ private:
             lv_indev_set_group(indev, group);
         }
 
-       #if defined(DGL_CAIRO)
-       #elif defined(DGL_OPENGL)
+       #ifdef DGL_OPENGL
         glGenTextures(1, &textureId);
         DISTRHO_SAFE_ASSERT_RETURN(textureId != 0,);
 
@@ -208,6 +207,8 @@ private:
 
         textureSize = Size<uint>(width, height);
         lv_display_set_buffers(display, textureData, nullptr, data_size, LV_DISPLAY_RENDER_MODE_DIRECT);
+
+        // TODO create full-size cairo texture here
     }
 
     void repaint(const Rectangle<uint>& rect);
@@ -253,6 +254,9 @@ private:
             lv_area_copy(&tmp, &evthis->updatedArea);
             _lv_area_join(&evthis->updatedArea, &tmp, area);
         }
+
+        // TODO convert to cairo texture format here, only touching updated areas
+        // TODO use double-buffering, touching new area before swapping and notifying flush ready
 
         evthis->repaint(Rectangle<uint>(evthis->updatedArea.x1,
                                         evthis->updatedArea.y1,
@@ -318,6 +322,7 @@ void LVGLWidget<BaseWidget>::onDisplay()
     const int32_t height = static_cast<int32_t>(BaseWidget::getHeight());
 
 #if 0
+    // TODO see what is really needed here..
     glColor4f(1.f, 1.f, 1.f, 1.f);
     // glClearColor();
     glBegin(GL_QUADS);
@@ -627,7 +632,7 @@ LVGLWidget<TopLevelWidget>::~LVGLWidget()
 template <>
 void LVGLWidget<TopLevelWidget>::PrivateData::repaint(const Rectangle<uint>& rect)
 {
-    self->repaint(/*rect*/);
+    self->repaint(rect);
 }
 
 template class LVGLWidget<TopLevelWidget>;
