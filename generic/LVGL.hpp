@@ -24,6 +24,10 @@
 #include "TopLevelWidget.hpp"
 #include "StandaloneWindow.hpp"
 
+#if !(defined(DGL_CAIRO) || defined(DGL_OPENGL))
+# error LVGL must use Cairo or OpenGL
+#endif
+
 #include "lvgl.h"
 
 START_NAMESPACE_DGL

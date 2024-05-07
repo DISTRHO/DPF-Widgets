@@ -15,7 +15,12 @@
  */
 
 #include "LVGL.hpp"
-#include "OpenGL.hpp"
+
+#if defined(DGL_CAIRO)
+# include "Cairo.hpp"
+#elif defined(DGL_OPENGL)
+# include "OpenGL.hpp"
+#endif
 
 #include "../distrho/extra/RingBuffer.hpp"
 #include "../distrho/extra/Sleep.hpp"
@@ -43,7 +48,12 @@ struct LVGLWidget<BaseWidget>::PrivateData {
     double mouseWheelDelta = 0.0;
     SmallStackRingBuffer keyBuffer;
 
+   #if defined(DGL_CAIRO)
+    cairo_surface_t* surface = nullptr;
+    uchar* surfacedata = nullptr;
+   #elif defined(DGL_OPENGL)
     GLuint textureId = 0;
+   #endif
     Size<uint> textureSize;
     uint8_t* textureData = nullptr;
 
@@ -113,6 +123,8 @@ private:
             lv_indev_set_group(indev, group);
         }
 
+       #if defined(DGL_CAIRO)
+       #elif defined(DGL_OPENGL)
         glGenTextures(1, &textureId);
         DISTRHO_SAFE_ASSERT_RETURN(textureId != 0,);
 
@@ -129,6 +141,7 @@ private:
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_TEXTURE_2D);
+       #endif
 
         lv_display_set_driver_data(display, this);
         lv_display_set_flush_cb(display, flush_cb);
@@ -171,11 +184,13 @@ private:
             display = nullptr;
         }
 
+       #ifdef DGL_OPENGL
         if (textureId != 0)
         {
             glDeleteTextures(1, &textureId);
             textureId = 0;
         }
+       #endif
 
         std::free(textureData);
         textureData = nullptr;
@@ -299,19 +314,12 @@ void LVGLWidget<BaseWidget>::onDisplay()
 {
     DISTRHO_SAFE_ASSERT_RETURN(BaseWidget::getSize() == lvglData->textureSize,);
 
-   #if LV_COLOR_DEPTH == 32
-    static constexpr const GLenum format = GL_BGRA;
-   #elif LV_COLOR_DEPTH == 24
-    static constexpr const GLenum format = GL_BGR;
-   #else
-    #error Unsupported color format
-   #endif
-
     const int32_t width = static_cast<int32_t>(BaseWidget::getWidth());
     const int32_t height = static_cast<int32_t>(BaseWidget::getHeight());
 
 #if 0
     glColor4f(1.f, 1.f, 1.f, 1.f);
+    // glClearColor();
     glBegin(GL_QUADS);
     {
         glTexCoord2f(0.f, 0.f);
@@ -329,11 +337,60 @@ void LVGLWidget<BaseWidget>::onDisplay()
     glEnd();
 #endif
 
+   #if defined(DGL_CAIRO)
+    cairo_t* const handle = static_cast<const CairoGraphicsContext&>(BaseWidget::getGraphicsContext()).handle;
+
+    // TODO move this into flush_cb and convert updated pixels directly
+    if (lvglData->updatedArea.x1 != lvglData->updatedArea.x2 || lvglData->updatedArea.y1 != lvglData->updatedArea.y2)
+    {
+        const lv_color_format_t lvformat = lv_display_get_color_format(lvglData->display);
+        const uint32_t stride = lv_draw_buf_width_to_stride(width, lvformat);
+
+        delete[] lvglData->surfacedata;
+        lvglData->surfacedata = static_cast<uchar*>(std::malloc(static_cast<size_t>(width * height * stride * sizeof(uint32_t))));
+
+       #if LV_COLOR_DEPTH == 32
+        static constexpr const cairo_format_t format = CAIRO_FORMAT_ARGB32;
+
+        for (int h = 0; h < height; ++h)
+        {
+            for (int w = 0; w < width; ++w)
+            {
+                const uchar a = lvglData->textureData[h*width*4+w*4+3];
+                lvglData->surfacedata[h*width*4+w*4+0] = static_cast<uchar>((lvglData->textureData[h*width*4+w*4+0] * a) >> 8);
+                lvglData->surfacedata[h*width*4+w*4+1] = static_cast<uchar>((lvglData->textureData[h*width*4+w*4+1] * a) >> 8);
+                lvglData->surfacedata[h*width*4+w*4+2] = static_cast<uchar>((lvglData->textureData[h*width*4+w*4+2] * a) >> 8);
+                lvglData->surfacedata[h*width*4+w*4+3] = a;
+            }
+        }
+       #else
+        #error Unsupported color format
+       #endif
+
+        cairo_surface_destroy(lvglData->surface);
+        lvglData->surface = cairo_image_surface_create_for_data(lvglData->surfacedata, format, width, height, stride);
+        DISTRHO_SAFE_ASSERT_RETURN(lvglData->surface != nullptr,);
+    }
+
+    if (lvglData->surface != nullptr)
+    {
+        cairo_set_source_surface(handle, lvglData->surface, 0, 0);
+        cairo_paint(handle);
+    }
+   #elif defined(DGL_OPENGL)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, lvglData->textureId);
 
     if (lvglData->updatedArea.x1 != lvglData->updatedArea.x2 || lvglData->updatedArea.y1 != lvglData->updatedArea.y2)
     {
+       #if LV_COLOR_DEPTH == 32
+        static constexpr const GLenum format = GL_BGRA;
+       #elif LV_COLOR_DEPTH == 24
+        static constexpr const GLenum format = GL_BGR;
+       #else
+        #error Unsupported color format
+       #endif
+
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
@@ -387,6 +444,7 @@ void LVGLWidget<BaseWidget>::onDisplay()
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
+   #endif
 }
 
 template <class BaseWidget>
@@ -569,7 +627,7 @@ LVGLWidget<TopLevelWidget>::~LVGLWidget()
 template <>
 void LVGLWidget<TopLevelWidget>::PrivateData::repaint(const Rectangle<uint>& rect)
 {
-    self->repaint(rect);
+    self->repaint(/*rect*/);
 }
 
 template class LVGLWidget<TopLevelWidget>;
