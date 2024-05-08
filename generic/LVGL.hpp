@@ -38,8 +38,14 @@ START_NAMESPACE_DGL
 # error LV_ENABLE_GLOBAL_CUSTOM must be set to 1 for DPF builds
 #endif
 
-#if LV_COLOR_DEPTH != 24 && LV_COLOR_DEPTH != 32
+#if defined(DGL_CAIRO) && LV_COLOR_DEPTH != 32
+# error LV_COLOR_DEPTH must be 32 for Cairo DPF builds
+#elif LV_COLOR_DEPTH != 24 && LV_COLOR_DEPTH != 32
 # error LV_COLOR_DEPTH must be 24 or 32 for DPF builds
+#endif
+
+#if LV_DEF_REFR_PERIOD != 1
+# error LV_DEF_REFR_PERIOD must be 1 for DPF builds
 #endif
 
 #if LV_DPI_DEF != 160
