@@ -40,8 +40,6 @@ START_NAMESPACE_DGL
 
 #if defined(DGL_CAIRO) && LV_COLOR_DEPTH != 32
 # error LV_COLOR_DEPTH must be 32 for Cairo DPF builds
-#elif LV_COLOR_DEPTH != 24 && LV_COLOR_DEPTH != 32
-# error LV_COLOR_DEPTH must be 24 or 32 for DPF builds
 #endif
 
 #if LV_DEF_REFR_PERIOD != 1

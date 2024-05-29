@@ -131,8 +131,8 @@ private:
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         static constexpr const float transparent[] = { 0.f, 0.f, 0.f, 0.f };
         glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, transparent);
@@ -363,13 +363,20 @@ void LVGLWidget<BaseWidget>::onDisplay()
     {
        #if LV_COLOR_DEPTH == 32
         static constexpr const GLenum format = GL_BGRA;
+        static constexpr const GLenum ftype = GL_UNSIGNED_BYTE;
        #elif LV_COLOR_DEPTH == 24
         static constexpr const GLenum format = GL_BGR;
+        static constexpr const GLenum ftype = GL_UNSIGNED_BYTE;
+       #elif LV_COLOR_DEPTH == 16
+        static constexpr const GLenum format = GL_RGB;
+        static constexpr const GLenum ftype = GL_UNSIGNED_SHORT_5_6_5;
+       #elif LV_COLOR_DEPTH == 8
+        static constexpr const GLenum format = GL_LUMINANCE;
+        static constexpr const GLenum ftype = GL_UNSIGNED_BYTE;
        #else
         #error Unsupported color format
        #endif
 
-        glPixelStorei(GL_PACK_ALIGNMENT, 1);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
 
@@ -379,7 +386,7 @@ void LVGLWidget<BaseWidget>::onDisplay()
             lvglData->updatedArea.x2 == width &&
             lvglData->updatedArea.y2 == height)
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, lvglData->textureData);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, ftype, lvglData->textureData);
         }
         // partial size
         else
@@ -397,7 +404,7 @@ void LVGLWidget<BaseWidget>::onDisplay()
                             partial_y,
                             partial_width,
                             partial_height,
-                            format, GL_UNSIGNED_BYTE,
+                            format, ftype,
                             lvglData->textureData + offset);
         }
 
