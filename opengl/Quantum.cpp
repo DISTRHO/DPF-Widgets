@@ -508,6 +508,10 @@ QuantumKnob::QuantumKnob(NanoSubWidget* const parent, const QuantumTheme& t)
     setSize(QuantumMetrics(t).knob);
 }
 
+QuantumKnob::~QuantumKnob()
+{
+}
+
 void QuantumKnob::setBackgroundColor(Color color)
 {
     backgroundColor = color;

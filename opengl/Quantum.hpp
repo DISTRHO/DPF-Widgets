@@ -322,6 +322,7 @@ class QuantumKnob : public NanoSubWidget,
 public:
     explicit QuantumKnob(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumKnob(NanoSubWidget* parent, const QuantumTheme& theme);
+    ~QuantumKnob() override;
 
     inline Color getBackgroundColor() const noexcept
     {
