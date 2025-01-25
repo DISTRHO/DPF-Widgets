@@ -26,6 +26,23 @@ START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
 
+static inline constexpr
+float normalizedLevelMeterValue(const float db)
+{
+    return (
+        db < -70.f ? 0.f :
+        db < -60.f ? (db + 70.f) * 0.25f :
+        db < -50.f ? (db + 60.f) * 0.50f +  2.5f :
+        db < -40.f ? (db + 50.f) * 0.75f +  7.5f :
+        db < -30.f ? (db + 40.f) * 1.50f + 15.0f :
+        db < -20.f ? (db + 30.f) * 2.00f + 30.0f :
+        db <   0.f ? (db + 20.f) * 2.50f + 50.0f :
+        100.f
+    ) / 100.f;
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 struct QuantumTheme {
     // border size for widgets, e.g. button and knob outline border
     uint borderSize = 1;
