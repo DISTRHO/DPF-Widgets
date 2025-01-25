@@ -75,6 +75,7 @@ struct QuantumMetrics
     Size<uint> gainReductionMeter;
     Size<uint> knob;
     Size<uint> mixerSlider;
+    Size<uint> stereoLevelMeter;
     Size<uint> stereoLevelMeterWithLufs;
     Size<uint> valueMeterHorizontal;
     Size<uint> valueMeterVertical;
@@ -101,6 +102,8 @@ struct QuantumMetrics
                  theme.textHeight * 3 / 2),
           mixerSlider(theme.textHeight * 2,
                       theme.textHeight * 4),
+          stereoLevelMeter(theme.textHeight * 2 + theme.borderSize * 2,
+                           theme.textHeight * 4),
           stereoLevelMeterWithLufs(theme.textHeight * 4 + theme.borderSize * 4,
                                    theme.textHeight * 4),
           valueMeterHorizontal(theme.textHeight * 4,
@@ -347,11 +350,19 @@ protected:
 class QuantumGainReductionMeter : public NanoSubWidget
 {
     const QuantumTheme& theme;
+    char* label;
     float value = 0.f;
 
 public:
     explicit QuantumGainReductionMeter(NanoSubWidget* parent, const QuantumTheme& theme);
+    ~QuantumGainReductionMeter() override;
 
+    inline const char* getLabel() const noexcept
+    {
+        return label;
+    }
+
+    void setLabel(const char* label);
     void setValue(float value);
 
 protected:
@@ -476,6 +487,40 @@ protected:
     void onNanoDisplay() override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumLevelMeter)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+class QuantumStereoLevelMeter : public NanoSubWidget,
+                                public IdleCallback
+{
+    Application& app;
+    const QuantumTheme& theme;
+    float valueL = 0.f;
+    float valueR = 0.f;
+    float minimum = 0.f;
+    float maximum = 1.f;
+    float falloffL = 0.f;
+    float falloffR = 0.f;
+    double timeL = 0.0;
+    double timeR = 0.0;
+    double lastTimeL = 0.0;
+    double lastTimeR = 0.0;
+
+public:
+    explicit QuantumStereoLevelMeter(NanoTopLevelWidget* parent, const QuantumTheme& theme);
+    explicit QuantumStereoLevelMeter(NanoSubWidget* parent, const QuantumTheme& theme);
+
+    void setRange(float min, float max);
+    void setValueL(float value);
+    void setValueR(float value);
+    void setValues(float l, float r);
+
+protected:
+    void onNanoDisplay() override;
+    void idleCallback() override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumStereoLevelMeter)
 };
 
 // --------------------------------------------------------------------------------------------------------------------
