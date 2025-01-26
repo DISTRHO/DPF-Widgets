@@ -317,19 +317,29 @@ class QuantumKnob : public NanoSubWidget,
                     public KnobEventHandler
 {
     const QuantumTheme& theme;
-    Color backgroundColor = theme.widgetDefaultActiveColor;
+    Color ringColor = theme.widgetDefaultActiveColor;
+    char* label = nullptr;
+    char* unitLabel = nullptr;
 
 public:
     explicit QuantumKnob(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumKnob(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumKnob() override;
 
-    inline Color getBackgroundColor() const noexcept
+    inline const char* getLabel() const noexcept
     {
-        return backgroundColor;
+        return label;
     }
 
-    void setBackgroundColor(Color color);
+    inline Color getRingColor() const noexcept
+    {
+        return ringColor;
+    }
+
+    void setLabel(const char* label);
+    void setUnitLabel(const char* unitLabel);
+
+    void setRingColor(Color color);
 
 protected:
     void onNanoDisplay() override;

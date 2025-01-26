@@ -510,11 +510,25 @@ QuantumKnob::QuantumKnob(NanoSubWidget* const parent, const QuantumTheme& t)
 
 QuantumKnob::~QuantumKnob()
 {
+    std::free(label);
+    std::free(unitLabel);
 }
 
-void QuantumKnob::setBackgroundColor(Color color)
+void QuantumKnob::setLabel(const char* const label2)
 {
-    backgroundColor = color;
+    std::free(label);
+    label = label2 != nullptr && label2[0] != '\0' ? strdup(label2) : nullptr;
+}
+
+void QuantumKnob::setRingColor(Color color)
+{
+    ringColor = color;
+}
+
+void QuantumKnob::setUnitLabel(const char* const unitLabel2)
+{
+    std::free(unitLabel);
+    unitLabel = unitLabel2 != nullptr && unitLabel2[0] != '\0' ? strdup(unitLabel2) : nullptr;
 }
 
 void QuantumKnob::onNanoDisplay()
@@ -525,28 +539,66 @@ void QuantumKnob::onNanoDisplay()
     const float indicatorLineSize = radius/2 + theme.widgetLineSize/2;
     const float indicatorThickness = theme.widgetLineSize;
 
-    beginPath();
-    circle(centerX, centerY, radius);
-    fillColor(theme.widgetBackgroundColor);
-    fill();
+    // top label (name)
 
-    beginPath();
-    arc(centerX, centerY, radius - theme.borderSize, degToRad(0.0f), degToRad(360.0f), CCW);
-    fillColor(backgroundColor);
-    fill();
+    // knob
+    {
+        beginPath();
+        circle(centerX, centerY, radius);
+        fillColor(theme.widgetForegroundColor);
+        fill();
 
-    lineCap(ROUND);
-    strokeWidth(theme.widgetLineSize);
+        beginPath();
+        arc(centerX, centerY, radius - theme.borderSize, degToRad(0.0f), degToRad(360.0f), CCW);
+        fillColor(theme.widgetBackgroundColor);
+        fill();
 
-    save();
-    translate(centerX, centerY);
-    rotate(degToRad(45.0f) + getNormalizedValue() * degToRad(270.0f));
-    beginPath();
-    roundedRect(-indicatorThickness/2, indicatorThickness/2, indicatorThickness, indicatorLineSize, theme.widgetLineSize/2);
-    closePath();
-    fillColor(theme.widgetForegroundColor);
-    fill();
-    restore();
+        lineCap(ROUND);
+        strokeWidth(theme.widgetLineSize);
+
+        save();
+        translate(centerX, centerY);
+        rotate(degToRad(45.0f) + getNormalizedValue() * degToRad(270.0f));
+        beginPath();
+        roundedRect(-indicatorThickness/2, indicatorThickness/2, indicatorThickness, indicatorLineSize, theme.widgetLineSize/2);
+        closePath();
+        fillColor(theme.widgetForegroundColor);
+        fill();
+        restore();
+    }
+
+    // center label (value)
+    {
+        char valuestr[32] = {};
+
+        if (isInteger())
+        {
+            const int roundedValue = d_roundToInt(getValue());
+
+            if (unitLabel != nullptr)
+                std::snprintf(valuestr, sizeof(valuestr)-1, "%d %s", roundedValue, unitLabel);
+            else
+                std::snprintf(valuestr, sizeof(valuestr)-1, "%d", roundedValue);
+        }
+        else
+        {
+            const float roundedValue = std::round(getValue() * 10.0f)/10.0f;
+
+            if (unitLabel != nullptr)
+            {
+                std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f %s", roundedValue, unitLabel);
+            }
+            else
+            {
+                std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
+            }
+        }
+
+        fillColor(true ? Color(255, 255, 255) : theme.textMidColor);
+        fontSize(getHeight() / 4);
+        textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
+        text(centerX, getHeight() / 2, valuestr, nullptr);
+    }
 }
 
 bool QuantumKnob::onMouse(const MouseEvent& ev)
