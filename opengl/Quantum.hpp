@@ -591,6 +591,7 @@ class QuantumStereoLevelMeterWithLUFS : public NanoSubWidget,
     const QuantumTheme& theme;
     float valueL = 0.f;
     float valueR = 0.f;
+    float valueLimiter = 0.f;
     float valueLufs = 0.f;
     float minimum = 0.f;
     float maximum = 1.f;
@@ -608,8 +609,9 @@ public:
     void setRange(float min, float max);
     void setValueL(float value);
     void setValueR(float value);
+    void setValueLimiter(float value);
     void setValueLufs(float value);
-    void setValues(float l, float r, float lufs);
+    void setValues(float l, float r, float limiter, float lufs);
 
 protected:
     void onNanoDisplay() override;

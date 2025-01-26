@@ -1721,6 +1721,15 @@ void QuantumStereoLevelMeterWithLUFS::setValueR(const float value)
     repaint();
 }
 
+void QuantumStereoLevelMeterWithLUFS::setValueLimiter(const float value)
+{
+    if (d_isEqual(valueLimiter, value))
+        return;
+
+    valueLimiter = value;
+    repaint();
+}
+
 void QuantumStereoLevelMeterWithLUFS::setValueLufs(const float value)
 {
     if (d_isEqual(valueLufs, value))
@@ -1730,10 +1739,11 @@ void QuantumStereoLevelMeterWithLUFS::setValueLufs(const float value)
     repaint();
 }
 
-void QuantumStereoLevelMeterWithLUFS::setValues(const float l, const float r, const float lufs)
+void QuantumStereoLevelMeterWithLUFS::setValues(const float l, const float r, const float limiter, const float lufs)
 {
     falloffL = valueL = l;
     falloffR = valueR = r;
+    valueLimiter = limiter;
     valueLufs = lufs;
     lastTimeL = timeL = lastTimeR = timeR = 0;
     repaint();
@@ -1894,6 +1904,20 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     fontSize(theme.fontSize);
     textAlign(ALIGN_LEFT|ALIGN_BOTTOM);
     text(theme.borderSize + theme.padding, getHeight() - theme.borderSize, valuestr, nullptr);
+
+    // limiter
+    value = normalizedLevelMeterValue(valueLimiter);
+
+    if (d_isNotZero(value))
+    {
+        beginPath();
+        rect(pxlufs,
+             theme.borderSize + verticalReservedHeight,
+             meterChannelWidth * 2 + theme.borderSize * 2,
+             meterChannelHeight * (1.f - value));
+        fillColor(theme.widgetDefaultAlternativeColor);
+        fill();
+    }
 
     // helper lines with labels
     constexpr const float db2 = 1.f - normalizedLevelMeterValue(-2);
