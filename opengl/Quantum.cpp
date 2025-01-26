@@ -400,6 +400,83 @@ template class AbstractQuantumSwitch<true>;
 
 // --------------------------------------------------------------------------------------------------------------------
 
+QuantumRadioSwitch::QuantumRadioSwitch(NanoTopLevelWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      ButtonEventHandler(this),
+      theme(t)
+{
+    loadSharedResources();
+    setCheckable(true);
+    setSize(QuantumMetrics(t).radioSwitch);
+}
+
+QuantumRadioSwitch::QuantumRadioSwitch(NanoSubWidget* const parent, const QuantumTheme& t)
+    : NanoSubWidget(parent),
+      ButtonEventHandler(this),
+      theme(t)
+{
+    loadSharedResources();
+    setCheckable(true);
+    setSize(QuantumMetrics(t).radioSwitch);
+}
+
+QuantumRadioSwitch::~QuantumRadioSwitch()
+{
+}
+
+void QuantumRadioSwitch::adjustSize()
+{
+    const uint width = theme.fontSize * 3.333 + theme.borderSize * 2;
+    const uint height = theme.fontSize * 1.666 + theme.borderSize * 2;
+
+    setSize(width, height);
+}
+
+void QuantumRadioSwitch::onNanoDisplay()
+{
+    const uint width = getWidth() - theme.borderSize * 2;
+    const uint height = getHeight() - theme.borderSize * 2;
+    const uint radioSize = height / 2 - theme.borderSize * 2;
+    const bool checked = isChecked();
+
+    const Color color = checked ? theme.widgetDefaultActiveColor : theme.windowBackgroundColor;
+
+    beginPath();
+    roundedRect(theme.borderSize, theme.borderSize, width, height, height / 2);
+    fillColor(color);
+    fill();
+    strokeColor(Color(theme.widgetBackgroundColor, color, 0.5f));
+    stroke();
+
+    fillColor(true ? theme.textLightColor : theme.textMidColor);
+
+    beginPath();
+    circle(checked ? theme.borderSize * 3 + radioSize : width - radioSize - theme.borderSize * 2,
+           radioSize + theme.borderSize * 3,
+           radioSize);
+    fill();
+
+    fontSize(theme.fontSize);
+    textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
+
+    if (checked)
+        text(getWidth() * 0.666 + theme.borderSize * 2, getHeight() / 2, "on", nullptr);
+    else
+        text(getWidth() * 0.333 - theme.borderSize, getHeight() / 2, "off", nullptr);
+}
+
+bool QuantumRadioSwitch::onMouse(const MouseEvent& ev)
+{
+    return mouseEvent(ev);
+}
+
+bool QuantumRadioSwitch::onMotion(const MotionEvent& ev)
+{
+    return motionEvent(ev);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 /*
 QuantumDualSidedSwitch::QuantumDualSidedSwitch(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
