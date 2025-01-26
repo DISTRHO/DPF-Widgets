@@ -1,6 +1,6 @@
 /*
  * Quanta-inspired widgets for DPF
- * Copyright (C) 2022 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2022-2025 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -492,7 +492,8 @@ bool QuantumDualSidedSwitch::onMotion(const MotionEvent& ev)
 
 // --------------------------------------------------------------------------------------------------------------------
 
-QuantumKnob::QuantumKnob(NanoTopLevelWidget* const parent, const QuantumTheme& t)
+template<bool small>
+AbstractQuantumKnob<small>::AbstractQuantumKnob(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       KnobEventHandler(this),
       theme(t)
@@ -500,7 +501,8 @@ QuantumKnob::QuantumKnob(NanoTopLevelWidget* const parent, const QuantumTheme& t
     setSize(QuantumMetrics(t).knob);
 }
 
-QuantumKnob::QuantumKnob(NanoSubWidget* const parent, const QuantumTheme& t)
+template<bool small>
+AbstractQuantumKnob<small>::AbstractQuantumKnob(NanoSubWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       KnobEventHandler(this),
       theme(t)
@@ -508,64 +510,173 @@ QuantumKnob::QuantumKnob(NanoSubWidget* const parent, const QuantumTheme& t)
     setSize(QuantumMetrics(t).knob);
 }
 
-QuantumKnob::~QuantumKnob()
+template<bool small>
+AbstractQuantumKnob<small>::~AbstractQuantumKnob()
 {
     std::free(label);
     std::free(unitLabel);
+    std::free(sidelabels[0]);
+    std::free(sidelabels[1]);
 }
 
-void QuantumKnob::setLabel(const char* const label2)
+template<bool small>
+void AbstractQuantumKnob<small>::setLabel(const char* const label2)
 {
     std::free(label);
     label = label2 != nullptr && label2[0] != '\0' ? strdup(label2) : nullptr;
 }
 
-void QuantumKnob::setRingColor(Color color)
+template<bool small>
+void AbstractQuantumKnob<small>::setRingColor(Color color)
 {
     ringColor = color;
 }
 
-void QuantumKnob::setUnitLabel(const char* const unitLabel2)
+template<bool small>
+void AbstractQuantumKnob<small>::setSideLabels(const char* const label1, const char* const label2)
+{
+    std::free(sidelabels[0]);
+    std::free(sidelabels[1]);
+
+    sidelabels[0] = label1 != nullptr && label1[0] != '\0' ? strdup(label1) : nullptr;
+    sidelabels[1] = label2 != nullptr && label2[0] != '\0' ? strdup(label2) : nullptr;
+}
+
+template<bool small>
+void AbstractQuantumKnob<small>::setUnitLabel(const char* const unitLabel2)
 {
     std::free(unitLabel);
     unitLabel = unitLabel2 != nullptr && unitLabel2[0] != '\0' ? strdup(unitLabel2) : nullptr;
 }
 
-void QuantumKnob::onNanoDisplay()
+template<bool small>
+void AbstractQuantumKnob<small>::onNanoDisplay()
 {
-    const float centerX = getWidth() / 2;
-    const float centerY = getHeight() / 2;
-    const float radius = std::min(centerX, centerY);
-    const float indicatorLineSize = radius/2 + theme.widgetLineSize/2;
-    const float indicatorThickness = theme.widgetLineSize;
+    // const double scaleFactor = getScaleFactor();
+    const int w = getWidth();
+    const int h = getHeight();
+    const int ringSize = theme.widgetLineSize * (small ? 1 : 2);
+    const int knobSize = std::min<int>(w, h - (label != nullptr ? theme.fontSize + theme.padding * 2 : 0))
+                       - ringSize - theme.padding * 2;
 
-    // top label (name)
+    const int knobStartX = theme.padding + w / 2 - knobSize / 2;
+    const int knobStartY = theme.padding + ringSize + (label != nullptr && !small ? theme.fontSize + theme.padding * 2 : 0);
+    const int knobCenterX = knobStartX + knobSize / 2;
+    const int knobCenterY = knobStartY + knobSize / 2;
 
-    // knob
+    const float normalizedValue = getNormalizedValue();
+
+    // label/name
+    if (label != nullptr)
     {
-        beginPath();
-        circle(centerX, centerY, radius);
-        fillColor(theme.widgetForegroundColor);
-        fill();
+        fillColor(true ? theme.textLightColor : theme.textMidColor);
 
-        beginPath();
-        arc(centerX, centerY, radius - theme.borderSize, degToRad(0.0f), degToRad(360.0f), CCW);
-        fillColor(theme.widgetBackgroundColor);
-        fill();
-
-        lineCap(ROUND);
-        strokeWidth(theme.widgetLineSize);
-
-        save();
-        translate(centerX, centerY);
-        rotate(degToRad(45.0f) + getNormalizedValue() * degToRad(270.0f));
-        beginPath();
-        roundedRect(-indicatorThickness/2, indicatorThickness/2, indicatorThickness, indicatorLineSize, theme.widgetLineSize/2);
-        closePath();
-        fillColor(theme.widgetForegroundColor);
-        fill();
-        restore();
+        if (small)
+        {
+            fontSize(theme.fontSize * 0.75);
+            textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
+            textBox(theme.borderSize + theme.padding,
+                    h - theme.borderSize * 3 - theme.padding * 3,
+                    w - theme.borderSize * 2 - theme.padding * 2,
+                    label,
+                    nullptr);
+        }
+        else
+        {
+            fontSize(theme.fontSize);
+            textAlign(ALIGN_CENTER|ALIGN_TOP);
+            text(knobCenterX, theme.padding, label, nullptr);
+        }
     }
+
+    // side labels
+    if (sidelabels[0] != nullptr && sidelabels[1] != nullptr)
+    {
+        fontSize(theme.fontSize);
+
+        textAlign(ALIGN_RIGHT|ALIGN_TOP);
+        text(knobCenterX - knobSize / 3, h + theme.padding * 3, sidelabels[0], nullptr);
+
+        textAlign(ALIGN_LEFT|ALIGN_TOP);
+        text(knobCenterX + knobSize / 3, h + theme.padding * 3, sidelabels[1], nullptr);
+    }
+
+    // inner fill
+    beginPath();
+    circle(knobCenterX, knobCenterY, knobSize / 2);
+    fillPaint(linearGradient(knobStartX,
+                             knobStartY,
+                             knobStartX,
+                             knobStartY + knobSize,
+                             theme.windowBackgroundColor,
+                             Color(theme.windowBackgroundColor, theme.widgetBackgroundColor, 0.5f)));
+    fill();
+
+    // inner fill border (inner)
+    beginPath();
+    arc(knobCenterX, knobCenterY, knobSize / 2 - theme.widgetLineSize, degToRad(0.0f), degToRad(360.0f), CCW);
+    closePath();
+    strokeWidth(ringSize);
+    strokeColor(Color(0.5f, 0.5f, 0.5f, 0.4f));
+    stroke();
+
+    // inner fill border (outer)
+    beginPath();
+    arc(knobCenterX, knobCenterY, knobSize / 2 + theme.widgetLineSize, degToRad(0.0f), degToRad(360.0f), CCW);
+    closePath();
+    strokeWidth(ringSize);
+    strokeColor(Color(0.0f, 0.0f, 0.0f, 0.4f));
+    stroke();
+
+    lineCap(ROUND);
+
+    // outer ring background
+    beginPath();
+    arc(knobCenterX,
+        knobCenterY,
+        knobSize / 2 + ringSize / 2 + theme.widgetLineSize,
+        degToRad(135.0f),
+        degToRad(45.0f),
+        CW);
+    strokeWidth(ringSize);
+    strokeColor(Color(0.5f, 0.5f, 0.5f));
+    stroke();
+
+    // outer ring value
+    beginPath();
+    arc(knobCenterX,
+        knobCenterY,
+        knobSize / 2 + ringSize / 2 + theme.widgetLineSize,
+        degToRad(135.0f),
+        degToRad(135.0f) + degToRad(270.0f * normalizedValue),
+        CW);
+    strokeWidth(ringSize);
+    strokeColor(ringColor);
+    stroke();
+
+    // simulate color bleeding
+    beginPath();
+    arc(knobCenterX,
+        knobCenterY,
+        knobSize / 2 - theme.widgetLineSize,
+        degToRad(135.0f),
+        degToRad(135.0f) + degToRad(270.0f * normalizedValue),
+        CW);
+    // strokeWidth(theme.widgetLineSize * 5);
+    strokeColor(Color(ringColor.red, ringColor.green, ringColor.blue, 0.4f));
+    stroke();
+
+    // line indicator
+    strokeWidth(theme.widgetLineSize * 2);
+    save();
+    translate(knobCenterX, knobCenterY);
+    rotate(degToRad(45.0f) + normalizedValue * degToRad(270.0f));
+    beginPath();
+    roundedRect(0.f - ringSize, knobSize / 2 - ringSize * 4, ringSize, ringSize * 4, theme.widgetLineSize);
+    closePath();
+    fillColor(Color(1.0f, 1.0f, 1.0f));
+    fill();
+    restore();
 
     // center label (value)
     {
@@ -573,43 +684,53 @@ void QuantumKnob::onNanoDisplay()
 
         if (isInteger())
         {
-            const int roundedValue = d_roundToInt(getValue());
+            const int value = d_roundToInt(getValue());
 
             if (unitLabel != nullptr)
-                std::snprintf(valuestr, sizeof(valuestr)-1, "%d %s", roundedValue, unitLabel);
+                std::snprintf(valuestr, sizeof(valuestr)-1, "%d %s", value, unitLabel);
             else
-                std::snprintf(valuestr, sizeof(valuestr)-1, "%d", roundedValue);
+                std::snprintf(valuestr, sizeof(valuestr)-1, "%d", value);
         }
         else
         {
-            const float roundedValue = std::round(getValue() * 10.0f)/10.0f;
+            const char* format;
+            float value = getValue();
+            float absvalue = std::abs(value);
+
+            if (absvalue < 10)
+                format = "%.2f%s%s";
+            else if (absvalue < 100)
+                format = "%.1f%s%s";
+            else
+                format = "%.0f%s%s";
 
             if (unitLabel != nullptr)
-            {
-                std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f %s", roundedValue, unitLabel);
-            }
+                std::snprintf(valuestr, sizeof(valuestr)-1, format, value, " ", unitLabel);
             else
-            {
-                std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
-            }
+                std::snprintf(valuestr, sizeof(valuestr)-1, format, value, "", "");
         }
 
         fillColor(true ? Color(255, 255, 255) : theme.textMidColor);
-        fontSize(getHeight() / 4);
+        fontSize(small ? theme.fontSize * 0.75 : theme.fontSize * 2);
         textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
-        text(centerX, getHeight() / 2, valuestr, nullptr);
+        text(knobCenterX, knobCenterY, valuestr, nullptr);
     }
 }
 
-bool QuantumKnob::onMouse(const MouseEvent& ev)
+template<bool small>
+bool AbstractQuantumKnob<small>::onMouse(const MouseEvent& ev)
 {
     return mouseEvent(ev, getTopLevelWidget()->getScaleFactor());
 }
 
-bool QuantumKnob::onMotion(const MotionEvent& ev)
+template<bool small>
+bool AbstractQuantumKnob<small>::onMotion(const MotionEvent& ev)
 {
     return motionEvent(ev, getTopLevelWidget()->getScaleFactor());
 }
+
+template class AbstractQuantumKnob<false>;
+template class AbstractQuantumKnob<true>;
 
 // --------------------------------------------------------------------------------------------------------------------
 

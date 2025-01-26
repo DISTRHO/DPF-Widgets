@@ -1,6 +1,6 @@
 /*
  * Quanta-inspired widgets for DPF
- * Copyright (C) 2022 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2022-2025 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -313,18 +313,20 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-class QuantumKnob : public NanoSubWidget,
-                    public KnobEventHandler
+template<bool small>
+class AbstractQuantumKnob : public NanoSubWidget,
+                            public KnobEventHandler
 {
     const QuantumTheme& theme;
     Color ringColor = theme.widgetDefaultActiveColor;
     char* label = nullptr;
     char* unitLabel = nullptr;
+    char* sidelabels[2] = { nullptr, nullptr };
 
 public:
-    explicit QuantumKnob(NanoTopLevelWidget* parent, const QuantumTheme& theme);
-    explicit QuantumKnob(NanoSubWidget* parent, const QuantumTheme& theme);
-    ~QuantumKnob() override;
+    explicit AbstractQuantumKnob(NanoTopLevelWidget* parent, const QuantumTheme& theme);
+    explicit AbstractQuantumKnob(NanoSubWidget* parent, const QuantumTheme& theme);
+    ~AbstractQuantumKnob() override;
 
     inline const char* getLabel() const noexcept
     {
@@ -337,6 +339,7 @@ public:
     }
 
     void setLabel(const char* label);
+    void setSideLabels(const char* label1, const char* label2);
     void setUnitLabel(const char* unitLabel);
 
     void setRingColor(Color color);
@@ -346,8 +349,11 @@ protected:
     bool onMouse(const MouseEvent& ev) override;
     bool onMotion(const MotionEvent& ev) override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumKnob)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AbstractQuantumKnob)
 };
+
+typedef AbstractQuantumKnob<false> QuantumKnob;
+typedef AbstractQuantumKnob<true> QuantumSmallKnob;
 
 // --------------------------------------------------------------------------------------------------------------------
 
