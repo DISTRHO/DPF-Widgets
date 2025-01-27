@@ -719,26 +719,59 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     strokeColor(Color(0.5f, 0.5f, 0.5f));
     stroke();
 
+    // cache
+    Winding wind;
+    float rotationValue;
+
     // outer ring value
     beginPath();
-    arc(knobCenterX,
-        knobCenterY,
-        knobSize / 2 + ringSize / 2 + theme.widgetLineSize,
-        degToRad(135.0f),
-        degToRad(135.0f) + degToRad(270.0f * normalizedValue),
-        CW);
+    if (small)
+    {
+        rotationValue = degToRad(270.0f * normalizedValue);
+
+        arc(knobCenterX,
+            knobCenterY,
+            knobSize / 2 + ringSize / 2 + theme.widgetLineSize,
+            degToRad(135.0f),
+            degToRad(135.0f) + rotationValue,
+            CW);
+    }
+    else
+    {
+        if (normalizedValue >= 0.5f)
+            wind = CW;
+        else
+            wind = CCW;
+
+        rotationValue = degToRad(270.0f * (normalizedValue - 0.5f));
+
+        arc(knobCenterX,
+            knobCenterY,
+            knobSize / 2 + ringSize / 2 + theme.widgetLineSize,
+            degToRad(270.0f),
+            degToRad(270.0f) + rotationValue,
+            wind);
+    }
     strokeWidth(ringSize);
     strokeColor(ringColor);
     stroke();
 
     // simulate color bleeding
     beginPath();
-    arc(knobCenterX,
-        knobCenterY,
-        knobSize / 2 - theme.widgetLineSize,
-        degToRad(135.0f),
-        degToRad(135.0f) + degToRad(270.0f * normalizedValue),
-        CW);
+    if (small)
+        arc(knobCenterX,
+            knobCenterY,
+            knobSize / 2 - theme.widgetLineSize,
+            degToRad(135.0f),
+            degToRad(135.0f) + rotationValue,
+            CW);
+    else
+        arc(knobCenterX,
+            knobCenterY,
+            knobSize / 2 - theme.widgetLineSize,
+            degToRad(270.0f),
+            degToRad(270.0f) + rotationValue,
+            wind);
     // strokeWidth(theme.widgetLineSize * 5);
     strokeColor(Color(ringColor.red, ringColor.green, ringColor.blue, 0.4f));
     stroke();
