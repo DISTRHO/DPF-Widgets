@@ -426,8 +426,8 @@ QuantumRadioSwitch::~QuantumRadioSwitch()
 
 void QuantumRadioSwitch::adjustSize()
 {
-    const uint width = theme.fontSize * 3.333 + theme.borderSize * 2;
-    const uint height = theme.fontSize * 1.666 + theme.borderSize * 2;
+    const uint width = theme.fontSize * 3 + theme.borderSize * 2;
+    const uint height = theme.fontSize * 1.333 + theme.borderSize * 2;
 
     setSize(width, height);
 }
@@ -452,7 +452,7 @@ void QuantumRadioSwitch::onNanoDisplay()
 
     beginPath();
     circle(checked ? theme.borderSize * 3 + radioSize : width - radioSize - theme.borderSize * 2,
-           radioSize + theme.borderSize * 3,
+           radioSize + theme.borderSize * 3.333,
            radioSize);
     fill();
 
@@ -460,7 +460,7 @@ void QuantumRadioSwitch::onNanoDisplay()
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
 
     if (checked)
-        text(getWidth() * 0.666 + theme.borderSize * 2, getHeight() / 2, "on", nullptr);
+        text(getWidth() * 0.666, getHeight() / 2, "on", nullptr);
     else
         text(getWidth() * 0.333 - theme.borderSize, getHeight() / 2, "off", nullptr);
 }
