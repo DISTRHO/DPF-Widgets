@@ -365,7 +365,7 @@ void AbstractQuantumSwitch<small>::onNanoDisplay()
     if (checked)
     {
         rect(theme.borderSize + blockSize , yOffset + theme.borderSize, blockSize, blockSize);
-        fillColor(theme.widgetDefaultActiveColor);
+        fillColor(theme.widgetActiveColor);
     }
     else
     {
@@ -432,6 +432,12 @@ void QuantumRadioSwitch::adjustSize()
     setSize(width, height);
 }
 
+void QuantumRadioSwitch::setBackgroundColor(Color color)
+{
+    backgroundColor = color;
+    repaint();
+}
+
 void QuantumRadioSwitch::onNanoDisplay()
 {
     const uint width = getWidth() - theme.borderSize * 2;
@@ -439,7 +445,7 @@ void QuantumRadioSwitch::onNanoDisplay()
     const uint radioSize = height / 2 - theme.borderSize * 2;
     const bool checked = isChecked();
 
-    const Color color = checked ? theme.widgetDefaultActiveColor : theme.windowBackgroundColor;
+    const Color color = checked ? backgroundColor : theme.windowBackgroundColor;
 
     beginPath();
     roundedRect(theme.borderSize, theme.borderSize, width, height, height / 2);
@@ -632,7 +638,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     // const double scaleFactor = getScaleFactor();
     const int w = getWidth();
     const int h = getHeight();
-    const int ringSize = theme.widgetLineSize * (small ? 1 : 2);
+    const int ringSize = theme.knobIndicatorSize * (small ? 0.5 : 1.0);
     const int knobSize = std::min<int>(w, h - (label != nullptr ? theme.fontSize + theme.padding * 2 : 0))
                        - ringSize - theme.padding * 2;
 
@@ -772,17 +778,16 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
             degToRad(270.0f),
             degToRad(270.0f) + rotationValue,
             wind);
-    // strokeWidth(theme.widgetLineSize * 5);
-    strokeColor(Color(ringColor.red, ringColor.green, ringColor.blue, 0.4f));
+    strokeColor(Color(theme.windowBackgroundColor, ringColor, 0.5f).withAlpha(0.5f));
     stroke();
 
     // line indicator
-    strokeWidth(theme.widgetLineSize * 2);
+    strokeWidth(ringSize);
     save();
     translate(knobCenterX, knobCenterY);
     rotate(degToRad(45.0f) + normalizedValue * degToRad(270.0f));
     beginPath();
-    roundedRect(0.f - ringSize, knobSize / 2 - ringSize * 4, ringSize, ringSize * 4, theme.widgetLineSize);
+    roundedRect(0.f - ringSize, knobSize / 2 - ringSize * 4, ringSize, ringSize * 4, ringSize * 0.5);
     closePath();
     fillColor(Color(1.0f, 1.0f, 1.0f));
     fill();
@@ -1071,7 +1076,7 @@ void QuantumGainReductionMeter::onNanoDisplay()
             rect(theme.borderSize, theme.borderSize + verticalReservedHeight + usableInnerMeterHeight / 2 * (1.f - normalizedValue),
                  width - theme.borderSize * 2, usableInnerMeterHeight / 2 * normalizedValue);
         }
-        fillColor(theme.widgetDefaultAlternativeColor);
+        fillColor(theme.widgetAlternativeColor);
         fill();
     }
 
@@ -1146,9 +1151,10 @@ QuantumValueMeter::~QuantumValueMeter()
     std::free(unitLabel);
 }
 
-void QuantumValueMeter::setBackgroundColor(Color color)
+void QuantumValueMeter::setBackgroundColor(const Color color)
 {
     backgroundColor = color;
+    repaint();
 }
 
 void QuantumValueMeter::setOrientation(const Orientation orientation2)
@@ -1948,7 +1954,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
              theme.borderSize + verticalReservedHeight,
              meterChannelWidth * 2 + theme.borderSize * 2,
              meterChannelHeight * (1.f - value));
-        fillColor(theme.widgetDefaultAlternativeColor);
+        fillColor(theme.widgetAlternativeColor);
         fill();
     }
 

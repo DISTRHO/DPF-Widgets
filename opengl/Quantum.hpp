@@ -53,6 +53,8 @@ struct QuantumTheme {
     // height given to text labels and widgets that use text (without padding)
     uint textHeight = 20;
     // line size for widgets, e.g. slider line
+    uint knobIndicatorSize = 4;
+    // line size for widgets, e.g. slider line
     uint widgetLineSize = 2;
     // how much padding to give from window border to widgets
     uint windowPadding = borderSize + padding * 3;
@@ -62,12 +64,16 @@ struct QuantumTheme {
     Color levelMeterColor = Color::fromHTML("#4a8179");
     // alternative background color for level meter widgets
     Color levelMeterAlternativeColor = Color::fromHTML("#ad68b9");
+    // knob rim color
+    Color knobRimColor = levelMeterColor;
+    // alternative knob rim color
+    Color knobAlternativeRimColor = levelMeterAlternativeColor;
     // background color for widgets, e.g. slider line and knob padding, typically dark
     Color widgetBackgroundColor = Color::fromHTML("#141414");
-    // default active color for widgets, e.g. pressed button and knob body
-    Color widgetDefaultActiveColor = Color::fromHTML("#578079");
-    // default alternative color for widgets, similar to the active just an alternative color
-    Color widgetDefaultAlternativeColor = Color::fromHTML("#5f64f6");
+    // active color for widgets, e.g. pressed button and knob body
+    Color widgetActiveColor = Color::fromHTML("#578079");
+    // alternative color for widgets, similar to the active just an alternative color
+    Color widgetAlternativeColor = Color::fromHTML("#5f64f6");
     // foreground color for widgets, e.g. slider handle and knob indicator, typically light
     Color widgetForegroundColor = Color::fromHTML("#dcdcdc");
     // window background, typically lighter than widget background
@@ -147,7 +153,7 @@ class QuantumButton : public NanoSubWidget,
                       public ButtonEventHandler
 {
     const QuantumTheme& theme;
-    Color backgroundColor = theme.widgetDefaultActiveColor;
+    Color backgroundColor = theme.widgetActiveColor;
     char* label = nullptr;
     bool labelHasNewLine = false;
 
@@ -294,13 +300,21 @@ class QuantumRadioSwitch : public NanoSubWidget,
                            public ButtonEventHandler
 {
     const QuantumTheme& theme;
+    Color backgroundColor = theme.widgetActiveColor;
 
 public:
     explicit QuantumRadioSwitch(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumRadioSwitch(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumRadioSwitch() override;
 
+
+    inline Color getBackgroundColor() const noexcept
+    {
+        return backgroundColor;
+    }
+
     void adjustSize();
+    void setBackgroundColor(Color color);
 
 protected:
     void onNanoDisplay() override;
@@ -343,7 +357,7 @@ class AbstractQuantumKnob : public NanoSubWidget,
                             public KnobEventHandler
 {
     const QuantumTheme& theme;
-    Color ringColor = theme.widgetDefaultActiveColor;
+    Color ringColor = theme.widgetActiveColor;
     char* label = nullptr;
     char* unitLabel = nullptr;
     char* sidelabels[2] = { nullptr, nullptr };
@@ -479,7 +493,7 @@ protected:
     void onNanoDisplay() override;
 
     const QuantumTheme& theme;
-    Color backgroundColor = theme.widgetDefaultAlternativeColor;
+    Color backgroundColor = theme.widgetAlternativeColor;
     float maximum = 1.f;
     float minimum = 0.f;
     Orientation orientation = LeftToRight;
@@ -496,7 +510,7 @@ class QuantumValueSlider : public NanoSubWidget,
                            public KnobEventHandler
 {
     const QuantumTheme& theme;
-    Color backgroundColor = theme.widgetDefaultActiveColor;
+    Color backgroundColor = theme.widgetActiveColor;
     Color textColor = theme.textLightColor;
     char* unitLabel = nullptr;
 
