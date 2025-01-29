@@ -607,12 +607,14 @@ void AbstractQuantumKnob<small>::setLabel(const char* const label2)
 {
     std::free(label);
     label = label2 != nullptr && label2[0] != '\0' ? strdup(label2) : nullptr;
+    repaint();
 }
 
 template<bool small>
-void AbstractQuantumKnob<small>::setRingColor(Color color)
+void AbstractQuantumKnob<small>::setRingColor(const Color color)
 {
     ringColor = color;
+    repaint();
 }
 
 template<bool small>
@@ -623,6 +625,15 @@ void AbstractQuantumKnob<small>::setSideLabels(const char* const label1, const c
 
     sidelabels[0] = label1 != nullptr && label1[0] != '\0' ? strdup(label1) : nullptr;
     sidelabels[1] = label2 != nullptr && label2[0] != '\0' ? strdup(label2) : nullptr;
+
+    repaint();
+}
+
+template<bool small>
+void AbstractQuantumKnob<small>::setSideLabelsFontSize(const uint fontSize)
+{
+    sidelabelsFontSize = fontSize;
+    repaint();
 }
 
 template<bool small>
@@ -675,7 +686,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     // side labels
     if (sidelabels[0] != nullptr && sidelabels[1] != nullptr)
     {
-        fontSize(theme.fontSize);
+        fontSize(sidelabelsFontSize);
 
         textAlign(ALIGN_RIGHT|ALIGN_TOP);
         text(knobCenterX - knobSize / 3, h + theme.padding * 3, sidelabels[0], nullptr);
@@ -1024,6 +1035,7 @@ void QuantumGainReductionMeter::setLabel(const char* const label2)
         std::free(label);
 
     label = label2 != nullptr ? strdup(label2) : nullptr;
+    repaint();
 }
 
 void QuantumGainReductionMeter::setValue(const float value2)
@@ -1160,6 +1172,7 @@ void QuantumValueMeter::setBackgroundColor(const Color color)
 void QuantumValueMeter::setOrientation(const Orientation orientation2)
 {
     orientation = orientation2;
+    repaint();
 }
 
 void QuantumValueMeter::setRange(const float min, const float max)
@@ -1178,6 +1191,8 @@ void QuantumValueMeter::setUnitLabel(const char* const label)
         unitLabel = strdup(label);
     else
         unitLabel = nullptr;
+
+    repaint();
 }
 
 void QuantumValueMeter::setValue(const float value2)
@@ -1338,6 +1353,8 @@ void QuantumValueSlider::setUnitLabel(const char* const label)
         unitLabel = strdup(label);
     else
         unitLabel = nullptr;
+
+    repaint();
 }
 
 bool QuantumValueSlider::setValue(const float value, const bool sendCallback) noexcept

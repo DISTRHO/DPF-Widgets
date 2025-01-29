@@ -361,6 +361,7 @@ class AbstractQuantumKnob : public NanoSubWidget,
     char* label = nullptr;
     char* unitLabel = nullptr;
     char* sidelabels[2] = { nullptr, nullptr };
+    uint sidelabelsFontSize = theme.fontSize;
 
 public:
     explicit AbstractQuantumKnob(NanoTopLevelWidget* parent, const QuantumTheme& theme);
@@ -379,6 +380,7 @@ public:
 
     void setLabel(const char* label);
     void setSideLabels(const char* label1, const char* label2);
+    void setSideLabelsFontSize(uint fontSize);
     void setUnitLabel(const char* unitLabel);
 
     void setRingColor(Color color);
