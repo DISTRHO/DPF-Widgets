@@ -451,7 +451,7 @@ void QuantumRadioSwitch::onNanoDisplay()
     roundedRect(theme.borderSize, theme.borderSize, width, height, height / 2);
     fillColor(color);
     fill();
-    strokeColor(Color(theme.widgetBackgroundColor, color, 0.5f));
+    strokeColor(Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f));
     stroke();
 
     fillColor(true ? theme.textLightColor : theme.textMidColor);
