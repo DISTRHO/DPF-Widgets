@@ -581,6 +581,7 @@ AbstractQuantumKnob<small>::AbstractQuantumKnob(NanoTopLevelWidget* const parent
       KnobEventHandler(this),
       theme(t)
 {
+    sidelabelsFontSize = theme.fontSize * parent->getScaleFactor();
     setSize(QuantumMetrics(t).knob);
 }
 
@@ -590,6 +591,7 @@ AbstractQuantumKnob<small>::AbstractQuantumKnob(NanoSubWidget* const parent, con
       KnobEventHandler(this),
       theme(t)
 {
+    sidelabelsFontSize = theme.fontSize * getTopLevelWidget()->getScaleFactor();
     setSize(QuantumMetrics(t).knob);
 }
 
