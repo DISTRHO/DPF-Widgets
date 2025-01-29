@@ -773,6 +773,13 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     strokeColor(ringColor);
     stroke();
 
+    // outer ring default position indicator
+    beginPath();
+    roundedRect(knobCenterX - ringSize / 2, knobCenterY - knobSize / 2 - ringSize * 1.25, ringSize, ringSize, ringSize * 0.5);
+    closePath();
+    fillColor(Color(1.0f, 1.0f, 1.0f, 0.5f));
+    fill();
+
     // simulate color bleeding
     beginPath();
     if (small)
@@ -798,7 +805,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     translate(knobCenterX, knobCenterY);
     rotate(degToRad(45.0f) + normalizedValue * degToRad(270.0f));
     beginPath();
-    roundedRect(0.f - ringSize, knobSize / 2 - ringSize * 4, ringSize, ringSize * 4, ringSize * 0.5);
+    roundedRect(0.f - ringSize / 2, knobSize / 2 - ringSize * 4, ringSize, ringSize * 4, ringSize * 0.5);
     closePath();
     fillColor(Color(1.0f, 1.0f, 1.0f));
     fill();
