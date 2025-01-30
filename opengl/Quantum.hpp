@@ -356,12 +356,11 @@ template<bool small>
 class AbstractQuantumKnob : public NanoSubWidget,
                             public KnobEventHandler
 {
-    const QuantumTheme& theme;
-    Color ringColor = theme.widgetActiveColor;
-    char* label = nullptr;
-    char* unitLabel = nullptr;
-    char* sidelabels[2] = { nullptr, nullptr };
-    uint sidelabelsFontSize = theme.fontSize;
+public:
+    enum Orientation {
+        LeftToRight,
+        CenterToSides,
+    };
 
 public:
     explicit AbstractQuantumKnob(NanoTopLevelWidget* parent, const QuantumTheme& theme);
@@ -373,12 +372,18 @@ public:
         return label;
     }
 
+    inline Orientation getOrientation() const noexcept
+    {
+        return orientation;
+    }
+
     inline Color getRingColor() const noexcept
     {
         return ringColor;
     }
 
     void setLabel(const char* label);
+    void setOrientation(Orientation orientation);
     void setSideLabels(const char* label1, const char* label2);
     void setSideLabelsFontSize(uint fontSize);
     void setUnitLabel(const char* unitLabel);
@@ -390,6 +395,15 @@ protected:
     bool onMouse(const MouseEvent& ev) override;
     bool onMotion(const MotionEvent& ev) override;
     bool onScroll(const ScrollEvent& ev) override;
+
+private:
+    const QuantumTheme& theme;
+    Orientation orientation = LeftToRight;
+    Color ringColor = theme.widgetActiveColor;
+    char* label = nullptr;
+    char* unitLabel = nullptr;
+    char* sidelabels[2] = { nullptr, nullptr };
+    uint sidelabelsFontSize = theme.fontSize;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AbstractQuantumKnob)
 };

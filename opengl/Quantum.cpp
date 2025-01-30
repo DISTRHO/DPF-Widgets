@@ -613,6 +613,13 @@ void AbstractQuantumKnob<small>::setLabel(const char* const label2)
 }
 
 template<bool small>
+void AbstractQuantumKnob<small>::setOrientation(const Orientation orientation2)
+{
+    orientation = orientation2;
+    repaint();
+}
+
+template<bool small>
 void AbstractQuantumKnob<small>::setRingColor(const Color color)
 {
     ringColor = color;
@@ -741,10 +748,11 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     // cache
     Winding wind;
     float rotationValue;
+    const bool leftToRight = orientation == LeftToRight;
 
     // outer ring value
     beginPath();
-    if (small)
+    if (leftToRight)
     {
         rotationValue = degToRad(270.0f * normalizedValue);
 
@@ -784,7 +792,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
 
     // simulate color bleeding
     beginPath();
-    if (small)
+    if (leftToRight)
         arc(knobCenterX,
             knobCenterY,
             knobSize / 2 - theme.widgetLineSize,
