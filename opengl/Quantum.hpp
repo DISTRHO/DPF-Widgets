@@ -389,6 +389,7 @@ protected:
     void onNanoDisplay() override;
     bool onMouse(const MouseEvent& ev) override;
     bool onMotion(const MotionEvent& ev) override;
+    bool onScroll(const ScrollEvent& ev) override;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AbstractQuantumKnob)
 };

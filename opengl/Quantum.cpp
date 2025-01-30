@@ -864,6 +864,12 @@ bool AbstractQuantumKnob<small>::onMotion(const MotionEvent& ev)
     return motionEvent(ev, getTopLevelWidget()->getScaleFactor());
 }
 
+template<bool small>
+bool AbstractQuantumKnob<small>::onScroll(const ScrollEvent& ev)
+{
+    return scrollEvent(ev);
+}
+
 template class AbstractQuantumKnob<false>;
 template class AbstractQuantumKnob<true>;
 
