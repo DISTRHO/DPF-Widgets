@@ -662,7 +662,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     const int knobSize = std::min<int>(w, h - (label != nullptr ? theme.fontSize + theme.padding * 2 : 0))
                        - ringSize - theme.padding * 2;
 
-    const int knobStartX = theme.padding + w / 2 - knobSize / 2;
+    const int knobStartX = w / 2 - knobSize / 2;
     const int knobStartY = theme.padding + ringSize + (label != nullptr && !small ? theme.fontSize + theme.padding * 2 : 0);
     const int knobCenterX = knobStartX + knobSize / 2;
     const int knobCenterY = knobStartY + knobSize / 2;
