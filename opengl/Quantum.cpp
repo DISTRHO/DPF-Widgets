@@ -1443,7 +1443,7 @@ void QuantumValueSlider::onNanoDisplay()
              theme.borderSize,
              (getWidth()-theme.borderSize*2) * normalizedValue,
              getHeight()-theme.borderSize*2);
-        fillColor(backgroundColor);
+        fillColor(isEnabled() ? backgroundColor : theme.textDarkColor.withAlpha(0.5f));
         fill();
     }
 
