@@ -437,15 +437,16 @@ protected:
 // --------------------------------------------------------------------------------------------------------------------
 
 // assumes -50 to 50 dB range
-class QuantumGainReductionMeter : public NanoSubWidget
+template<bool withValue>
+class AbstractQuantumGainReductionMeter : public NanoSubWidget
 {
     const QuantumTheme& theme;
     char* label;
     float value = 0.f;
 
 public:
-    explicit QuantumGainReductionMeter(NanoSubWidget* parent, const QuantumTheme& theme);
-    ~QuantumGainReductionMeter() override;
+    explicit AbstractQuantumGainReductionMeter(NanoSubWidget* parent, const QuantumTheme& theme);
+    ~AbstractQuantumGainReductionMeter() override;
 
     inline const char* getLabel() const noexcept
     {
@@ -458,8 +459,11 @@ public:
 protected:
     void onNanoDisplay() override;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumGainReductionMeter)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AbstractQuantumGainReductionMeter)
 };
+
+typedef AbstractQuantumGainReductionMeter<false> QuantumGainReductionMeter;
+typedef AbstractQuantumGainReductionMeter<true> QuantumGainReductionMeterWithValue;
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -596,12 +600,20 @@ class QuantumStereoLevelMeter : public NanoSubWidget,
     double timeR = 0.0;
     double lastTimeL = 0.0;
     double lastTimeR = 0.0;
+    char* topLabel = nullptr;
 
 public:
     explicit QuantumStereoLevelMeter(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumStereoLevelMeter(NanoSubWidget* parent, const QuantumTheme& theme);
+    ~QuantumStereoLevelMeter() override;
+
+    inline const char* getTopLabel() const noexcept
+    {
+        return topLabel;
+    }
 
     void setRange(float min, float max);
+    void setTopLabel(const char* label);
     void setValueL(float value);
     void setValueR(float value);
     void setValues(float l, float r);
@@ -632,12 +644,20 @@ class QuantumStereoLevelMeterWithLUFS : public NanoSubWidget,
     double timeR = 0.0;
     double lastTimeL = 0.0;
     double lastTimeR = 0.0;
+    char* topLabel = nullptr;
 
 public:
     explicit QuantumStereoLevelMeterWithLUFS(NanoTopLevelWidget* parent, const QuantumTheme& theme);
     explicit QuantumStereoLevelMeterWithLUFS(NanoSubWidget* parent, const QuantumTheme& theme);
+    ~QuantumStereoLevelMeterWithLUFS() override;
+
+    inline const char* getTopLabel() const noexcept
+    {
+        return topLabel;
+    }
 
     void setRange(float min, float max);
+    void setTopLabel(const char* label);
     void setValueL(float value);
     void setValueR(float value);
     void setValueLimiter(float value);
