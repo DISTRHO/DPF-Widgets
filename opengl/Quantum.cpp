@@ -454,7 +454,7 @@ void QuantumRadioSwitch::onNanoDisplay()
     strokeColor(Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f));
     stroke();
 
-    fillColor(true ? theme.textLightColor : theme.textMidColor);
+    fillColor(isEnabled() ? theme.textLightColor : theme.textDarkColor);
 
     beginPath();
     circle(checked ? theme.borderSize * 3 + radioSize : width - radioSize - theme.borderSize * 2,
@@ -667,12 +667,13 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     const int knobCenterX = knobStartX + knobSize / 2;
     const int knobCenterY = knobStartY + knobSize / 2;
 
+    const bool enabled = isEnabled();
     const float normalizedValue = getNormalizedValue();
 
     // label/name
     if (label != nullptr)
     {
-        fillColor(true ? theme.textLightColor : theme.textMidColor);
+        fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
 
         if (small)
         {
@@ -780,14 +781,14 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
             wind);
     }
     strokeWidth(ringSize);
-    strokeColor(ringColor);
+    strokeColor(enabled ? ringColor : ringColor.withAlpha(0.5f));
     stroke();
 
     // outer ring default position indicator
     beginPath();
     roundedRect(knobCenterX - ringSize / 2, knobCenterY - knobSize / 2 - ringSize * 1.25, ringSize, ringSize, ringSize * 0.5);
     closePath();
-    fillColor(Color(1.0f, 1.0f, 1.0f, 0.5f));
+    fillColor((enabled ? theme.textLightColor : theme.textMidColor).withAlpha(0.5f));
     fill();
 
     // simulate color bleeding
@@ -806,20 +807,23 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
             degToRad(270.0f),
             degToRad(270.0f) + rotationValue,
             wind);
-    strokeColor(Color(theme.windowBackgroundColor, ringColor, 0.5f).withAlpha(0.5f));
+    strokeColor(Color(theme.windowBackgroundColor, ringColor, enabled ? 0.5f : 0.25f).withAlpha(0.5f));
     stroke();
 
     // line indicator
-    strokeWidth(ringSize);
-    save();
-    translate(knobCenterX, knobCenterY);
-    rotate(degToRad(45.0f) + normalizedValue * degToRad(270.0f));
-    beginPath();
-    roundedRect(0.f - ringSize / 2, knobSize / 2 - ringSize * 4, ringSize, ringSize * 4, ringSize * 0.5);
-    closePath();
-    fillColor(Color(1.0f, 1.0f, 1.0f));
-    fill();
-    restore();
+    if (enabled)
+    {
+        strokeWidth(ringSize);
+        save();
+        translate(knobCenterX, knobCenterY);
+        rotate(degToRad(45.0f) + normalizedValue * degToRad(270.0f));
+        beginPath();
+        roundedRect(0.f - ringSize / 2, knobSize / 2 - ringSize * 4, ringSize, ringSize * 4, ringSize * 0.5);
+        closePath();
+        fillColor(Color(1.0f, 1.0f, 1.0f));
+        fill();
+        restore();
+    }
 
     // center label (value)
     {
@@ -853,7 +857,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
                 std::snprintf(valuestr, sizeof(valuestr)-1, format, value, "", "");
         }
 
-        fillColor(true ? Color(255, 255, 255) : theme.textMidColor);
+        fillColor(isEnabled() ? theme.textLightColor : theme.textDarkColor);
         fontSize(small ? theme.fontSize * 0.75 : theme.fontSize * 2);
         textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
         text(knobCenterX, knobCenterY, valuestr, nullptr);
@@ -1056,6 +1060,16 @@ AbstractQuantumGainReductionMeter<withValue>::~AbstractQuantumGainReductionMeter
 }
 
 template<bool withValue>
+void AbstractQuantumGainReductionMeter<withValue>::setEnabled(const bool enabled2)
+{
+    if (enabled == enabled2)
+        return;
+
+    enabled = enabled2;
+    repaint();
+}
+
+template<bool withValue>
 void AbstractQuantumGainReductionMeter<withValue>::setLabel(const char* const label2)
 {
     if (label != nullptr && label != kQuantumLabelLvlGain)
@@ -1128,7 +1142,7 @@ void AbstractQuantumGainReductionMeter<withValue>::onNanoDisplay()
             rect(theme.borderSize, theme.borderSize + verticalReservedHeight + usableInnerMeterHeight / 2 * (1.f - normalizedValue),
                  width - theme.borderSize * 2, usableInnerMeterHeight / 2 * normalizedValue);
         }
-        fillColor(theme.widgetAlternativeColor);
+        fillColor(enabled ? theme.widgetAlternativeColor : theme.textDarkColor.withAlpha(0.5f));
         fill();
     }
 

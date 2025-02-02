@@ -307,7 +307,6 @@ public:
     explicit QuantumRadioSwitch(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumRadioSwitch() override;
 
-
     inline Color getBackgroundColor() const noexcept
     {
         return backgroundColor;
@@ -441,6 +440,7 @@ template<bool withValue>
 class AbstractQuantumGainReductionMeter : public NanoSubWidget
 {
     const QuantumTheme& theme;
+    bool enabled = true;
     char* label;
     float value = 0.f;
 
@@ -453,6 +453,12 @@ public:
         return label;
     }
 
+    inline bool isEnabled() const noexcept
+    {
+        return enabled;
+    }
+
+    void setEnabled(bool enabled);
     void setLabel(const char* label);
     void setValue(float value);
 
