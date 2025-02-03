@@ -596,6 +596,7 @@ class QuantumStereoLevelMeter : public NanoSubWidget,
 {
     Application& app;
     const QuantumTheme& theme;
+    bool enabled = true;
     float valueL = 0.f;
     float valueR = 0.f;
     float minimum = 0.f;
@@ -613,11 +614,17 @@ public:
     explicit QuantumStereoLevelMeter(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumStereoLevelMeter() override;
 
+    inline bool isEnabled() const noexcept
+    {
+        return enabled;
+    }
+
     inline const char* getTopLabel() const noexcept
     {
         return topLabel;
     }
 
+    void setEnabled(bool enabled);
     void setRange(float min, float max);
     void setTopLabel(const char* label);
     void setValueL(float value);
@@ -638,6 +645,7 @@ class QuantumStereoLevelMeterWithLUFS : public NanoSubWidget,
 {
     Application& app;
     const QuantumTheme& theme;
+    bool enabled = true;
     float valueL = 0.f;
     float valueR = 0.f;
     float valueLimiter = 0.f;
@@ -657,11 +665,17 @@ public:
     explicit QuantumStereoLevelMeterWithLUFS(NanoSubWidget* parent, const QuantumTheme& theme);
     ~QuantumStereoLevelMeterWithLUFS() override;
 
+    inline bool isEnabled() const noexcept
+    {
+        return enabled;
+    }
+
     inline const char* getTopLabel() const noexcept
     {
         return topLabel;
     }
 
+    void setEnabled(bool enabled);
     void setRange(float min, float max);
     void setTopLabel(const char* label);
     void setValueL(float value);

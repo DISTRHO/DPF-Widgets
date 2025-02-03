@@ -1546,6 +1546,15 @@ QuantumStereoLevelMeter::~QuantumStereoLevelMeter()
     std::free(topLabel);
 }
 
+void QuantumStereoLevelMeter::setEnabled(const bool enabled2)
+{
+    if (enabled == enabled2)
+        return;
+
+    enabled = enabled2;
+    repaint();
+}
+
 void QuantumStereoLevelMeter::setRange(const float min, const float max)
 {
     minimum = min;
@@ -1664,7 +1673,7 @@ void QuantumStereoLevelMeter::onNanoDisplay()
         rect(pxl,
              theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
              meterChannelWidth, meterChannelHeight * value);
-        fillColor(theme.levelMeterColor);
+        fillColor(enabled ? theme.levelMeterColor : theme.textDarkColor.withAlpha(0.5f));
         fill();
 
         std::snprintf(valuestr, sizeof(valuestr)-1, "%.0f", valueL);
@@ -1691,7 +1700,7 @@ void QuantumStereoLevelMeter::onNanoDisplay()
         beginPath();
         moveTo(pxl, y);
         lineTo(pxl + meterChannelWidth, y);
-        strokeColor(theme.levelMeterColor);
+        strokeColor(enabled ? theme.levelMeterColor : theme.textDarkColor.withAlpha(0.5f));
         strokeWidth(theme.borderSize);
         stroke();
     }
@@ -1705,7 +1714,7 @@ void QuantumStereoLevelMeter::onNanoDisplay()
         rect(pxr,
              theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
              meterChannelWidth, meterChannelHeight * value);
-        fillColor(theme.levelMeterColor);
+        fillColor(enabled ? theme.levelMeterColor : theme.textDarkColor.withAlpha(0.5f));
         fill();
 
         std::snprintf(valuestr, sizeof(valuestr)-1, "%.0f", valueR);
@@ -1732,7 +1741,7 @@ void QuantumStereoLevelMeter::onNanoDisplay()
         beginPath();
         moveTo(pxr, y);
         lineTo(pxr + meterChannelWidth, y);
-        strokeColor(theme.levelMeterColor);
+        strokeColor(enabled ? theme.levelMeterColor : theme.textDarkColor.withAlpha(0.5f));
         strokeWidth(theme.borderSize);
         stroke();
     }
@@ -1829,6 +1838,15 @@ QuantumStereoLevelMeterWithLUFS::QuantumStereoLevelMeterWithLUFS(NanoSubWidget* 
 QuantumStereoLevelMeterWithLUFS::~QuantumStereoLevelMeterWithLUFS()
 {
     std::free(topLabel);
+}
+
+void QuantumStereoLevelMeterWithLUFS::setEnabled(const bool enabled2)
+{
+    if (enabled == enabled2)
+        return;
+
+    enabled = enabled2;
+    repaint();
 }
 
 void QuantumStereoLevelMeterWithLUFS::setRange(const float min, const float max)
@@ -1981,7 +1999,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         rect(pxl,
              theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
              meterChannelWidth, meterChannelHeight * value);
-        fillColor(theme.levelMeterColor);
+        fillColor(enabled ? theme.levelMeterColor : theme.textDarkColor.withAlpha(0.5f));
         fill();
 
         std::snprintf(valuestr, sizeof(valuestr)-1, "%.0f", valueL);
@@ -2008,7 +2026,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         beginPath();
         moveTo(pxl, y);
         lineTo(pxl + meterChannelWidth, y);
-        strokeColor(theme.levelMeterColor);
+        strokeColor(enabled ? theme.levelMeterColor : theme.textDarkColor.withAlpha(0.5f));
         strokeWidth(theme.borderSize);
         stroke();
     }
@@ -2022,7 +2040,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         rect(pxr,
              theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
              meterChannelWidth, meterChannelHeight * value);
-        fillColor(theme.levelMeterColor);
+        fillColor(enabled ? theme.levelMeterColor : theme.textDarkColor.withAlpha(0.5f));
         fill();
 
         std::snprintf(valuestr, sizeof(valuestr)-1, "%.0f", valueR);
@@ -2049,7 +2067,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         beginPath();
         moveTo(pxr, y);
         lineTo(pxr + meterChannelWidth, y);
-        strokeColor(theme.levelMeterColor);
+        strokeColor(enabled ? theme.levelMeterColor : theme.textDarkColor.withAlpha(0.5f));
         strokeWidth(theme.borderSize);
         stroke();
     }
@@ -2064,7 +2082,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
              theme.borderSize + verticalReservedHeight + meterChannelHeight * (1.f - value),
              meterChannelWidth * 2 + theme.borderSize * 2,
              meterChannelHeight * value);
-        fillColor(theme.levelMeterAlternativeColor);
+        fillColor(enabled ? theme.levelMeterAlternativeColor : theme.textDarkColor.withAlpha(0.5f));
         fill();
 
         std::snprintf(valuestr, sizeof(valuestr)-1, "LUFS: %.1f", valueLufs);
