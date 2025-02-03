@@ -818,7 +818,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     beginPath();
     roundedRect(0.f - ringSize / 2, knobSize / 2 - ringSize * 4, ringSize, ringSize * 4, ringSize * 0.5);
     closePath();
-    fillColor(Color(1.0f, 1.0f, 1.0f));
+    fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
     fill();
     restore();
 
@@ -1149,7 +1149,7 @@ void AbstractQuantumGainReductionMeter<withValue>::onNanoDisplay()
     constexpr const float db20 = (1.f - normalizedLevelMeterValue(-20)) * 1.08f;
     constexpr const float db30 = (1.f - normalizedLevelMeterValue(-30)) * 1.08f;
     constexpr const float db40 = (1.f - normalizedLevelMeterValue(-40)) * 1.08f;
-    fillColor(theme.textLightColor);
+    fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
     fontSize(theme.fontSize);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     const float centerX = width * 0.5f;
@@ -1729,7 +1729,7 @@ void QuantumStereoLevelMeter::onNanoDisplay()
         std::strncpy(valuestr, "-inf", sizeof(valuestr)-1);
     }
 
-    fillColor(theme.textLightColor);
+    fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
     fontSize(theme.fontSize * 2 / 3);
     textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
 
@@ -1759,7 +1759,7 @@ void QuantumStereoLevelMeter::onNanoDisplay()
     constexpr const float db30 = 1.f - normalizedLevelMeterValue(-30);
     constexpr const float db40 = 1.f - normalizedLevelMeterValue(-40);
     constexpr const float db50 = 1.f - normalizedLevelMeterValue(-50);
-    fillColor(theme.textLightColor);
+    fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
     fontSize(theme.fontSize);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     const float yOffset = theme.borderSize + verticalReservedHeight;
@@ -2016,11 +2016,11 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
 
     if (topLabel == nullptr)
     {
-        fillColor(theme.textLightColor);
+        fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
         fontSize(theme.fontSize * 2 / 3);
         textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
         text(pxl + meterChannelWidth / 2,
-            verticalReservedHeight, valuestr, nullptr);
+             verticalReservedHeight, valuestr, nullptr);
     }
 
     if (d_isNotEqual(valueL, falloffL))
@@ -2055,7 +2055,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         std::strncpy(valuestr, "-inf", sizeof(valuestr)-1);
     }
 
-    fillColor(theme.textLightColor);
+    fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
     fontSize(theme.fontSize * 2 / 3);
     textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
 
@@ -2097,7 +2097,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         std::strncpy(valuestr, "LUFS: -inf", sizeof(valuestr)-1);
     }
 
-    fillColor(theme.textLightColor);
+    fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
     fontSize(theme.fontSize);
     textAlign(ALIGN_LEFT|ALIGN_BOTTOM);
     text(theme.borderSize + theme.padding, getHeight() - theme.borderSize, valuestr, nullptr);
@@ -2124,7 +2124,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     constexpr const float db30 = 1.f - normalizedLevelMeterValue(-30);
     constexpr const float db40 = 1.f - normalizedLevelMeterValue(-40);
     constexpr const float db50 = 1.f - normalizedLevelMeterValue(-50);
-    fillColor(theme.textLightColor);
+    fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
     fontSize(theme.fontSize);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     const float yOffset = theme.borderSize + verticalReservedHeight;
