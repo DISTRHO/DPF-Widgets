@@ -811,19 +811,16 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     stroke();
 
     // line indicator
-    if (enabled)
-    {
-        strokeWidth(ringSize);
-        save();
-        translate(knobCenterX, knobCenterY);
-        rotate(degToRad(45.0f) + normalizedValue * degToRad(270.0f));
-        beginPath();
-        roundedRect(0.f - ringSize / 2, knobSize / 2 - ringSize * 4, ringSize, ringSize * 4, ringSize * 0.5);
-        closePath();
-        fillColor(Color(1.0f, 1.0f, 1.0f));
-        fill();
-        restore();
-    }
+    strokeWidth(ringSize);
+    save();
+    translate(knobCenterX, knobCenterY);
+    rotate(degToRad(45.0f) + normalizedValue * degToRad(270.0f));
+    beginPath();
+    roundedRect(0.f - ringSize / 2, knobSize / 2 - ringSize * 4, ringSize, ringSize * 4, ringSize * 0.5);
+    closePath();
+    fillColor(Color(1.0f, 1.0f, 1.0f));
+    fill();
+    restore();
 
     // center label (value)
     {
@@ -857,7 +854,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
                 std::snprintf(valuestr, sizeof(valuestr)-1, format, value, "", "");
         }
 
-        fillColor(isEnabled() ? theme.textLightColor : theme.textDarkColor);
+        fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
         fontSize(small ? theme.fontSize * 0.75 : theme.fontSize * 2);
         textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
         text(knobCenterX, knobCenterY, valuestr, nullptr);
@@ -1470,7 +1467,7 @@ void QuantumValueSlider::onNanoDisplay()
 
     beginPath();
     fontSize(theme.fontSize);
-    fillColor(textColor);
+    fillColor(isEnabled() ? textColor : theme.textDarkColor);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     text(getWidth()/2, getHeight()/2, valuestr, nullptr);
 }
