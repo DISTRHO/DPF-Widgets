@@ -1482,6 +1482,11 @@ bool QuantumValueSlider::onMotion(const MotionEvent& ev)
     return motionEvent(ev, getTopLevelWidget()->getScaleFactor());
 }
 
+bool QuantumValueSlider::onScroll(const ScrollEvent& ev)
+{
+    return scrollEvent(ev);
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 
 QuantumLevelMeter::QuantumLevelMeter(NanoTopLevelWidget* const parent, const QuantumTheme& t)
