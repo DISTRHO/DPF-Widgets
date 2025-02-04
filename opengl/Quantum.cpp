@@ -582,6 +582,7 @@ AbstractQuantumKnob<small>::AbstractQuantumKnob(NanoTopLevelWidget* const parent
       theme(t)
 {
     sidelabelsFontSize = theme.fontSize * parent->getScaleFactor();
+    setMouseDeceleration(500.f);
     setSize(QuantumMetrics(t).knob);
 }
 
@@ -592,6 +593,7 @@ AbstractQuantumKnob<small>::AbstractQuantumKnob(NanoSubWidget* const parent, con
       theme(t)
 {
     sidelabelsFontSize = theme.fontSize * getTopLevelWidget()->getScaleFactor();
+    setMouseDeceleration(500.f);
     setSize(QuantumMetrics(t).knob);
 }
 
