@@ -457,7 +457,7 @@ void QuantumRadioSwitch::onNanoDisplay()
     fillColor(isEnabled() ? theme.textLightColor : theme.textDarkColor);
 
     beginPath();
-    circle(checked ? theme.borderSize * 3 + radioSize : width - radioSize - theme.borderSize * 2,
+    circle(checked ? width - radioSize - theme.borderSize * 2 : theme.borderSize * 3 + radioSize,
            radioSize + theme.borderSize * 3.333,
            radioSize);
     fill();
@@ -466,9 +466,9 @@ void QuantumRadioSwitch::onNanoDisplay()
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
 
     if (checked)
-        text(getWidth() * 0.666, getHeight() / 2, "on", nullptr);
+        text(getWidth() * 0.333, getHeight() / 2, "on", nullptr);
     else
-        text(getWidth() * 0.333 - theme.borderSize, getHeight() / 2, "off", nullptr);
+        text(getWidth() * 0.666 - theme.borderSize, getHeight() / 2, "off", nullptr);
 }
 
 bool QuantumRadioSwitch::onMouse(const MouseEvent& ev)
