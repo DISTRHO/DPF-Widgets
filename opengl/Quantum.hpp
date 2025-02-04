@@ -125,7 +125,7 @@ struct QuantumMetrics
           gainReductionMeter(theme.textHeight * 2,
                              theme.textHeight * 4),
           knob(theme.textHeight * 3 / 2,
-                 theme.textHeight * 3 / 2),
+               theme.textHeight * 3 / 2),
           mixerSlider(theme.textHeight * 2,
                       theme.textHeight * 4),
           stereoLevelMeter(theme.textHeight * 2 + theme.borderSize * 2,
