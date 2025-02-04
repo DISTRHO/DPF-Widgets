@@ -1132,7 +1132,7 @@ void AbstractQuantumGainReductionMeter<withValue>::onNanoDisplay()
             rect(theme.borderSize, theme.borderSize + verticalReservedHeight + usableInnerMeterHeight / 2,
                  width - theme.borderSize * 2, usableInnerMeterHeight / 2 * normalizedValue);
         }
-        else
+        else if (value > 0.f)
         {
             // const float normalizedValue = std::max(0.f, std::min(1.f, value / 50.f));
             const float normalizedValue = (1.f - normalizedLevelMeterValue(-value)) * 1.08f;
@@ -1669,6 +1669,10 @@ void QuantumStereoLevelMeter::onNanoDisplay()
          theme.borderSize * 2, meterChannelHeight + theme.borderSize * 2);
     fill();
 
+    // common setup
+    fontSize(theme.fontSize * 2 / 3);
+    textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
+
     // left channel
     value = normalizedLevelMeterValue(valueL);
 
@@ -1690,9 +1694,7 @@ void QuantumStereoLevelMeter::onNanoDisplay()
 
     if (topLabel == nullptr)
     {
-        fillColor(theme.textLightColor);
-        fontSize(theme.fontSize * 2 / 3);
-        textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
+        fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
         text(pxl + meterChannelWidth / 2,
              verticalReservedHeight, valuestr, nullptr);
     }
@@ -1730,8 +1732,6 @@ void QuantumStereoLevelMeter::onNanoDisplay()
     }
 
     fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
-    fontSize(theme.fontSize * 2 / 3);
-    textAlign(ALIGN_CENTER|ALIGN_BOTTOM);
 
     if (topLabel != nullptr)
         text(width * 0.5f, verticalReservedHeight, topLabel, nullptr);
@@ -2105,7 +2105,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     // limiter
     value = normalizedLevelMeterValue(valueLimiter);
 
-    if (d_isNotZero(value))
+    if (d_isNotEqual(value, 1.f))
     {
         beginPath();
         rect(pxlufs,
