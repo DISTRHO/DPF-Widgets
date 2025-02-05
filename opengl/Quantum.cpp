@@ -444,22 +444,20 @@ void QuantumRadioSwitch::onNanoDisplay()
     const uint height = getHeight() - theme.borderSize * 2;
     const uint radioSize = height / 2 - theme.borderSize * 2;
     const bool checked = isChecked();
-
-    const Color color = checked ? backgroundColor : theme.windowBackgroundColor;
+    const bool enabled = isEnabled();
 
     beginPath();
     roundedRect(theme.borderSize, theme.borderSize, width, height, height / 2);
-    fillColor(color);
+    fillColor(checked && enabled ? backgroundColor : theme.windowBackgroundColor);
     fill();
     strokeColor(Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f));
     stroke();
-
-    fillColor(isEnabled() ? theme.textLightColor : theme.textDarkColor);
 
     beginPath();
     circle(checked ? width - radioSize - theme.borderSize * 2 : theme.borderSize * 3 + radioSize,
            radioSize + theme.borderSize * 3.333,
            radioSize);
+    fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
     fill();
 
     fontSize(theme.fontSize);

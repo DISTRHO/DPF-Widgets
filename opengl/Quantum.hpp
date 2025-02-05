@@ -64,10 +64,10 @@ struct QuantumTheme {
     Color levelMeterColor = Color::fromHTML("#4a8179");
     // alternative background color for level meter widgets
     Color levelMeterAlternativeColor = Color::fromHTML("#ad68b9");
-    // knob rim color
-    Color knobRimColor = levelMeterColor;
+    // knob ring color
+    Color knobRingColor = levelMeterColor;
     // alternative knob rim color
-    Color knobAlternativeRimColor = levelMeterAlternativeColor;
+    Color knobAlternativeRingColor = levelMeterAlternativeColor;
     // background color for widgets, e.g. slider line and knob padding, typically dark
     Color widgetBackgroundColor = Color::fromHTML("#141414");
     // active color for widgets, e.g. pressed button and knob body
@@ -398,7 +398,7 @@ protected:
 private:
     const QuantumTheme& theme;
     Orientation orientation = LeftToRight;
-    Color ringColor = theme.widgetActiveColor;
+    Color ringColor = theme.knobRingColor;
     char* label = nullptr;
     char* unitLabel = nullptr;
     char* sidelabels[2] = { nullptr, nullptr };
