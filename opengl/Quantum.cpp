@@ -750,6 +750,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     Winding wind;
     float rotationValue;
     const bool leftToRight = orientation == LeftToRight;
+    const Color enabledRingColor = enabled ? ringColor : ringColor.asGrayscale();
 
     // outer ring value
     beginPath();
@@ -781,7 +782,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
             wind);
     }
     strokeWidth(ringSize);
-    strokeColor(enabled ? ringColor : ringColor.withAlpha(0.5f));
+    strokeColor(enabledRingColor);
     stroke();
 
     // outer ring default position indicator
@@ -807,7 +808,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
             degToRad(270.0f),
             degToRad(270.0f) + rotationValue,
             wind);
-    strokeColor(Color(theme.windowBackgroundColor, ringColor, enabled ? 0.5f : 0.25f).withAlpha(0.5f));
+    strokeColor(Color(theme.windowBackgroundColor, enabledRingColor, enabled ? 0.5f : 0.25f).withAlpha(0.5f));
     stroke();
 
     // line indicator
@@ -1149,7 +1150,7 @@ void AbstractQuantumGainReductionMeter<withValue>::onNanoDisplay()
     constexpr const float db20 = (1.f - normalizedLevelMeterValue(-20)) * 1.08f;
     constexpr const float db30 = (1.f - normalizedLevelMeterValue(-30)) * 1.08f;
     constexpr const float db40 = (1.f - normalizedLevelMeterValue(-40)) * 1.08f;
-    fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
+    fillColor(enabled ? theme.textMidColor : theme.textDarkColor);
     fontSize(theme.fontSize);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     const float centerX = width * 0.5f;
@@ -1759,7 +1760,7 @@ void QuantumStereoLevelMeter::onNanoDisplay()
     constexpr const float db30 = 1.f - normalizedLevelMeterValue(-30);
     constexpr const float db40 = 1.f - normalizedLevelMeterValue(-40);
     constexpr const float db50 = 1.f - normalizedLevelMeterValue(-50);
-    fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
+    fillColor(enabled ? theme.textMidColor : theme.textDarkColor);
     fontSize(theme.fontSize);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     const float yOffset = theme.borderSize + verticalReservedHeight;
@@ -2124,7 +2125,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
     constexpr const float db30 = 1.f - normalizedLevelMeterValue(-30);
     constexpr const float db40 = 1.f - normalizedLevelMeterValue(-40);
     constexpr const float db50 = 1.f - normalizedLevelMeterValue(-50);
-    fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
+    fillColor(enabled ? theme.textMidColor : theme.textDarkColor);
     fontSize(theme.fontSize);
     textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
     const float yOffset = theme.borderSize + verticalReservedHeight;
