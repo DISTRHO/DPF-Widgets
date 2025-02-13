@@ -1192,6 +1192,7 @@ void AbstractQuantumGainReductionMeter<withValue>::onNanoDisplay()
     }
 
     // top label
+    fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
     fontSize(theme.fontSize * 2 / 3);
     text(width * 0.5f, verticalReservedHeight, label, nullptr);
 }
