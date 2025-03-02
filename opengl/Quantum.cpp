@@ -757,6 +757,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     if (leftToRight)
     {
         rotationValue = degToRad(270.0f * normalizedValue);
+        wind = CW;
 
         arc(knobCenterX,
             knobCenterY,
@@ -767,12 +768,12 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     }
     else
     {
+        rotationValue = degToRad(270.0f * (normalizedValue - 0.5f));
+
         if (normalizedValue >= 0.5f)
             wind = CW;
         else
             wind = CCW;
-
-        rotationValue = degToRad(270.0f * (normalizedValue - 0.5f));
 
         arc(knobCenterX,
             knobCenterY,
