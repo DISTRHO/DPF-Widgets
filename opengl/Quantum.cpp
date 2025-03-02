@@ -658,7 +658,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     // const double scaleFactor = getScaleFactor();
     const int w = getWidth();
     const int h = getHeight();
-    const int ringSize = theme.knobIndicatorSize * (small ? 0.5 : 1.0);
+    const int ringSize = theme.knobIndicatorSize * (small ? 0.75 : 1.0);
     const int knobSize = std::min<int>(w, h - (label != nullptr ? theme.fontSize + theme.padding * 2 : 0))
                        - ringSize - theme.padding * 2;
 
@@ -798,14 +798,14 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     if (leftToRight)
         arc(knobCenterX,
             knobCenterY,
-            knobSize / 2 - theme.widgetLineSize,
+            knobSize * 0.5f - theme.widgetLineSize,
             degToRad(135.0f),
             degToRad(135.0f) + rotationValue,
             CW);
     else
         arc(knobCenterX,
             knobCenterY,
-            knobSize / 2 - theme.widgetLineSize,
+            knobSize * 0.5f - theme.widgetLineSize,
             degToRad(270.0f),
             degToRad(270.0f) + rotationValue,
             wind);
@@ -818,7 +818,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     translate(knobCenterX, knobCenterY);
     rotate(degToRad(45.0f) + normalizedValue * degToRad(270.0f));
     beginPath();
-    roundedRect(0.f - ringSize / 2, knobSize / 2 - ringSize * 4, ringSize, ringSize * 4, ringSize * 0.5);
+    roundedRect(ringSize * -0.5f, knobSize * 0.5f - ringSize * 4, ringSize, ringSize * 4, ringSize * 0.5);
     closePath();
     fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
     fill();

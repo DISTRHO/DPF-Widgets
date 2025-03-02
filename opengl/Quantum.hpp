@@ -83,7 +83,7 @@ struct QuantumTheme {
     // text color, mid brightness tone
     Color textMidColor = Color::fromHTML("#b3b3b3");
     // text color, dark tone
-    Color textDarkColor = Color::fromHTML("#8c8c8c");
+    Color textDarkColor = Color::fromHTML("#787878");
 };
 
 struct QuantumMetrics
