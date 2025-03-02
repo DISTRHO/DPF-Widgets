@@ -2115,7 +2115,7 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
              theme.borderSize + verticalReservedHeight,
              meterChannelWidth * 2 + theme.borderSize * 2,
              meterChannelHeight * (1.f - value));
-        fillColor(theme.widgetAlternativeColor);
+        fillColor(enabled ? theme.widgetAlternativeColor: theme.textDarkColor.withAlpha(0.5f));
         fill();
     }
 
