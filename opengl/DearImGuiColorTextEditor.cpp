@@ -43,25 +43,15 @@ struct ImGuiTextEditor<BaseWidget>::TextEditorPrivateData {
     ImGuiTextEditor<BaseWidget>* const self;
     TextEditor editor;
     std::string file;
+    bool isStandalone;
     bool showMenu;
 
     explicit TextEditorPrivateData(ImGuiTextEditor<BaseWidget>* const s)
         : self(s),
+          isStandalone(false),
           showMenu(false)
     {
-        // https://github.com/BalazsJako/ColorTextEditorDemo/blob/master/main.cpp
-
         editor.SetLanguageDefinition(TextEditor::LanguageDefinition::CPlusPlus());
-
-        // TESTING
-        std::ifstream t("/Shared/Personal/FOSS/GIT/DISTRHO/DISTRHO_OneKnob-Series/dpf/dgl/Image.hpp");
-
-        if (t.good())
-        {
-            const std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-            editor.SetText(str);
-            file = "/Shared/Personal/FOSS/GIT/DISTRHO/DISTRHO_OneKnob-Series/dpf/dgl/Image.hpp";
-        }
     }
 
     void renderMenuContent()
@@ -70,18 +60,28 @@ struct ImGuiTextEditor<BaseWidget>::TextEditorPrivateData {
         {
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("Open..."))
+                if (isStandalone)
                 {
-                    self->getWindow().openFileBrowser();
+                    if (ImGui::MenuItem("Open..."))
+                    {
+                        self->getWindow().openFileBrowser();
+                    }
+                    if (ImGui::MenuItem("Save", "Ctrl+S", nullptr, file.size() != 0))
+                    {
+                        // auto textToSave = editor.GetText();
+                        /// save text....
+                    }
+                    if (ImGui::MenuItem("Quit", "Ctrl+Q"))
+                    {
+                        self->getWindow().getApp().quit();
+                    }
                 }
-                if (ImGui::MenuItem("Save", "Ctrl+S", nullptr, file.size() != 0))
+                else
                 {
-                    // auto textToSave = editor.GetText();
-                    /// save text....
-                }
-                if (ImGui::MenuItem("Quit", "Ctrl+Q"))
-                {
-                    self->getWindow().getApp().quit();
+                    if (ImGui::MenuItem("Import..."))
+                    {
+                        self->getWindow().openFileBrowser();
+                    }
                 }
                 ImGui::EndMenu();
             }
@@ -186,9 +186,23 @@ std::string ImGuiTextEditor<BaseWidget>::getSelectedText() const
 }
 
 template <class BaseWidget>
-std::string ImGuiTextEditor<BaseWidget>::getCurrentLineText()const
+std::string ImGuiTextEditor<BaseWidget>::getCurrentLineText() const
 {
     return teData->editor.GetCurrentLineText();
+}
+
+template <class BaseWidget>
+bool ImGuiTextEditor<BaseWidget>::hasTextChangedSinceLastTime()
+{
+    return teData->editor.IsTextChangedSinceLastTime();
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
+template <class BaseWidget>
+void ImGuiTextEditor<BaseWidget>::showMenu(const bool show)
+{
+    teData->showMenu = show;
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -234,6 +248,7 @@ ImGuiTextEditorStandaloneWindow::ImGuiTextEditorStandaloneWindow(Application& ap
     : StandaloneWindow(app),
       editor(*this)
 {
+    editor.teData->isStandalone = true;
     editor.teData->showMenu = true;
 }
 
@@ -241,6 +256,7 @@ ImGuiTextEditorStandaloneWindow::ImGuiTextEditorStandaloneWindow(Application& ap
     : StandaloneWindow(app, transientParentWindow),
       editor(*this)
 {
+    editor.teData->isStandalone = true;
     editor.teData->showMenu = true;
 }
 

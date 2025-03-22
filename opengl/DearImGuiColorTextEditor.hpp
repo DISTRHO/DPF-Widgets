@@ -67,9 +67,16 @@ public:
     std::vector<std::string> getTextLines() const;
 
     std::string getSelectedText() const;
-    std::string getCurrentLineText()const;
+    std::string getCurrentLineText() const;
+
+	bool hasTextChangedSinceLastTime();
 
 protected:
+   /**
+      Whether to show top-bar menu.
+    */
+    void showMenu(bool show = true);
+
     /** @internal */
     void onImGuiDisplay() override;
 
