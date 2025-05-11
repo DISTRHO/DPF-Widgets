@@ -8,6 +8,8 @@ Each folder provides widgets for its dedicated backend type.
 It is not mandatory that a widget is usable for more than 1 backend.
 Generic widgets (those based on DPF core classes like Color, Rectangle, etc) are placed under the "generic" directory.
 
+Checkout the [tests](./tests) for standalone usage examples.
+
 ## Status
 
 #### generic / ResizeHandle
