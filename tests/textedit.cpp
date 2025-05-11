@@ -31,6 +31,7 @@ int main(int, char**)
     win.setSize(1280*win.getScaleFactor(), 480*win.getScaleFactor());
     win.setResizable(true);
     win.setTitle("TextEdit");
+    win.editor.setLanguageDefinition(TextEditor::LanguageDefinition::Lua());
     win.show();
     app.exec();
 

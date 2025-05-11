@@ -180,6 +180,12 @@ std::vector<std::string> ImGuiTextEditor<BaseWidget>::getTextLines() const
 }
 
 template <class BaseWidget>
+void ImGuiTextEditor<BaseWidget>::setLanguageDefinition(const TextEditor::LanguageDefinition& aLanguageDef)
+{
+    teData->editor.SetLanguageDefinition(aLanguageDef);
+}
+
+template <class BaseWidget>
 std::string ImGuiTextEditor<BaseWidget>::getSelectedText() const
 {
     return teData->editor.GetSelectedText();
