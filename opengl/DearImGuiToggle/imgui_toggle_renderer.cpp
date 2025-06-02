@@ -10,7 +10,7 @@ namespace
     // a small helper to quickly check the mixed value flag.
     inline bool IsItemMixedValue()
     {
-        return (GImGui->LastItemData.InFlags & ImGuiItemFlags_MixedValue) != 0;
+        return (GImGui->LastItemData.ItemFlags & ImGuiItemFlags_MixedValue) != 0;
     }
 } // namespace
 
@@ -338,7 +338,7 @@ void ImGuiToggleRenderer::DrawRectangleKnob(float radius, ImU32 color_knob)
         DrawRectShadow(bounds, color_knob_shadow, _config.KnobRounding, _state.KnobShadowThickness);
     }
 
-    // draw rectangle/squircle knob 
+    // draw rectangle/squircle knob
     _drawList->AddRectFilled(bounds.Min, bounds.Max, color_knob, knob_rounded_radius);
 
     // draw knob border, if enabled
