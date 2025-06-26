@@ -115,7 +115,10 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
         fc.OversampleH = 1;
         fc.OversampleV = 1;
         fc.PixelSnapH = true;
-        io.Fonts->AddFontFromMemoryTTF((void*)dejavusans_ttf, dejavusans_ttf_size, fontSize * scaleFactor, &fc);
+        io.Fonts->AddFontFromMemoryTTF((void*)dejavusans_ttf,
+                                       dejavusans_ttf_size,
+                                       d_roundToIntPositive(fontSize * scaleFactor),
+                                       &fc);
         io.Fonts->Build();
        #endif
 
@@ -194,7 +197,10 @@ void ImGuiWidget<BaseWidget>::setFontSize(const float fontSize)
     fc.OversampleV = 1;
     fc.PixelSnapH = true;
     io.Fonts->Clear();
-    io.Fonts->AddFontFromMemoryTTF((void*)dejavusans_ttf, dejavusans_ttf_size, fontSize * scaleFactor, &fc);
+    io.Fonts->AddFontFromMemoryTTF((void*)dejavusans_ttf,
+                                   dejavusans_ttf_size,
+                                   d_roundToIntPositive(fontSize * scaleFactor),
+                                   &fc);
     io.Fonts->Build();
    #endif
 }
