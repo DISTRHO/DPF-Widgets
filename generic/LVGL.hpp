@@ -46,10 +46,6 @@ START_NAMESPACE_DGL
 # error LV_DEF_REFR_PERIOD must be 1 for DPF builds
 #endif
 
-#if LV_DPI_DEF != 160
-# error LV_DPI_DEF must be 160 for DPF builds
-#endif
-
 #if LV_USE_STDLIB_MALLOC != LV_STDLIB_CLIB
 # error LV_USE_STDLIB_MALLOC must be LV_STDLIB_CLIB for DPF builds
 #endif
