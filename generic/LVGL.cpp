@@ -527,6 +527,22 @@ bool LVGLWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
     return true;
 }
 
+template <>
+bool LVGLWidget<SubWidget>::onMouse(const Widget::MouseEvent& event)
+{
+    if (SubWidget::onMouse(event))
+        return true;
+
+    if (!getAbsoluteArea().contains(event.absolutePos))
+        return false;
+
+    if (event.button > ARRAY_SIZE(lvglData->mouseButtons))
+        return false;
+
+    lvglData->mouseButtons[event.button] = event.press;
+    return true;
+}
+
 template <class BaseWidget>
 bool LVGLWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
 {
@@ -538,11 +554,38 @@ bool LVGLWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
     return true;
 }
 
+template <>
+bool LVGLWidget<SubWidget>::onMotion(const Widget::MotionEvent& event)
+{
+    if (SubWidget::onMotion(event))
+        return true;
+
+    if (!getAbsoluteArea().contains(event.absolutePos))
+        return false;
+
+    lvglData->mousePos.x = std::max(0, std::min<int>(getWidth() - 1, event.pos.getX()));
+    lvglData->mousePos.y = std::max(0, std::min<int>(getHeight() - 1, event.pos.getY()));
+    return true;
+}
+
 template <class BaseWidget>
 bool LVGLWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
 {
     if (BaseWidget::onScroll(event))
         return true;
+
+    lvglData->mouseWheelDelta -= event.delta.getY();
+    return false;
+}
+
+template <>
+bool LVGLWidget<SubWidget>::onScroll(const Widget::ScrollEvent& event)
+{
+    if (SubWidget::onScroll(event))
+        return true;
+
+    if (!getAbsoluteArea().contains(event.absolutePos))
+        return false;
 
     lvglData->mouseWheelDelta -= event.delta.getY();
     return false;
