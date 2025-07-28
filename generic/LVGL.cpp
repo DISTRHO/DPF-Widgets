@@ -1,6 +1,6 @@
 /*
  * LVGL for DPF
- * Copyright (C) 2024 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2024-2025 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -25,6 +25,9 @@
 #include "../distrho/extra/RingBuffer.hpp"
 #include "../distrho/extra/Sleep.hpp"
 #include "../distrho/extra/Time.hpp"
+
+// NOTE only valid for OpenGL
+// #define DPF_LVGL_AUTO_SCALING
 
 START_NAMESPACE_DGL
 
@@ -81,7 +84,11 @@ private:
         lv_delay_set_cb(msleep);
         lv_tick_set_cb(gettime_ms);
 
+       #ifdef DPF_LVGL_AUTO_SCALING
+        static constexpr const int scaleFactor = 1;
+       #else
         const double scaleFactor = self->getTopLevelWidget()->getScaleFactor();
+       #endif
         const uint width = self->getWidth() ?: 640 * scaleFactor;
         const uint height = self->getHeight() ?: 480 * scaleFactor;
 
@@ -320,10 +327,18 @@ void LVGLWidget<BaseWidget>::idleCallback()
 template <class BaseWidget>
 void LVGLWidget<BaseWidget>::onDisplay()
 {
+   #ifdef DPF_LVGL_AUTO_SCALING
+    const double scaleFactor = BaseWidget::getTopLevelWidget()->getScaleFactor();
+    DISTRHO_SAFE_ASSERT_RETURN(BaseWidget::getSize() == lvglData->textureSize * scaleFactor,);
+   #else
+    static constexpr const int scaleFactor = 1;
     DISTRHO_SAFE_ASSERT_RETURN(BaseWidget::getSize() == lvglData->textureSize,);
+   #endif
 
-    const int32_t width = static_cast<int32_t>(BaseWidget::getWidth());
-    const int32_t height = static_cast<int32_t>(BaseWidget::getHeight());
+    const int32_t fullwidth = static_cast<int32_t>(BaseWidget::getWidth());
+    const int32_t fullheight = static_cast<int32_t>(BaseWidget::getHeight());
+    const int32_t width = fullwidth / scaleFactor;
+    const int32_t height = fullheight / scaleFactor;
 
 #if 0
     // TODO see what is really needed here..
@@ -417,13 +432,13 @@ void LVGLWidget<BaseWidget>::onDisplay()
         glVertex2d(0, 0);
 
         glTexCoord2f(1.f, 0.f);
-        glVertex2d(width, 0);
+        glVertex2d(fullwidth, 0);
 
         glTexCoord2f(1.f, 1.f);
-        glVertex2d(width, height);
+        glVertex2d(fullwidth, fullheight);
 
         glTexCoord2f(0.f, 1.f);
-        glVertex2d(0, height);
+        glVertex2d(0, fullheight);
     }
     glEnd();
 
@@ -549,8 +564,13 @@ bool LVGLWidget<BaseWidget>::onMotion(const Widget::MotionEvent& event)
     if (BaseWidget::onMotion(event))
         return true;
 
-    lvglData->mousePos.x = std::max(0, std::min<int>(BaseWidget::getWidth() - 1, event.pos.getX()));
-    lvglData->mousePos.y = std::max(0, std::min<int>(BaseWidget::getHeight() - 1, event.pos.getY()));
+   #ifdef DPF_LVGL_AUTO_SCALING
+    const double scaleFactor = BaseWidget::getTopLevelWidget()->getScaleFactor();
+   #else
+    static constexpr const int scaleFactor = 1;
+   #endif
+    lvglData->mousePos.x = std::max<int>(0, std::min<int>(BaseWidget::getWidth() - 1, event.pos.getX()) / scaleFactor);
+    lvglData->mousePos.y = std::max<int>(0, std::min<int>(BaseWidget::getHeight() - 1, event.pos.getY()) / scaleFactor);
     return true;
 }
 
@@ -563,8 +583,13 @@ bool LVGLWidget<SubWidget>::onMotion(const Widget::MotionEvent& event)
     if (!getAbsoluteArea().contains(event.absolutePos))
         return false;
 
-    lvglData->mousePos.x = std::max(0, std::min<int>(getWidth() - 1, event.pos.getX()));
-    lvglData->mousePos.y = std::max(0, std::min<int>(getHeight() - 1, event.pos.getY()));
+   #ifdef DPF_LVGL_AUTO_SCALING
+    const double scaleFactor = getTopLevelWidget()->getScaleFactor();
+   #else
+    static constexpr const int scaleFactor = 1;
+   #endif
+    lvglData->mousePos.x = std::max<int>(0, std::min<int>(getWidth() - 1, event.pos.getX()) / scaleFactor);
+    lvglData->mousePos.y = std::max<int>(0, std::min<int>(getHeight() - 1, event.pos.getY()) / scaleFactor);
     return true;
 }
 
@@ -574,7 +599,12 @@ bool LVGLWidget<BaseWidget>::onScroll(const Widget::ScrollEvent& event)
     if (BaseWidget::onScroll(event))
         return true;
 
-    lvglData->mouseWheelDelta -= event.delta.getY();
+   #ifdef DPF_LVGL_AUTO_SCALING
+    const double scaleFactor = BaseWidget::getTopLevelWidget()->getScaleFactor();
+   #else
+    static constexpr const int scaleFactor = 1;
+   #endif
+    lvglData->mouseWheelDelta -= event.delta.getY() / scaleFactor;
     return false;
 }
 
@@ -587,7 +617,12 @@ bool LVGLWidget<SubWidget>::onScroll(const Widget::ScrollEvent& event)
     if (!getAbsoluteArea().contains(event.absolutePos))
         return false;
 
-    lvglData->mouseWheelDelta -= event.delta.getY();
+   #ifdef DPF_LVGL_AUTO_SCALING
+    const double scaleFactor = getTopLevelWidget()->getScaleFactor();
+   #else
+    static constexpr const int scaleFactor = 1;
+   #endif
+    lvglData->mouseWheelDelta -= event.delta.getY() / scaleFactor;
     return false;
 }
 
@@ -599,8 +634,13 @@ void LVGLWidget<BaseWidget>::onResize(const Widget::ResizeEvent& event)
     if (lvglData->display == nullptr)
         return;
 
-    const uint width = event.size.getWidth();
-    const uint height = event.size.getHeight();
+   #ifdef DPF_LVGL_AUTO_SCALING
+    const double scaleFactor = BaseWidget::getTopLevelWidget()->getScaleFactor();
+   #else
+    static constexpr const int scaleFactor = 1;
+   #endif
+    const uint width = event.size.getWidth() / scaleFactor;
+    const uint height = event.size.getHeight() / scaleFactor;
     lv_area_set(&lvglData->updatedArea, 0, 0, width, height);
 
     lv_global = lvglData->global;
