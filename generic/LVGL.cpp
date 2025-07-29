@@ -329,16 +329,22 @@ void LVGLWidget<BaseWidget>::onDisplay()
 {
    #ifdef DPF_LVGL_AUTO_SCALING
     const double scaleFactor = BaseWidget::getTopLevelWidget()->getScaleFactor();
-    DISTRHO_SAFE_ASSERT_RETURN(BaseWidget::getSize() == lvglData->textureSize * scaleFactor,);
-   #else
-    static constexpr const int scaleFactor = 1;
-    DISTRHO_SAFE_ASSERT_RETURN(BaseWidget::getSize() == lvglData->textureSize,);
-   #endif
 
     const int32_t fullwidth = static_cast<int32_t>(BaseWidget::getWidth());
     const int32_t fullheight = static_cast<int32_t>(BaseWidget::getHeight());
-    const int32_t width = fullwidth / scaleFactor;
-    const int32_t height = fullheight / scaleFactor;
+    const int32_t width = d_roundToIntPositive(fullwidth / scaleFactor);
+    const int32_t height = d_roundToIntPositive(fullheight / scaleFactor);
+
+    DISTRHO_SAFE_ASSERT_RETURN(width == static_cast<int32_t>(lvglData->textureSize.getWidth()),);
+    DISTRHO_SAFE_ASSERT_RETURN(height == static_cast<int32_t>(lvglData->textureSize.getHeight()),);
+   #else
+    DISTRHO_SAFE_ASSERT_RETURN(BaseWidget::getSize() == lvglData->textureSize,);
+
+    const int32_t fullwidth = static_cast<int32_t>(BaseWidget::getWidth());
+    const int32_t fullheight = static_cast<int32_t>(BaseWidget::getHeight());
+    const int32_t width = fullwidth;
+    const int32_t height = fullheight;
+   #endif
 
 #if 0
     // TODO see what is really needed here..
@@ -636,11 +642,12 @@ void LVGLWidget<BaseWidget>::onResize(const Widget::ResizeEvent& event)
 
    #ifdef DPF_LVGL_AUTO_SCALING
     const double scaleFactor = BaseWidget::getTopLevelWidget()->getScaleFactor();
+    const uint width = d_roundToUnsignedInt(event.size.getWidth() / scaleFactor);
+    const uint height = d_roundToUnsignedInt(event.size.getHeight() / scaleFactor);
    #else
-    static constexpr const int scaleFactor = 1;
+    const uint width = event.size.getWidth();
+    const uint height = event.size.getHeight();
    #endif
-    const uint width = event.size.getWidth() / scaleFactor;
-    const uint height = event.size.getHeight() / scaleFactor;
     lv_area_set(&lvglData->updatedArea, 0, 0, width, height);
 
     lv_global = lvglData->global;
