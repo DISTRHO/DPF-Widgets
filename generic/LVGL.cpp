@@ -494,6 +494,12 @@ void LVGLWidget<BaseWidget>::onDisplay()
         #error Unsupported color format
       #endif
 
+       #if LV_COLOR_DEPTH == 32
+        static constexpr const GLenum intformat = GL_RGBA;
+       #else
+        static constexpr const GLenum intformat = GL_RGB;
+       #endif
+
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
 
@@ -503,7 +509,7 @@ void LVGLWidget<BaseWidget>::onDisplay()
             lvglData->updatedArea.x2 == width &&
             lvglData->updatedArea.y2 == height)
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, ftype, lvglData->textureData);
+            glTexImage2D(GL_TEXTURE_2D, 0, intformat, width, height, 0, format, ftype, lvglData->textureData);
         }
         // partial size
         else
