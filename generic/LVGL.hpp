@@ -46,6 +46,10 @@ START_NAMESPACE_DGL
 # error LV_DEF_REFR_PERIOD must be 1 for DPF builds
 #endif
 
+#if defined(LV_USE_PRIVATE_API) && !LV_USE_PRIVATE_API
+# error LV_USE_PRIVATE_API must be set to 1 for DPF builds
+#endif
+
 #if LV_USE_STDLIB_MALLOC != LV_STDLIB_CLIB
 # error LV_USE_STDLIB_MALLOC must be LV_STDLIB_CLIB for DPF builds
 #endif
