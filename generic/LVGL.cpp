@@ -51,11 +51,15 @@ struct LVGLWidget<BaseWidget>::PrivateData {
     double mouseWheelDelta = 0.0;
     SmallStackRingBuffer keyBuffer;
 
-   #if defined(DGL_CAIRO)
+  #if defined(DGL_CAIRO)
     cairo_surface_t* surface = nullptr;
-   #elif defined(DGL_OPENGL)
+  #elif defined(DGL_OPENGL)
     GLuint textureId = 0;
+   #ifdef DGL_USE_OPENGL3
+    struct { GLuint prog, pos, tex; } gl3 = {};
    #endif
+  #endif
+
     Size<uint> textureSize;
     uint8_t* textureData = nullptr;
 
@@ -129,24 +133,108 @@ private:
             lv_indev_set_group(indev, group);
         }
 
-       #ifdef DGL_OPENGL
+      #ifdef DGL_USE_OPENGL3
+        int status;
+
+        const GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
+        DISTRHO_SAFE_ASSERT_RETURN(fragment != 0, gl3fail());
+
+        const GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
+        DISTRHO_SAFE_ASSERT_RETURN(vertex != 0, gl3fail());
+
+        const GLuint program = glCreateProgram();
+        DISTRHO_SAFE_ASSERT_RETURN(program != 0, gl3fail());
+
+       #if defined(DGL_USE_GLES2)
+        #define DGL_SHADER_HEADER "#version 100\n"
+       #elif defined(DGL_USE_GLES3)
+        #define DGL_SHADER_HEADER "#version 300 es\n"
+       #else
+        #define DGL_SHADER_HEADER "#version 150 core\n"
+       #endif
+
+        {
+            static constexpr const char* const src = DGL_SHADER_HEADER
+                "precision mediump float;"
+                "uniform vec4 color;"
+                "uniform sampler2D stex;"
+               #ifdef DGL_USE_GLES3
+                "in vec2 vtex;"
+                "out vec4 FragColor;"
+                "void main() { FragColor = texture2D(stex, vtex); }";
+               #else
+                "varying vec2 vtex;"
+                "void main() { gl_FragColor = texture2D(stex, vtex); }";
+               #endif
+
+            glShaderSource(fragment, 1, &src, nullptr);
+            glCompileShader(fragment);
+
+            glGetShaderiv(fragment, GL_COMPILE_STATUS, &status);
+            DISTRHO_SAFE_ASSERT_RETURN(status != 0, gl3fail(fragment));
+        }
+
+        {
+            static constexpr const char* const src = DGL_SHADER_HEADER
+               #ifdef DGL_USE_GLES3
+                "in vec4 pos;"
+                "in vec2 tex;"
+                "out vec2 vtex;"
+               #else
+                "attribute vec4 pos;"
+                "attribute vec2 tex;"
+                "varying vec2 vtex;"
+               #endif
+                "void main() { gl_Position = pos; vtex = tex; }";
+
+            glShaderSource(vertex, 1, &src, nullptr);
+            glCompileShader(vertex);
+
+            glGetShaderiv(vertex, GL_COMPILE_STATUS, &status);
+            DISTRHO_SAFE_ASSERT_RETURN(status != 0, gl3fail(vertex));
+        }
+
+        glAttachShader(program, fragment);
+        glAttachShader(program, vertex);
+        glLinkProgram(program);
+
+        glGetProgramiv(program, GL_LINK_STATUS, &status);
+        DISTRHO_SAFE_ASSERT_RETURN(status != 0, gl3fail());
+
+        gl3.prog = program;
+        gl3.pos = glGetAttribLocation(program, "pos");
+        gl3.tex = glGetAttribLocation(program, "tex");
+      #endif
+
+      #ifdef DGL_OPENGL
         glGenTextures(1, &textureId);
         DISTRHO_SAFE_ASSERT_RETURN(textureId != 0,);
 
+       #ifndef DGL_USE_OPENGL3
         glEnable(GL_TEXTURE_2D);
+       #endif
         glBindTexture(GL_TEXTURE_2D, textureId);
+
+       #if LV_COLOR_DEPTH == 8 && defined(DGL_USE_OPENGL3) && !defined(DGL_USE_GLES2)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+       #endif
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+       #ifndef DGL_USE_GLES
         static constexpr const float transparent[] = { 0.f, 0.f, 0.f, 0.f };
         glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, transparent);
+       #endif
 
         glBindTexture(GL_TEXTURE_2D, 0);
+       #ifndef DGL_USE_OPENGL3
         glDisable(GL_TEXTURE_2D);
        #endif
+      #endif
 
         lv_display_set_driver_data(display, this);
         lv_display_set_flush_cb(display, flush_cb);
@@ -226,6 +314,24 @@ private:
     }
 
     void repaint(const Rectangle<uint>& rect);
+
+    // ----------------------------------------------------------------------------------------------------------------
+
+   #ifdef DGL_USE_OPENGL3
+    void gl3fail(const GLuint shaderErr = 0)
+    {
+        if (shaderErr != 0)
+        {
+            GLint len = 0;
+            glGetShaderiv(shaderErr, GL_INFO_LOG_LENGTH, &len);
+
+            std::vector<GLchar> errorLog(len);
+            glGetShaderInfoLog(shaderErr, len, &len, errorLog.data());
+
+            d_stderr2("OpenGL3 shader compilation error: %s", errorLog.data());
+        }
+    }
+   #endif
 
     // ----------------------------------------------------------------------------------------------------------------
 
@@ -346,28 +452,7 @@ void LVGLWidget<BaseWidget>::onDisplay()
     const int32_t height = fullheight;
    #endif
 
-#if 0
-    // TODO see what is really needed here..
-    glColor4f(1.f, 1.f, 1.f, 1.f);
-    // glClearColor();
-    glBegin(GL_QUADS);
-    {
-        glTexCoord2f(0.f, 0.f);
-        glVertex2d(0, 0);
-
-        glTexCoord2f(1.f, 0.f);
-        glVertex2d(width, 0);
-
-        glTexCoord2f(1.f, 1.f);
-        glVertex2d(width, height);
-
-        glTexCoord2f(0.f, 1.f);
-        glVertex2d(0, height);
-    }
-    glEnd();
-#endif
-
-   #if defined(DGL_CAIRO)
+  #if defined(DGL_CAIRO)
     if (lvglData->surface != nullptr)
     {
         cairo_t* const handle = static_cast<const CairoGraphicsContext&>(BaseWidget::getGraphicsContext()).handle;
@@ -376,27 +461,38 @@ void LVGLWidget<BaseWidget>::onDisplay()
     }
 
     lv_area_set(&lvglData->updatedArea, 0, 0, 0, 0);
-   #elif defined(DGL_OPENGL)
+  #elif defined(DGL_OPENGL)
+   #ifdef DGL_USE_OPENGL3
+    if (lvglData->gl3.prog == 0)
+        return;
+    glUseProgram(lvglData->gl3.prog);
+    glActiveTexture(GL_TEXTURE0);
+   #else
     glEnable(GL_TEXTURE_2D);
+   #endif
     glBindTexture(GL_TEXTURE_2D, lvglData->textureId);
 
     if (lvglData->updatedArea.x1 != lvglData->updatedArea.x2 || lvglData->updatedArea.y1 != lvglData->updatedArea.y2)
     {
-       #if LV_COLOR_DEPTH == 32
+      #if LV_COLOR_DEPTH == 32
         static constexpr const GLenum format = GL_BGRA;
         static constexpr const GLenum ftype = GL_UNSIGNED_BYTE;
-       #elif LV_COLOR_DEPTH == 24
+      #elif LV_COLOR_DEPTH == 24
         static constexpr const GLenum format = GL_BGR;
         static constexpr const GLenum ftype = GL_UNSIGNED_BYTE;
-       #elif LV_COLOR_DEPTH == 16
+      #elif LV_COLOR_DEPTH == 16
         static constexpr const GLenum format = GL_RGB;
         static constexpr const GLenum ftype = GL_UNSIGNED_SHORT_5_6_5;
-       #elif LV_COLOR_DEPTH == 8
-        static constexpr const GLenum format = GL_LUMINANCE;
-        static constexpr const GLenum ftype = GL_UNSIGNED_BYTE;
+      #elif LV_COLOR_DEPTH == 8
+       #if defined(DGL_USE_OPENGL3) && !defined(DGL_USE_GLES2)
+        static constexpr const GLenum format = GL_RED;
        #else
-        #error Unsupported color format
+        static constexpr const GLenum format = GL_LUMINANCE;
        #endif
+        static constexpr const GLenum ftype = GL_UNSIGNED_BYTE;
+      #else
+        #error Unsupported color format
+      #endif
 
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
@@ -432,6 +528,21 @@ void LVGLWidget<BaseWidget>::onDisplay()
         lv_area_set(&lvglData->updatedArea, 0, 0, 0, 0);
     }
 
+   #ifdef DGL_USE_OPENGL3
+    const GLfloat vertices[] = { -1.f, 1.f, -1.f, -1.f, 1.f, -1.f, 1.f, 1.f };
+    glVertexAttribPointer(lvglData->gl3.pos, 2, GL_FLOAT, GL_FALSE, 0, vertices);
+    glEnableVertexAttribArray(lvglData->gl3.pos);
+
+    const GLfloat vtex[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f };
+    glVertexAttribPointer(lvglData->gl3.tex, 2, GL_FLOAT, GL_FALSE, 0, vtex);
+    glEnableVertexAttribArray(lvglData->gl3.tex);
+
+    const GLubyte order[] = { 0, 1, 2, 0, 2, 3 };
+    glDrawElements(GL_TRIANGLES, ARRAY_SIZE(order), GL_UNSIGNED_BYTE, order);
+
+    glDisableVertexAttribArray(lvglData->gl3.tex);
+    glDisableVertexAttribArray(lvglData->gl3.pos);
+   #else
     glBegin(GL_QUADS);
     {
         glTexCoord2f(0.f, 0.f);
@@ -447,10 +558,13 @@ void LVGLWidget<BaseWidget>::onDisplay()
         glVertex2d(0, fullheight);
     }
     glEnd();
+   #endif
 
     glBindTexture(GL_TEXTURE_2D, 0);
+   #ifndef DGL_USE_OPENGL3
     glDisable(GL_TEXTURE_2D);
    #endif
+  #endif
 }
 
 template <class BaseWidget>
