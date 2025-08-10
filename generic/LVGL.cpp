@@ -56,7 +56,7 @@ struct LVGLWidget<BaseWidget>::PrivateData {
   #elif defined(DGL_OPENGL)
     GLuint textureId = 0;
    #ifdef DGL_USE_OPENGL3
-    struct { GLuint prog, pos, tex; } gl3 = {};
+    struct { GLuint prog, obuf, vbuf, pos, tex; } gl3 = {};
    #endif
   #endif
 
@@ -135,6 +135,13 @@ private:
 
       #ifdef DGL_USE_OPENGL3
         int status;
+        GLuint obuffer, vbuffer;
+
+        glGenBuffers(1, &obuffer);
+        DISTRHO_SAFE_ASSERT_RETURN(obuffer != 0, gl3fail());
+
+        glGenBuffers(1, &vbuffer);
+        DISTRHO_SAFE_ASSERT_RETURN(vbuffer != 0, gl3fail());
 
         const GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
         DISTRHO_SAFE_ASSERT_RETURN(fragment != 0, gl3fail());
@@ -161,7 +168,7 @@ private:
                #ifdef DGL_USE_GLES3
                 "in vec2 vtex;"
                 "out vec4 FragColor;"
-                "void main() { FragColor = texture2D(stex, vtex); }";
+                "void main() { FragColor = texture(stex, vtex); }";
                #else
                 "varying vec2 vtex;"
                 "void main() { gl_FragColor = texture2D(stex, vtex); }";
@@ -202,6 +209,8 @@ private:
         DISTRHO_SAFE_ASSERT_RETURN(status != 0, gl3fail());
 
         gl3.prog = program;
+        gl3.obuf = obuffer;
+        gl3.vbuf = vbuffer;
         gl3.pos = glGetAttribLocation(program, "pos");
         gl3.tex = glGetAttribLocation(program, "tex");
       #endif
@@ -535,19 +544,27 @@ void LVGLWidget<BaseWidget>::onDisplay()
     }
 
    #ifdef DGL_USE_OPENGL3
-    const GLfloat vertices[] = { -1.f, 1.f, -1.f, -1.f, 1.f, -1.f, 1.f, 1.f };
-    glVertexAttribPointer(lvglData->gl3.pos, 2, GL_FLOAT, GL_FALSE, 0, vertices);
+    static constexpr const GLfloat vertices[] = {
+        -1.f, 1.f, -1.f, -1.f, 1.f, -1.f, 1.f, 1.f,
+        0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f
+    };
+    glBindBuffer(GL_ARRAY_BUFFER, lvglData->gl3.vbuf);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(lvglData->gl3.pos);
-
-    const GLfloat vtex[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f };
-    glVertexAttribPointer(lvglData->gl3.tex, 2, GL_FLOAT, GL_FALSE, 0, vtex);
     glEnableVertexAttribArray(lvglData->gl3.tex);
+    glVertexAttribPointer(lvglData->gl3.pos, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glVertexAttribPointer(lvglData->gl3.tex, 2, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(sizeof(GLfloat) * 8));
 
-    const GLubyte order[] = { 0, 1, 2, 0, 2, 3 };
-    glDrawElements(GL_TRIANGLES, ARRAY_SIZE(order), GL_UNSIGNED_BYTE, order);
+    static constexpr const GLubyte order[] = { 0, 1, 2, 0, 2, 3 };
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lvglData->gl3.obuf);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(order), order, GL_STATIC_DRAW);
 
+    glDrawElements(GL_TRIANGLES, ARRAY_SIZE(order), GL_UNSIGNED_BYTE, nullptr);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glDisableVertexAttribArray(lvglData->gl3.tex);
     glDisableVertexAttribArray(lvglData->gl3.pos);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
    #else
     glBegin(GL_QUADS);
     {
