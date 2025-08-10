@@ -370,6 +370,23 @@ private:
     {
         PrivateData* const evthis = static_cast<PrivateData*>(lv_display_get_driver_data(evdisplay));
 
+       #if defined(DGL_USE_GLES) && (LV_COLOR_DEPTH == 32 || LV_COLOR_DEPTH == 24)
+        DISTRHO_SAFE_ASSERT_RETURN(data != nullptr,);
+
+        const lv_color_format_t lvformat = lv_display_get_color_format(evdisplay);
+        const uint32_t width = lv_display_get_horizontal_resolution(evdisplay);
+        const uint32_t stride = lv_draw_buf_width_to_stride(width, lvformat);
+
+        for (uint32_t y = area->y1; y <= area->y2; ++y)
+        {
+            for (uint32_t x = area->x1; x <= area->x2; ++x)
+            {
+                const uint32_t p = y * stride + x * (LV_COLOR_DEPTH / 8);
+                std::swap(data[p], data[p + 2]);
+            }
+        }
+       #endif
+
         if (evthis->updatedArea.x1 == 0 &&
             evthis->updatedArea.y1 == 0 &&
             evthis->updatedArea.x2 == 0 &&
@@ -442,11 +459,11 @@ void LVGLWidget<BaseWidget>::idleCallback()
 template <class BaseWidget>
 void LVGLWidget<BaseWidget>::onDisplay()
 {
-   #ifdef DPF_LVGL_AUTO_SCALING
-    const double scaleFactor = BaseWidget::getTopLevelWidget()->getScaleFactor();
-
     const int32_t fullwidth = static_cast<int32_t>(BaseWidget::getWidth());
     const int32_t fullheight = static_cast<int32_t>(BaseWidget::getHeight());
+
+   #ifdef DPF_LVGL_AUTO_SCALING
+    const double scaleFactor = BaseWidget::getTopLevelWidget()->getScaleFactor();
     const int32_t width = d_roundToIntPositive(fullwidth / scaleFactor);
     const int32_t height = d_roundToIntPositive(fullheight / scaleFactor);
 
@@ -455,8 +472,6 @@ void LVGLWidget<BaseWidget>::onDisplay()
    #else
     DISTRHO_SAFE_ASSERT_RETURN(BaseWidget::getSize() == lvglData->textureSize,);
 
-    const int32_t fullwidth = static_cast<int32_t>(BaseWidget::getWidth());
-    const int32_t fullheight = static_cast<int32_t>(BaseWidget::getHeight());
     const int32_t width = fullwidth;
     const int32_t height = fullheight;
    #endif
@@ -484,10 +499,18 @@ void LVGLWidget<BaseWidget>::onDisplay()
     if (lvglData->updatedArea.x1 != lvglData->updatedArea.x2 || lvglData->updatedArea.y1 != lvglData->updatedArea.y2)
     {
       #if LV_COLOR_DEPTH == 32
+       #ifdef DGL_USE_GLES
+        static constexpr const GLenum format = GL_RGBA;
+       #else
         static constexpr const GLenum format = GL_BGRA;
+       #endif
         static constexpr const GLenum ftype = GL_UNSIGNED_BYTE;
       #elif LV_COLOR_DEPTH == 24
+       #ifdef DGL_USE_GLES
+        static constexpr const GLenum format = GL_RGB;
+       #else
         static constexpr const GLenum format = GL_BGR;
+       #endif
         static constexpr const GLenum ftype = GL_UNSIGNED_BYTE;
       #elif LV_COLOR_DEPTH == 16
         static constexpr const GLenum format = GL_RGB;
@@ -503,7 +526,9 @@ void LVGLWidget<BaseWidget>::onDisplay()
         #error Unsupported color format
       #endif
 
-       #if LV_COLOR_DEPTH == 32
+       #ifdef DGL_USE_GLES
+        static constexpr const GLenum intformat = format;
+       #elif LV_COLOR_DEPTH == 32
         static constexpr const GLenum intformat = GL_RGBA;
        #else
         static constexpr const GLenum intformat = GL_RGB;
@@ -544,12 +569,19 @@ void LVGLWidget<BaseWidget>::onDisplay()
     }
 
    #ifdef DGL_USE_OPENGL3
-    static constexpr const GLfloat vertices[] = {
-        -1.f, 1.f, -1.f, -1.f, 1.f, -1.f, 1.f, 1.f,
+    const Window& window = BaseWidget::getWindow();
+    const int32_t winwidth = static_cast<int32_t>(window.getWidth());
+    const int32_t winheight = static_cast<int32_t>(window.getHeight());
+
+    GLfloat clipw = (static_cast<double>(fullwidth) / winwidth) * 2;
+    GLfloat cliph = (static_cast<double>(fullheight) / winheight) * 2;
+
+    const GLfloat vertices[] = {
+        -1.f, 1.f, -1.f, 1.f - cliph, -1.f + clipw, 1.f - cliph, -1.f + clipw, 1.f,
         0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f
     };
     glBindBuffer(GL_ARRAY_BUFFER, lvglData->gl3.vbuf);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
     glEnableVertexAttribArray(lvglData->gl3.pos);
     glEnableVertexAttribArray(lvglData->gl3.tex);
     glVertexAttribPointer(lvglData->gl3.pos, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -584,7 +616,9 @@ void LVGLWidget<BaseWidget>::onDisplay()
    #endif
 
     glBindTexture(GL_TEXTURE_2D, 0);
-   #ifndef DGL_USE_OPENGL3
+   #ifdef DGL_USE_OPENGL3
+    glUseProgram(0);
+   #else
     glDisable(GL_TEXTURE_2D);
    #endif
   #endif
