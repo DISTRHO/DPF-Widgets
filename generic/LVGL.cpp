@@ -51,14 +51,11 @@ struct LVGLWidget<BaseWidget>::PrivateData {
     double mouseWheelDelta = 0.0;
     SmallStackRingBuffer keyBuffer;
 
-  #if defined(DGL_CAIRO)
+   #if defined(DGL_CAIRO)
     cairo_surface_t* surface = nullptr;
-  #elif defined(DGL_OPENGL)
+   #elif defined(DGL_OPENGL)
     GLuint textureId = 0;
-   #ifdef DGL_USE_OPENGL3
-    struct { GLuint prog, obuf, vbuf, pos, tex; } gl3 = {};
    #endif
-  #endif
 
     Size<uint> textureSize;
     uint8_t* textureData = nullptr;
@@ -132,88 +129,6 @@ private:
             lv_indev_set_driver_data(indev, this);
             lv_indev_set_group(indev, group);
         }
-
-      #ifdef DGL_USE_OPENGL3
-        int status;
-        GLuint obuffer, vbuffer;
-
-        glGenBuffers(1, &obuffer);
-        DISTRHO_SAFE_ASSERT_RETURN(obuffer != 0, gl3fail());
-
-        glGenBuffers(1, &vbuffer);
-        DISTRHO_SAFE_ASSERT_RETURN(vbuffer != 0, gl3fail());
-
-        const GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
-        DISTRHO_SAFE_ASSERT_RETURN(fragment != 0, gl3fail());
-
-        const GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
-        DISTRHO_SAFE_ASSERT_RETURN(vertex != 0, gl3fail());
-
-        const GLuint program = glCreateProgram();
-        DISTRHO_SAFE_ASSERT_RETURN(program != 0, gl3fail());
-
-       #if defined(DGL_USE_GLES2)
-        #define DGL_SHADER_HEADER "#version 100\n"
-       #elif defined(DGL_USE_GLES3)
-        #define DGL_SHADER_HEADER "#version 300 es\n"
-       #else
-        #define DGL_SHADER_HEADER "#version 150 core\n"
-       #endif
-
-        {
-            static constexpr const char* const src = DGL_SHADER_HEADER
-                "precision mediump float;"
-                "uniform vec4 color;"
-                "uniform sampler2D stex;"
-               #ifdef DGL_USE_GLES3
-                "in vec2 vtex;"
-                "out vec4 FragColor;"
-                "void main() { FragColor = texture(stex, vtex); }";
-               #else
-                "varying vec2 vtex;"
-                "void main() { gl_FragColor = texture2D(stex, vtex); }";
-               #endif
-
-            glShaderSource(fragment, 1, &src, nullptr);
-            glCompileShader(fragment);
-
-            glGetShaderiv(fragment, GL_COMPILE_STATUS, &status);
-            DISTRHO_SAFE_ASSERT_RETURN(status != 0, gl3fail(fragment));
-        }
-
-        {
-            static constexpr const char* const src = DGL_SHADER_HEADER
-               #ifdef DGL_USE_GLES3
-                "in vec4 pos;"
-                "in vec2 tex;"
-                "out vec2 vtex;"
-               #else
-                "attribute vec4 pos;"
-                "attribute vec2 tex;"
-                "varying vec2 vtex;"
-               #endif
-                "void main() { gl_Position = pos; vtex = tex; }";
-
-            glShaderSource(vertex, 1, &src, nullptr);
-            glCompileShader(vertex);
-
-            glGetShaderiv(vertex, GL_COMPILE_STATUS, &status);
-            DISTRHO_SAFE_ASSERT_RETURN(status != 0, gl3fail(vertex));
-        }
-
-        glAttachShader(program, fragment);
-        glAttachShader(program, vertex);
-        glLinkProgram(program);
-
-        glGetProgramiv(program, GL_LINK_STATUS, &status);
-        DISTRHO_SAFE_ASSERT_RETURN(status != 0, gl3fail());
-
-        gl3.prog = program;
-        gl3.obuf = obuffer;
-        gl3.vbuf = vbuffer;
-        gl3.pos = glGetAttribLocation(program, "pos");
-        gl3.tex = glGetAttribLocation(program, "tex");
-      #endif
 
       #ifdef DGL_OPENGL
         glGenTextures(1, &textureId);
@@ -323,24 +238,6 @@ private:
     }
 
     void repaint(const Rectangle<uint>& rect);
-
-    // ----------------------------------------------------------------------------------------------------------------
-
-   #ifdef DGL_USE_OPENGL3
-    void gl3fail(const GLuint shaderErr = 0)
-    {
-        if (shaderErr != 0)
-        {
-            GLint len = 0;
-            glGetShaderiv(shaderErr, GL_INFO_LOG_LENGTH, &len);
-
-            std::vector<GLchar> errorLog(len);
-            glGetShaderInfoLog(shaderErr, len, &len, errorLog.data());
-
-            d_stderr2("OpenGL3 shader compilation error: %s", errorLog.data());
-        }
-    }
-   #endif
 
     // ----------------------------------------------------------------------------------------------------------------
 
@@ -476,24 +373,26 @@ void LVGLWidget<BaseWidget>::onDisplay()
     const int32_t height = fullheight;
    #endif
 
-  #if defined(DGL_CAIRO)
+   #if defined(DGL_CAIRO)
     if (lvglData->surface != nullptr)
     {
         cairo_t* const handle = static_cast<const CairoGraphicsContext&>(BaseWidget::getGraphicsContext()).handle;
         cairo_set_source_surface(handle, lvglData->surface, 0, 0);
         cairo_paint(handle);
     }
-
     lv_area_set(&lvglData->updatedArea, 0, 0, 0, 0);
-  #elif defined(DGL_OPENGL)
-   #ifdef DGL_USE_OPENGL3
-    if (lvglData->gl3.prog == 0)
+   #elif defined(DGL_USE_OPENGL3)
+    const OpenGL3GraphicsContext& gl3context
+        = static_cast<const OpenGL3GraphicsContext&>(BaseWidget::getGraphicsContext());
+    if (gl3context.program == 0)
         return;
-    glUseProgram(lvglData->gl3.prog);
     glActiveTexture(GL_TEXTURE0);
-   #else
+    glUniform1i(gl3context.usingTexture, 1);
+   #elif defined(DGL_OPENGL)
     glEnable(GL_TEXTURE_2D);
    #endif
+
+   #ifdef DGL_OPENGL
     glBindTexture(GL_TEXTURE_2D, lvglData->textureId);
 
     if (lvglData->updatedArea.x1 != lvglData->updatedArea.x2 || lvglData->updatedArea.y1 != lvglData->updatedArea.y2)
@@ -567,37 +466,37 @@ void LVGLWidget<BaseWidget>::onDisplay()
 
         lv_area_set(&lvglData->updatedArea, 0, 0, 0, 0);
     }
+   #endif
 
-   #ifdef DGL_USE_OPENGL3
-    const Window& window = BaseWidget::getWindow();
-    const int32_t winwidth = static_cast<int32_t>(window.getWidth());
-    const int32_t winheight = static_cast<int32_t>(window.getHeight());
-
-    GLfloat clipw = (static_cast<double>(fullwidth) / winwidth) * 2;
-    GLfloat cliph = (static_cast<double>(fullheight) / winheight) * 2;
+   #if defined(DGL_USE_OPENGL3)
+    GLfloat clipw = (static_cast<double>(fullwidth) / gl3context.width) * 2;
+    GLfloat cliph = (static_cast<double>(fullheight) / gl3context.height) * 2;
 
     const GLfloat vertices[] = {
         -1.f, 1.f, -1.f, 1.f - cliph, -1.f + clipw, 1.f - cliph, -1.f + clipw, 1.f,
         0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f
     };
-    glBindBuffer(GL_ARRAY_BUFFER, lvglData->gl3.vbuf);
+    glBindBuffer(GL_ARRAY_BUFFER, gl3context.buffers[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
-    glEnableVertexAttribArray(lvglData->gl3.pos);
-    glEnableVertexAttribArray(lvglData->gl3.tex);
-    glVertexAttribPointer(lvglData->gl3.pos, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-    glVertexAttribPointer(lvglData->gl3.tex, 2, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(sizeof(GLfloat) * 8));
+    glEnableVertexAttribArray(gl3context.bounds);
+    glEnableVertexAttribArray(gl3context.textureMap);
+    glVertexAttribPointer(gl3context.bounds, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glVertexAttribPointer(gl3context.textureMap, 2, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(sizeof(GLfloat) * 8));
 
     static constexpr const GLubyte order[] = { 0, 1, 2, 0, 2, 3 };
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lvglData->gl3.obuf);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl3context.buffers[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(order), order, GL_STATIC_DRAW);
 
     glDrawElements(GL_TRIANGLES, ARRAY_SIZE(order), GL_UNSIGNED_BYTE, nullptr);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glDisableVertexAttribArray(lvglData->gl3.tex);
-    glDisableVertexAttribArray(lvglData->gl3.pos);
+    glDisableVertexAttribArray(gl3context.textureMap);
+    glDisableVertexAttribArray(gl3context.bounds);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-   #else
+    glUniform1i(gl3context.usingTexture, 0);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+   #elif defined(DGL_OPENGL)
     glBegin(GL_QUADS);
     {
         glTexCoord2f(0.f, 0.f);
@@ -613,15 +512,10 @@ void LVGLWidget<BaseWidget>::onDisplay()
         glVertex2d(0, fullheight);
     }
     glEnd();
-   #endif
 
     glBindTexture(GL_TEXTURE_2D, 0);
-   #ifdef DGL_USE_OPENGL3
-    glUseProgram(0);
-   #else
     glDisable(GL_TEXTURE_2D);
    #endif
-  #endif
 }
 
 template <class BaseWidget>

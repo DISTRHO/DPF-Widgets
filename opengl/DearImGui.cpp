@@ -1,7 +1,7 @@
 /*
  * Dear ImGui for DPF
  * Copyright (C) 2021 Jean Pierre Cimalando <jp-dev@inbox.ru>
- * Copyright (C) 2021-2024 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2021-2025 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -28,6 +28,10 @@
 # define IMGUI_IMPL_OPENGL_ES3
 #elif defined(DGL_USE_OPENGL3)
 # define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+#endif
+
+#ifdef DGL_USE_OPENGL3
+# include "OpenGL.hpp"
 #endif
 
 #ifndef IMGUI_SKIP_IMPLEMENTATION
@@ -214,6 +218,12 @@ void ImGuiWidget<BaseWidget>::idleCallback()
 template <class BaseWidget>
 void ImGuiWidget<BaseWidget>::onDisplay()
 {
+   #ifdef DGL_USE_OPENGL3
+    const OpenGL3GraphicsContext& gl3context
+        = static_cast<const OpenGL3GraphicsContext&>(BaseWidget::getGraphicsContext());
+    glUseProgram(0);
+   #endif
+
     ImGui::SetCurrentContext(imData->context);
 
     ImGuiIO& io(ImGui::GetIO());
@@ -247,6 +257,10 @@ void ImGuiWidget<BaseWidget>::onDisplay()
         ImGui_ImplOpenGL2_RenderDrawData(data);
        #endif
     }
+
+   #ifdef DGL_USE_OPENGL3
+    glUseProgram(gl3context.program);
+   #endif
 }
 
 template <class BaseWidget>
