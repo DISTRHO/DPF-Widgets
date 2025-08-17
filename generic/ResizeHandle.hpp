@@ -1,6 +1,6 @@
 /*
  * Resize handle for DPF
- * Copyright (C) 2021-2022 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2021-2025 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -19,7 +19,7 @@
 #include "TopLevelWidget.hpp"
 #include "Color.hpp"
 
-#if defined(DGL_OPENGL) && !defined(DGL_USE_OPENGL3)
+#ifdef DGL_OPENGL
 #include "OpenGL-include.hpp"
 #endif
 
@@ -60,8 +60,7 @@ public:
 protected:
     void onDisplay() override
     {
-        // TODO implement gl3 stuff in DPF
-#ifndef DGL_USE_OPENGL3
+       #ifdef DGL_OPENGL
         const GraphicsContext& context(getGraphicsContext());
         const double lineWidth = 1.0 * getScaleFactor();
 
@@ -84,7 +83,7 @@ protected:
         l1b.draw(context, lineWidth);
         l2b.draw(context, lineWidth);
         l3b.draw(context, lineWidth);
-#endif
+       #endif
     }
 
     bool onMouse(const MouseEvent& ev) override
@@ -167,7 +166,13 @@ private:
             return;
 
         hasCursor = shouldHaveCursor;
-        setCursor(shouldHaveCursor ? kMouseCursorDiagonal : kMouseCursorArrow);
+        setCursor(shouldHaveCursor ?
+           #ifdef DGL_ALLOW_DEPRECATED_METHODS
+            kMouseCursorUpLeftDownRight
+           #else
+            kMouseCursorDiagonal
+           #endif
+            : kMouseCursorArrow);
     }
 
     void resetArea()
