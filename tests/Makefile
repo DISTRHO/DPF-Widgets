@@ -26,10 +26,11 @@ endif
 
 # ---------------------------------------------------------------------------------------------------------------------
 
-all: imgui$(APP_EXT) opengl$(APP_EXT) textedit$(APP_EXT)
+all: breeze$(APP_EXT) imgui$(APP_EXT) opengl$(APP_EXT) textedit$(APP_EXT)
 
 clean:
 	rm -f *.d *.o *.js *.html *.wasm
+	rm -f breeze$(APP_EXT)
 	rm -f imgui$(APP_EXT)
 	rm -f opengl$(APP_EXT)
 	rm -f textedit$(APP_EXT)
@@ -55,6 +56,10 @@ $(DPF_DIR)/build/libdgl-vulkan.a:
 
 # ---------------------------------------------------------------------------------------------------------------------
 
+breeze$(APP_EXT): breeze.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
+	@echo "Linking $@"
+	$(SILENT)$(CXX) $^ $(LINK_FLAGS) $(DGL_SYSTEM_LIBS) $(OPENGL_LIBS) -o $@
+
 imgui$(APP_EXT): imgui.cpp.o imgui-src.cpp.o $(DPF_DIR)/build/libdgl-opengl.a
 	@echo "Linking $@"
 	$(SILENT)$(CXX) $^ $(LINK_FLAGS) $(DGL_SYSTEM_LIBS) $(OPENGL_LIBS) -o $@
@@ -68,6 +73,10 @@ textedit$(APP_EXT): textedit.cpp.o imgui-src.cpp.o $(DPF_DIR)/build/libdgl-openg
 	$(SILENT)$(CXX) $^ $(LINK_FLAGS) $(DGL_SYSTEM_LIBS) $(OPENGL_LIBS) -o $@
 
 # ---------------------------------------------------------------------------------------------------------------------
+
+breeze.cpp.o: breeze.cpp
+	@echo "Compiling $<"
+	$(SILENT)$(CXX) $< $(BUILD_CXX_FLAGS) $(OPENGL_FLAGS) -c -o $@
 
 imgui.cpp.o: imgui.cpp
 	@echo "Compiling $<"
@@ -87,6 +96,7 @@ textedit.cpp.o: textedit.cpp
 
 # ---------------------------------------------------------------------------------------------------------------------
 
+-include breeze.cpp.d
 -include cairo.cpp.d
 -include imgui.cpp.d
 -include imgui-src.cpp.d

@@ -4,6 +4,7 @@
 *.html
 *.o
 *.wasm
+/tests/breeze
 /tests/imgui
 /tests/opengl
 /tests/textedit
