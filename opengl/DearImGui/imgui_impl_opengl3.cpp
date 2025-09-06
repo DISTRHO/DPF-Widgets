@@ -460,11 +460,19 @@ static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data, int fb_wid
 
     // Setup viewport, orthographic projection matrix
     // Our visible imgui space lies from draw_data->DisplayPos (top left) to draw_data->DisplayPos+data_data->DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
+#ifdef IMGUI_DPF_BACKEND
+    GL_CALL(glViewport(-draw_data->DisplayPos.x, draw_data->DisplayPos.y, (GLsizei)fb_width, (GLsizei)fb_height));
+    float L = 0;
+    float R = draw_data->DisplaySize.x;
+    float T = 0;
+    float B = draw_data->DisplaySize.y;
+#else
     GL_CALL(glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height));
     float L = draw_data->DisplayPos.x;
     float R = draw_data->DisplayPos.x + draw_data->DisplaySize.x;
     float T = draw_data->DisplayPos.y;
     float B = draw_data->DisplayPos.y + draw_data->DisplaySize.y;
+#endif
 #if defined(GL_CLIP_ORIGIN)
     if (!clip_origin_lower_left) { float tmp = T; T = B; B = tmp; } // Swap top and bottom if origin is upper left
 #endif
