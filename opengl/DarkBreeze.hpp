@@ -62,4 +62,53 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
+class DarkBreezeCheckBox : public NanoSubWidget,
+                           public ButtonEventHandler
+{
+    char* label = nullptr;
+
+public:
+    explicit DarkBreezeCheckBox(DarkBreeze* parent);
+    ~DarkBreezeCheckBox() override;
+
+    inline const char* getLabel() const noexcept
+    {
+        return label;
+    }
+
+    void setLabel(const char* label);
+
+protected:
+    void onNanoDisplay() override;
+    bool onMouse(const MouseEvent& ev) override;
+    bool onMotion(const MotionEvent& ev) override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DarkBreezeCheckBox)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
+class DarkBreezeLabel : public NanoSubWidget
+{
+    char* label = nullptr;
+
+public:
+    explicit DarkBreezeLabel(DarkBreeze* parent);
+    ~DarkBreezeLabel() override;
+
+    inline const char* getLabel() const noexcept
+    {
+        return label;
+    }
+
+    void setLabel(const char* label);
+
+protected:
+    void onNanoDisplay() override;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DarkBreezeLabel)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
 END_NAMESPACE_DGL

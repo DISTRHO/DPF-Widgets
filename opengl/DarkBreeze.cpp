@@ -139,4 +139,93 @@ bool DarkBreezeButton::onMotion(const MotionEvent& ev)
 
 // --------------------------------------------------------------------------------------------------------------------
 
+DarkBreezeCheckBox::DarkBreezeCheckBox(DarkBreeze* const parent)
+    : NanoSubWidget(parent),
+      ButtonEventHandler(this)
+{
+    loadSharedResources();
+
+    constexpr uint size = kSizeButton + kSizePadding * 2;
+    setSize(size, size);
+
+    setCheckable(true);
+}
+
+DarkBreezeCheckBox::~DarkBreezeCheckBox()
+{
+    std::free(label);
+}
+
+void DarkBreezeCheckBox::setLabel(const char* const label2)
+{
+    std::free(label);
+    label = label2 != nullptr ? strdup(label2) : nullptr;
+
+    if (label != nullptr && label[0] != '\0')
+    {
+        Rectangle<float> bounds;
+        // fontSize(theme.fontSize);
+        textBounds(0, 0, label, nullptr, bounds);
+
+        const uint width = std::max(getWidth(), d_roundToUnsignedInt(bounds.getWidth()) + kSizePadding * 8);
+        const uint height = std::max(getHeight(), d_roundToUnsignedInt(bounds.getHeight()) + kSizePadding * 2);
+        setSize(width, height);
+    }
+}
+
+void DarkBreezeCheckBox::onNanoDisplay()
+{
+    beginPath();
+    roundedRect(kSizePadding * 4,
+                kSizePadding * 4,
+                kSizeButton - kSizePadding * 8,
+                kSizeButton - kSizePadding * 8,
+                kSizeRadius);
+
+    d_stdout("state %d", getState());
+    switch (getState())
+    {
+    case kButtonStateActive:
+        fillColor(Color::fromHTML(kColorButtonFillActive));
+        strokeColor(Color::fromHTML(kColorButtonStrokeActive));
+        break;
+    case kButtonStateActiveHover:
+        fillColor(Color::fromHTML(kColorButtonFillActiveHover));
+        strokeColor(Color::fromHTML(kColorButtonStrokeActiveHover));
+        break;
+    case kButtonStateHover:
+        fillColor(Color::fromHTML(kColorButtonFillHover));
+        strokeColor(Color::fromHTML(kColorButtonStrokeHover));
+        break;
+    case kButtonStateDefault:
+        fillColor(Color::fromHTML(kColorButtonFillDefault));
+        strokeColor(Color::fromHTML(kColorButtonStrokeDefault));
+        break;
+    }
+
+    fill();
+    strokeWidth(1);
+    stroke();
+
+    if (label != nullptr && label[0] != '\0')
+    {
+        fillColor(Color::fromHTML(kColorText));
+        // fontSize(theme.fontSize);
+        textAlign(ALIGN_LEFT|ALIGN_MIDDLE);
+        text(kSizeButton + kSizePadding, getHeight() / 2, label, nullptr);
+    }
+}
+
+bool DarkBreezeCheckBox::onMouse(const MouseEvent& ev)
+{
+    return mouseEvent(ev);
+}
+
+bool DarkBreezeCheckBox::onMotion(const MotionEvent& ev)
+{
+    return motionEvent(ev);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 END_NAMESPACE_DGL
