@@ -174,7 +174,7 @@ void QuantumLabel::adjustSize()
     if (label != nullptr && label[0] != '\0')
     {
         Rectangle<float> bounds;
-        fontSize(theme.fontSize);
+        fontSize(customFontSize == 0 ? theme.fontSize : customFontSize);
 
         textBounds(0, 0, label, nullptr, bounds);
         width = std::max(static_cast<uint>(bounds.getWidth() + 0.5f), theme.padding) + theme.textPixelRatioWidthCompensation;
@@ -198,6 +198,19 @@ void QuantumLabel::setAlignment(const uint alignment2)
     repaint();
 }
 
+void QuantumLabel::setCustomFontSize(const uint size, const bool adjustSizeNow)
+{
+    if (customFontSize == size)
+        return;
+
+    customFontSize = size;
+
+    if (adjustSizeNow)
+        adjustSize();
+
+    repaint();
+}
+
 void QuantumLabel::setLabel(const char* const label2, const bool adjustSizeNow)
 {
     std::free(label);
@@ -205,6 +218,8 @@ void QuantumLabel::setLabel(const char* const label2, const bool adjustSizeNow)
 
     if (adjustSizeNow)
         adjustSize();
+
+    repaint();
 }
 
 void QuantumLabel::setLabelColor(const Color color)
@@ -219,12 +234,12 @@ void QuantumLabel::onNanoDisplay()
         return;
 
     fillColor(labelColor);
-    fontSize(theme.fontSize);
+    fontSize(customFontSize == 0 ? theme.fontSize : customFontSize);
     textAlign(alignment);
 
     float y;
     if (alignment & ALIGN_MIDDLE)
-        y = getHeight() / 2;
+        y = getHeight() * 0.5f;
     else if (alignment & ALIGN_BOTTOM)
         y = getHeight();
     else

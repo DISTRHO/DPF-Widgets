@@ -191,6 +191,7 @@ class QuantumLabel : public NanoSubWidget
 {
     const QuantumTheme& theme;
     uint alignment = ALIGN_LEFT|ALIGN_MIDDLE;
+    uint customFontSize = 0;
     char* label = nullptr;
     Color labelColor = theme.textLightColor;
 
@@ -202,6 +203,11 @@ public:
     inline uint getAlignment() const noexcept
     {
         return alignment;
+    }
+
+    inline uint getCustomFontSize() const noexcept
+    {
+        return customFontSize;
     }
 
     inline const char* getLabel() const noexcept
@@ -216,6 +222,7 @@ public:
 
     void adjustSize();
     void setAlignment(uint alignment);
+    void setCustomFontSize(uint size, bool adjustSizeNow = true);
     void setLabel(const char* label, bool adjustSizeNow = true);
     void setLabelColor(Color color);
 
