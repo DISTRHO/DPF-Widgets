@@ -353,6 +353,7 @@ template<bool small>
 void AbstractQuantumSwitch<small>::onNanoDisplay()
 {
     const bool checked = isChecked();
+    const bool enabled = isEnabled();
     const uint blockSize = small ? theme.textHeight / 2 : theme.fontSize;
     const int yOffset = (getHeight() - blockSize - theme.borderSize * 2) / 2;
 
@@ -362,21 +363,22 @@ void AbstractQuantumSwitch<small>::onNanoDisplay()
     fill();
 
     beginPath();
+
     if (checked)
-    {
         rect(theme.borderSize + blockSize , yOffset + theme.borderSize, blockSize, blockSize);
-        fillColor(theme.widgetActiveColor);
-    }
     else
-    {
         rect(theme.borderSize, yOffset + theme.borderSize, blockSize, blockSize);
+
+    if (checked && enabled)
+        fillColor(theme.widgetActiveColor);
+    else
         fillColor(theme.textDarkColor);
-    }
+
     fill();
 
     if (label != nullptr && label[0] != '\0')
     {
-        fillColor(checked ? theme.textLightColor : theme.textMidColor);
+        fillColor(checked && enabled ? theme.textLightColor : theme.textMidColor);
         fontSize(theme.fontSize);
         textAlign(ALIGN_LEFT|ALIGN_MIDDLE);
         text(blockSize * 2 + theme.borderSize * 2 + theme.padding * 2, getHeight() / 2, label, nullptr);
@@ -1256,12 +1258,38 @@ void QuantumValueMeter::setUnitLabel(const char* const label)
     repaint();
 }
 
-void QuantumValueMeter::setValue(const float value2)
+void QuantumValueMeter::setValue(float value2)
 {
+    if (value2 > maximum)
+        value2 = maximum;
+    else if (value2 < minimum)
+        value2 = minimum;
+
     if (d_isEqual(value, value2))
         return;
 
     value = value2;
+    repaint();
+}
+
+void QuantumValueMeter::setValueCentered(const bool centered)
+{
+    if (valueCentered == centered)
+        return;
+
+    valueCentered = centered;
+    repaint();
+}
+
+void QuantumValueMeter::setValueFormat(const char* const format)
+{
+    std::free(valueFormat);
+
+    if (format != nullptr && format[0] != '\0')
+        valueFormat = strdup(format);
+    else
+        valueFormat = nullptr;
+
     repaint();
 }
 
@@ -1353,7 +1381,9 @@ void QuantumValueMeter::onNanoDisplay()
     char valuestr[32] = {};
     const float roundedValue = std::round(value * 10.0f)/10.0f;
 
-    if (unitLabel != nullptr)
+    if (valueFormat != nullptr)
+        std::snprintf(valuestr, sizeof(valuestr)-1, valueFormat, roundedValue);
+    else if (unitLabel != nullptr)
         std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f %s", roundedValue, unitLabel);
     else
         std::snprintf(valuestr, sizeof(valuestr)-1, "%.1f", roundedValue);
@@ -1361,8 +1391,17 @@ void QuantumValueMeter::onNanoDisplay()
     beginPath();
     fontSize(theme.fontSize);
     fillColor(textColor);
-    textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
-    text(getWidth()/2, getHeight()/2, valuestr, nullptr);
+
+    if (valueCentered)
+    {
+        textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
+        text(getWidth() * 0.5f, getHeight() * 0.5f, valuestr, nullptr);
+    }
+    else
+    {
+        textAlign(ALIGN_RIGHT|ALIGN_MIDDLE);
+        text(getWidth() * 0.8f, getHeight() * 0.5f, valuestr, nullptr);
+    }
 }
 
 // --------------------------------------------------------------------------------------------------------------------

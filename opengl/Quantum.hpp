@@ -515,6 +515,8 @@ public:
     void setValue(float value);
     void setTextColor(Color color);
     void setUnitLabel(const char* label);
+    void setValueCentered(bool centered);
+    void setValueFormat(const char* format);
 
 protected:
     void onNanoDisplay() override;
@@ -527,6 +529,8 @@ protected:
     Color textColor = theme.textLightColor;
     char* unitLabel = nullptr;
     float value = 0.f;
+    bool valueCentered = false;
+    char* valueFormat = nullptr;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QuantumValueMeter)
 };
