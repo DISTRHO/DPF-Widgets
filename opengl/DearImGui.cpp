@@ -102,8 +102,8 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
 
         ImGuiIO& io(ImGui::GetIO());
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        io.DisplaySize.x = self->getWidth() ?: 640 * scaleFactor;
-        io.DisplaySize.y = self->getHeight() ?: 480 * scaleFactor;
+        io.DisplaySize.x = self->getWidth() || (640 * scaleFactor);
+        io.DisplaySize.y = self->getHeight() || (480 * scaleFactor);
         // not needed, we handle this ourselves
         // io.DisplayFramebufferScale = ImVec2(scaleFactor, scaleFactor);
         io.IniFilename = nullptr;
