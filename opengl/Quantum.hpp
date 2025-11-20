@@ -393,6 +393,7 @@ public:
     void setSideLabels(const char* label1, const char* label2);
     void setSideLabelsFontSize(uint fontSize);
     void setUnitLabel(const char* unitLabel);
+    void setValueFontSize(uint fontSize);
 
     void setRingColor(Color color);
 
@@ -410,6 +411,7 @@ private:
     char* unitLabel = nullptr;
     char* sidelabels[2] = { nullptr, nullptr };
     uint sidelabelsFontSize = theme.fontSize;
+    uint valueFontSize = small ? theme.fontSize * 0.75 : theme.fontSize * 2;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AbstractQuantumKnob)
 };

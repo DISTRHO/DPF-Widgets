@@ -670,6 +670,13 @@ void AbstractQuantumKnob<small>::setUnitLabel(const char* const unitLabel2)
 }
 
 template<bool small>
+void AbstractQuantumKnob<small>::setValueFontSize(const uint fontSize)
+{
+    valueFontSize = fontSize;
+    repaint();
+}
+
+template<bool small>
 void AbstractQuantumKnob<small>::onNanoDisplay()
 {
     // const double scaleFactor = getScaleFactor();
@@ -874,7 +881,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
         }
 
         fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
-        fontSize(small ? theme.fontSize * 0.75 : theme.fontSize * 2);
+        fontSize(valueFontSize);
         textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
         text(knobCenterX, knobCenterY, valuestr, nullptr);
     }
