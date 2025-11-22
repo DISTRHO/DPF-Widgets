@@ -811,11 +811,14 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
     stroke();
 
     // outer ring default position indicator
-    beginPath();
-    roundedRect(knobCenterX - ringSize / 2, knobCenterY - knobSize / 2 - ringSize * 1.25, ringSize, ringSize, ringSize * 0.5);
-    closePath();
-    fillColor((enabled ? theme.textLightColor : theme.textMidColor).withAlpha(0.5f));
-    fill();
+    if (! leftToRight)
+    {
+        beginPath();
+        roundedRect(knobCenterX - ringSize / 2, knobCenterY - knobSize / 2 - ringSize * 1.25, ringSize, ringSize, ringSize * 0.5);
+        closePath();
+        fillColor((enabled ? theme.textLightColor : theme.textMidColor).withAlpha(0.5f));
+        fill();
+    }
 
     // simulate color bleeding
     beginPath();
