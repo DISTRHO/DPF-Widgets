@@ -590,8 +590,8 @@ bool QuantumDualSidedSwitch::onMotion(const MotionEvent& ev)
 
 // --------------------------------------------------------------------------------------------------------------------
 
-template<bool small>
-AbstractQuantumKnob<small>::AbstractQuantumKnob(NanoTopLevelWidget* const parent, const QuantumTheme& t)
+template<bool small, bool unitInNewline>
+AbstractQuantumKnob<small, unitInNewline>::AbstractQuantumKnob(NanoTopLevelWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       KnobEventHandler(this),
       theme(t)
@@ -601,8 +601,8 @@ AbstractQuantumKnob<small>::AbstractQuantumKnob(NanoTopLevelWidget* const parent
     setSize(QuantumMetrics(t).knob);
 }
 
-template<bool small>
-AbstractQuantumKnob<small>::AbstractQuantumKnob(NanoSubWidget* const parent, const QuantumTheme& t)
+template<bool small, bool unitInNewline>
+AbstractQuantumKnob<small, unitInNewline>::AbstractQuantumKnob(NanoSubWidget* const parent, const QuantumTheme& t)
     : NanoSubWidget(parent),
       KnobEventHandler(this),
       theme(t)
@@ -612,8 +612,8 @@ AbstractQuantumKnob<small>::AbstractQuantumKnob(NanoSubWidget* const parent, con
     setSize(QuantumMetrics(t).knob);
 }
 
-template<bool small>
-AbstractQuantumKnob<small>::~AbstractQuantumKnob()
+template<bool small, bool unitInNewline>
+AbstractQuantumKnob<small, unitInNewline>::~AbstractQuantumKnob()
 {
     std::free(label);
     std::free(unitLabel);
@@ -621,30 +621,30 @@ AbstractQuantumKnob<small>::~AbstractQuantumKnob()
     std::free(sidelabels[1]);
 }
 
-template<bool small>
-void AbstractQuantumKnob<small>::setLabel(const char* const label2)
+template<bool small, bool unitInNewline>
+void AbstractQuantumKnob<small, unitInNewline>::setLabel(const char* const label2)
 {
     std::free(label);
     label = label2 != nullptr && label2[0] != '\0' ? strdup(label2) : nullptr;
     repaint();
 }
 
-template<bool small>
-void AbstractQuantumKnob<small>::setOrientation(const Orientation orientation2)
+template<bool small, bool unitInNewline>
+void AbstractQuantumKnob<small, unitInNewline>::setOrientation(const Orientation orientation2)
 {
     orientation = orientation2;
     repaint();
 }
 
-template<bool small>
-void AbstractQuantumKnob<small>::setRingColor(const Color color)
+template<bool small, bool unitInNewline>
+void AbstractQuantumKnob<small, unitInNewline>::setRingColor(const Color color)
 {
     ringColor = color;
     repaint();
 }
 
-template<bool small>
-void AbstractQuantumKnob<small>::setSideLabels(const char* const label1, const char* const label2)
+template<bool small, bool unitInNewline>
+void AbstractQuantumKnob<small, unitInNewline>::setSideLabels(const char* const label1, const char* const label2)
 {
     std::free(sidelabels[0]);
     std::free(sidelabels[1]);
@@ -655,29 +655,29 @@ void AbstractQuantumKnob<small>::setSideLabels(const char* const label1, const c
     repaint();
 }
 
-template<bool small>
-void AbstractQuantumKnob<small>::setSideLabelsFontSize(const uint fontSize)
+template<bool small, bool unitInNewline>
+void AbstractQuantumKnob<small, unitInNewline>::setSideLabelsFontSize(const uint fontSize)
 {
     sidelabelsFontSize = fontSize;
     repaint();
 }
 
-template<bool small>
-void AbstractQuantumKnob<small>::setUnitLabel(const char* const unitLabel2)
+template<bool small, bool unitInNewline>
+void AbstractQuantumKnob<small, unitInNewline>::setUnitLabel(const char* const unitLabel2)
 {
     std::free(unitLabel);
     unitLabel = unitLabel2 != nullptr && unitLabel2[0] != '\0' ? strdup(unitLabel2) : nullptr;
 }
 
-template<bool small>
-void AbstractQuantumKnob<small>::setValueFontSize(const uint fontSize)
+template<bool small, bool unitInNewline>
+void AbstractQuantumKnob<small, unitInNewline>::setValueFontSize(const uint fontSize)
 {
     valueFontSize = fontSize;
     repaint();
 }
 
-template<bool small>
-void AbstractQuantumKnob<small>::onNanoDisplay()
+template<bool small, bool unitInNewline>
+void AbstractQuantumKnob<small, unitInNewline>::onNanoDisplay()
 {
     // const double scaleFactor = getScaleFactor();
     const int w = getWidth();
@@ -860,7 +860,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
             const int value = d_roundToInt(getValue());
 
             if (unitLabel != nullptr)
-                std::snprintf(valuestr, sizeof(valuestr)-1, "%d %s", value, unitLabel);
+                std::snprintf(valuestr, sizeof(valuestr)-1, "%d%c%s", value, unitInNewline ? '\n' : ' ', unitLabel);
             else
                 std::snprintf(valuestr, sizeof(valuestr)-1, "%d", value);
         }
@@ -878,7 +878,7 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
                 format = "%.0f%s%s";
 
             if (unitLabel != nullptr)
-                std::snprintf(valuestr, sizeof(valuestr)-1, format, value, " ", unitLabel);
+                std::snprintf(valuestr, sizeof(valuestr)-1, format, value, unitInNewline ? "\n" : " ", unitLabel);
             else
                 std::snprintf(valuestr, sizeof(valuestr)-1, format, value, "", "");
         }
@@ -886,30 +886,34 @@ void AbstractQuantumKnob<small>::onNanoDisplay()
         fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
         fontSize(valueFontSize);
         textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
-        text(knobCenterX, knobCenterY, valuestr, nullptr);
+        if (unitInNewline)
+            textBox(knobStartX, knobCenterY - knobStartY, knobSize, valuestr, nullptr);
+        else
+            text(knobCenterX, knobCenterY, valuestr, nullptr);
     }
 }
 
-template<bool small>
-bool AbstractQuantumKnob<small>::onMouse(const MouseEvent& ev)
+template<bool small, bool unitInNewline>
+bool AbstractQuantumKnob<small, unitInNewline>::onMouse(const MouseEvent& ev)
 {
     return mouseEvent(ev, getTopLevelWidget()->getScaleFactor());
 }
 
-template<bool small>
-bool AbstractQuantumKnob<small>::onMotion(const MotionEvent& ev)
+template<bool small, bool unitInNewline>
+bool AbstractQuantumKnob<small, unitInNewline>::onMotion(const MotionEvent& ev)
 {
     return motionEvent(ev, getTopLevelWidget()->getScaleFactor());
 }
 
-template<bool small>
-bool AbstractQuantumKnob<small>::onScroll(const ScrollEvent& ev)
+template<bool small, bool unitInNewline>
+bool AbstractQuantumKnob<small, unitInNewline>::onScroll(const ScrollEvent& ev)
 {
     return scrollEvent(ev);
 }
 
-template class AbstractQuantumKnob<false>;
-template class AbstractQuantumKnob<true>;
+template class AbstractQuantumKnob<false, false>;
+template class AbstractQuantumKnob<true, false>;
+template class AbstractQuantumKnob<true, true>;
 
 // --------------------------------------------------------------------------------------------------------------------
 

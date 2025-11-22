@@ -358,7 +358,7 @@ protected:
 
 // --------------------------------------------------------------------------------------------------------------------
 
-template<bool small>
+template<bool small, bool unitInNewline>
 class AbstractQuantumKnob : public NanoSubWidget,
                             public KnobEventHandler
 {
@@ -416,8 +416,9 @@ private:
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AbstractQuantumKnob)
 };
 
-typedef AbstractQuantumKnob<false> QuantumKnob;
-typedef AbstractQuantumKnob<true> QuantumSmallKnob;
+typedef AbstractQuantumKnob<false, false> QuantumKnob;
+typedef AbstractQuantumKnob<true, false> QuantumSmallKnob;
+typedef AbstractQuantumKnob<true, true> QuantumSmallKnobWithUnitInNewline;
 
 // --------------------------------------------------------------------------------------------------------------------
 
