@@ -21,6 +21,10 @@
 
 #include <cmath>
 
+#ifndef QUANTUM_LUFS_PREFIX
+#define QUANTUM_LUFS_PREFIX "LUFS: "
+#endif
+
 START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -2161,11 +2165,11 @@ void QuantumStereoLevelMeterWithLUFS::onNanoDisplay()
         fillColor(enabled ? theme.levelMeterAlternativeColor : theme.textDarkColor.withAlpha(0.5f));
         fill();
 
-        std::snprintf(valuestr, sizeof(valuestr)-1, "LUFS: %.1f", valueLufs);
+        std::snprintf(valuestr, sizeof(valuestr)-1, QUANTUM_LUFS_PREFIX " %.1f", valueLufs);
     }
     else
     {
-        std::strncpy(valuestr, "LUFS: -inf", sizeof(valuestr)-1);
+        std::strncpy(valuestr, QUANTUM_LUFS_PREFIX "-inf", sizeof(valuestr)-1);
     }
 
     fillColor(enabled ? theme.textLightColor : theme.textDarkColor);
