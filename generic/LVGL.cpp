@@ -329,14 +329,14 @@ private:
         PrivateData* const evthis = static_cast<PrivateData*>(lv_indev_get_driver_data(indev));
 
         data->point = evthis->mousePos;
-        data->state = evthis->mouseButtons[kMouseButtonLeft] ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
+        data->state = evthis->mouseButtons[kMouseButtonLeft - 1] ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
     }
 
     static void indev_mousewheel_read_cb(lv_indev_t* const indev, lv_indev_data_t* const data)
     {
         PrivateData* const evthis = static_cast<PrivateData*>(lv_indev_get_driver_data(indev));
 
-        data->state = evthis->mouseButtons[kMouseButtonMiddle] ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
+        data->state = evthis->mouseButtons[kMouseButtonMiddle - 1] ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
         data->enc_diff = evthis->mouseWheelDelta;
         evthis->mouseWheelDelta = 0.0;
     }
@@ -606,10 +606,10 @@ bool LVGLWidget<BaseWidget>::onMouse(const Widget::MouseEvent& event)
     if (BaseWidget::onMouse(event))
         return true;
 
-    if (event.button > ARRAY_SIZE(lvglData->mouseButtons))
+    if (event.button == 0 || event.button > ARRAY_SIZE(lvglData->mouseButtons))
         return false;
 
-    lvglData->mouseButtons[event.button] = event.press;
+    lvglData->mouseButtons[event.button - 1] = event.press;
     return true;
 }
 
@@ -622,10 +622,10 @@ bool LVGLWidget<SubWidget>::onMouse(const Widget::MouseEvent& event)
     if (!getAbsoluteArea().contains(event.absolutePos))
         return false;
 
-    if (event.button > ARRAY_SIZE(lvglData->mouseButtons))
+    if (event.button == 0 || event.button > ARRAY_SIZE(lvglData->mouseButtons))
         return false;
 
-    lvglData->mouseButtons[event.button] = event.press;
+    lvglData->mouseButtons[event.button - 1] = event.press;
     return true;
 }
 
