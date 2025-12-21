@@ -193,7 +193,7 @@ void ImGuiWidget<BaseWidget>::setFontSize(const float fontSize)
 
     const double scaleFactor = BaseWidget::getTopLevelWidget()->getScaleFactor();
 
-   #ifndef DGL_NO_SHARED_RESOURCES
+  #ifndef DGL_NO_SHARED_RESOURCES
     using namespace dpf_resources;
     ImFontConfig fc;
     fc.FontDataOwnedByAtlas = false;
@@ -206,7 +206,12 @@ void ImGuiWidget<BaseWidget>::setFontSize(const float fontSize)
                                    d_roundToIntPositive(fontSize * scaleFactor),
                                    &fc);
     io.Fonts->Build();
+   #if defined(DGL_USE_GLES2) || defined(DGL_USE_GLES3) || defined(DGL_USE_OPENGL3)
+    ImGui_ImplOpenGL3_CreateFontsTexture();
+   #else
+    ImGui_ImplOpenGL2_CreateFontsTexture();
    #endif
+  #endif
 }
 
 template <class BaseWidget>
