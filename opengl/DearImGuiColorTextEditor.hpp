@@ -25,6 +25,7 @@
 #pragma once
 
 #include "DearImGui.hpp"
+#include "DearImGuiColorTextEditor/TextEditor.h"
 
 #include <string>
 #include <vector>
@@ -65,6 +66,8 @@ public:
 
     void setTextLines(const std::vector<std::string>& lines);
     std::vector<std::string> getTextLines() const;
+
+    void setLanguageDefinition(const TextEditor::LanguageDefinition& aLanguageDef);
 
     std::string getSelectedText() const;
     std::string getCurrentLineText() const;
