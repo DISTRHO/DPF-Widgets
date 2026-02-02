@@ -82,8 +82,8 @@ private:
     void init()
     {
         lv_init();
-        lv_delay_set_cb(msleep);
-        lv_tick_set_cb(gettime_ms);
+        lv_delay_set_cb(DISTRHO_NAMESPACE::d_msleep);
+        lv_tick_set_cb(DISTRHO_NAMESPACE::d_gettime_ms);
 
        #ifdef DPF_LVGL_AUTO_SCALING
         static constexpr const int scaleFactor = 1;
@@ -111,6 +111,10 @@ private:
             lv_indev_set_driver_data(indev, this);
             lv_indev_set_group(indev, group);
         }
+        else
+        {
+            d_stderr2("failed to create lvgl input device for keyboard events");
+        }
 
         if (lv_indev_t* const indev = lv_indev_create())
         {
@@ -120,6 +124,10 @@ private:
             lv_indev_set_driver_data(indev, this);
             lv_indev_set_group(indev, group);
         }
+        else
+        {
+            d_stderr2("failed to create lvgl input device for mouse pointer events");
+        }
 
         if (lv_indev_t* const indev = lv_indev_create())
         {
@@ -128,6 +136,10 @@ private:
             lv_indev_set_read_cb(indev, indev_mousewheel_read_cb);
             lv_indev_set_driver_data(indev, this);
             lv_indev_set_group(indev, group);
+        }
+        else
+        {
+            d_stderr2("failed to create lvgl input device for mouse wheel events");
         }
 
       #ifdef DGL_OPENGL
@@ -225,6 +237,8 @@ private:
         const uint32_t data_size = stride * height;
 
         textureData = static_cast<uint8_t*>(std::realloc(textureData, data_size));
+        DISTRHO_SAFE_ASSERT_RETURN(textureData != nullptr,);
+
         std::memset(textureData, 0, data_size);
 
         textureSize = Size<uint>(width, height);
@@ -241,24 +255,14 @@ private:
 
     // ----------------------------------------------------------------------------------------------------------------
 
-    static void msleep(const uint32_t millis) noexcept
-    {
-        return DISTRHO_NAMESPACE::d_msleep(millis);
-    }
-
-    static uint32_t gettime_ms() noexcept
-    {
-        return DISTRHO_NAMESPACE::d_gettime_ms();
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------
-
     static void resolution_changed_cb(lv_event_t* const ev)
     {
         lv_display_t* const evdisplay = static_cast<lv_display_t*>(lv_event_get_current_target(ev));
         PrivateData* const evthis = static_cast<PrivateData*>(lv_display_get_driver_data(evdisplay));
         const uint width = lv_display_get_horizontal_resolution(evdisplay);
         const uint height = lv_display_get_vertical_resolution(evdisplay);
+
+        d_debug("lvgl resolution changed to %ux%u", width, height);
 
         evthis->recreateTextureData(width, height);
     }
@@ -297,6 +301,12 @@ private:
             lv_area_copy(&tmp, &evthis->updatedArea);
             _lv_area_join(&evthis->updatedArea, &tmp, area);
         }
+
+        d_debug("lvgl flush with updated area %dx%d %dx%d",
+                evthis->updatedArea.x1,
+                evthis->updatedArea.y1,
+                evthis->updatedArea.x2,
+                evthis->updatedArea.y2);
 
         evthis->repaint(Rectangle<uint>(evthis->updatedArea.x1,
                                         evthis->updatedArea.y1,
@@ -442,6 +452,7 @@ void LVGLWidget<BaseWidget>::onDisplay()
             lvglData->updatedArea.x2 == width &&
             lvglData->updatedArea.y2 == height)
         {
+            d_debug("onDisplay updatedArea changed with full size, reset texture");
             glTexImage2D(GL_TEXTURE_2D, 0, intformat, width, height, 0, format, ftype, lvglData->textureData);
         }
         // partial size
@@ -455,6 +466,7 @@ void LVGLWidget<BaseWidget>::onDisplay()
             const uint8_t colsize = lv_color_format_get_size(lv_display_get_color_format(lvglData->display));
             const int32_t offset = partial_y * width * colsize + partial_x * colsize;
 
+            d_debug("onDisplay updatedArea changed with partial size, update texture");
             glTexSubImage2D(GL_TEXTURE_2D, 0,
                             partial_x,
                             partial_y,
@@ -713,11 +725,19 @@ void LVGLWidget<BaseWidget>::onResize(const Widget::ResizeEvent& event)
     const uint width = event.size.getWidth();
     const uint height = event.size.getHeight();
    #endif
+    d_debug("onResize %u %u", width, height);
+
     lv_area_set(&lvglData->updatedArea, 0, 0, width, height);
 
     lv_global = lvglData->global;
     lv_display_set_resolution(lvglData->display, width, height);
     lv_refr_now(lvglData->display);
+}
+
+template <class BaseWidget>
+void LVGLWidget<BaseWidget>::PrivateData::repaint(const Rectangle<uint>& rect)
+{
+    self->repaint(rect);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -764,12 +784,6 @@ LVGLWidget<TopLevelWidget>::~LVGLWidget()
     delete lvglData;
 }
 
-template <>
-void LVGLWidget<TopLevelWidget>::PrivateData::repaint(const Rectangle<uint>& rect)
-{
-    self->repaint(rect);
-}
-
 template class LVGLWidget<TopLevelWidget>;
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -796,12 +810,6 @@ LVGLWidget<StandaloneWindow>::~LVGLWidget()
 {
     Window::removeIdleCallback(this);
     delete lvglData;
-}
-
-template <>
-void LVGLWidget<StandaloneWindow>::PrivateData::repaint(const Rectangle<uint>& rect)
-{
-    self->repaint(rect);
 }
 
 template class LVGLWidget<StandaloneWindow>;
