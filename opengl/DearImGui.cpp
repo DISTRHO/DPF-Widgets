@@ -123,7 +123,8 @@ struct ImGuiWidget<BaseWidget>::PrivateData {
                                        dejavusans_ttf_size,
                                        d_roundToIntPositive(fontSize * scaleFactor),
                                        &fc);
-        io.Fonts->Build();
+        // With new ImGui backend (1.93.0), this is not required any more, otherwise ImGui will print error messages.
+        // io.Fonts->Build();
        #endif
 
         io.GetClipboardTextFn = GetClipboardTextFn;
